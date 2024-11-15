@@ -376,7 +376,7 @@ class NFe(spec_models.StackedModel):
     # specially when importing (ERP NFe migration vs supplier Nfe).
     nfe40_emit = fields.Many2one(
         comodel_name="res.company",
-        compute="_compute_emit_data",
+        compute="_compute_nfe_emit_data",
         string="Emit",
     )
 
@@ -390,7 +390,7 @@ class NFe(spec_models.StackedModel):
     # Compute Methods
     ##########################
 
-    def _compute_emit_data(self):
+    def _compute_nfe_emit_data(self):
         for doc in self:  # TODO if out
             doc.nfe40_emit = doc.company_id
 
@@ -413,7 +413,7 @@ class NFe(spec_models.StackedModel):
 
     nfe40_dest = fields.Many2one(
         comodel_name="res.partner",
-        compute="_compute_dest_data",
+        compute="_compute_nfe_dest_data",
         readonly=True,
         string="Dest",
     )
@@ -429,7 +429,7 @@ class NFe(spec_models.StackedModel):
     ##########################
 
     @api.depends("partner_id")
-    def _compute_dest_data(self):
+    def _compute_nfe_dest_data(self):
         for doc in self:  # TODO if out
             if (
                 doc.partner_id.is_anonymous_consumer
@@ -446,7 +446,7 @@ class NFe(spec_models.StackedModel):
 
     nfe40_entrega = fields.Many2one(
         comodel_name="res.partner",
-        compute="_compute_entrega_data",
+        compute="_compute_nfe_entrega_data",
         string="Entrega",
     )
 
@@ -456,7 +456,7 @@ class NFe(spec_models.StackedModel):
     ##########################
 
     @api.depends("partner_shipping_id")
-    def _compute_entrega_data(self):
+    def _compute_nfe_entrega_data(self):
         for rec in self:
             if (
                 rec.document_type == MODELO_FISCAL_NFCE
