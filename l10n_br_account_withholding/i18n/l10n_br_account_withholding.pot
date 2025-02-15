@@ -70,7 +70,8 @@ msgid "Last Modified on"
 msgstr ""
 
 #. module: l10n_br_account_withholding
-#: model:ir.model.constraint,message:l10n_br_account_withholding.constraint_res_partner_unique_wh_cityhall
+#: code:addons/l10n_br_account_withholding/models/res_partner.py:0
+#, python-format
 msgid "Only one partner with the same City Hall can exist in the same city."
 msgstr ""
 
