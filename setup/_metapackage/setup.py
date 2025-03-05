@@ -22,6 +22,7 @@ setuptools.setup(
         'odoo-addon-l10n_br_crm>=16.0dev,<16.1dev',
         'odoo-addon-l10n_br_crm_cnpj_search>=16.0dev,<16.1dev',
         'odoo-addon-l10n_br_currency_rate_update>=16.0dev,<16.1dev',
+        'odoo-addon-l10n_br_delivery>=16.0dev,<16.1dev',
         'odoo-addon-l10n_br_fiscal>=16.0dev,<16.1dev',
         'odoo-addon-l10n_br_fiscal_certificate>=16.0dev,<16.1dev',
         'odoo-addon-l10n_br_fiscal_closing>=16.0dev,<16.1dev',
