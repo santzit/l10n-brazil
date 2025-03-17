@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server 15.0\n"
 "Report-Msgid-Bugs-To: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -2282,7 +2282,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_cte.field_cte_40_trsakeyvaluetype__display_name
 #: model:ir.model.fields,field_description:l10n_br_cte.field_cte_40_tunidadetransp__display_name
 #: model:ir.model.fields,field_description:l10n_br_cte.field_cte_40_tunidcarga__display_name
-#: model:ir.model.fields,field_description:l10n_br_cte.field_ir_actions_report__display_name
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_cargo_quantity_infos__display_name
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_modal_aereo__display_name
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_modal_aereo_peri__display_name
@@ -2293,19 +2292,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_modal_rodo__display_name
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_modal_rodo_occ__display_name
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_transported_vehicles__display_name
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_comment__display_name
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document__display_name
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document_line__display_name
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document_mixin_fields__display_name
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document_related__display_name
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document_supplement__display_name
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document_type__display_name
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_city__display_name
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_company__display_name
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_config_settings__display_name
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_country__display_name
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_country_state__display_name
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_partner__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -2938,7 +2924,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_cte.field_cte_40_trsakeyvaluetype__id
 #: model:ir.model.fields,field_description:l10n_br_cte.field_cte_40_tunidadetransp__id
 #: model:ir.model.fields,field_description:l10n_br_cte.field_cte_40_tunidcarga__id
-#: model:ir.model.fields,field_description:l10n_br_cte.field_ir_actions_report__id
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_cargo_quantity_infos__id
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_modal_aereo__id
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_modal_aereo_peri__id
@@ -2949,19 +2934,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_modal_rodo__id
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_modal_rodo_occ__id
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_transported_vehicles__id
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_comment__id
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document__id
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document_line__id
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document_mixin_fields__id
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document_related__id
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document_supplement__id
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document_type__id
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_city__id
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_company__id
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_config_settings__id
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_country__id
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_country_state__id
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_partner__id
 msgid "ID"
 msgstr ""
 
@@ -3933,7 +3905,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_cte.field_cte_40_trsakeyvaluetype____last_update
 #: model:ir.model.fields,field_description:l10n_br_cte.field_cte_40_tunidadetransp____last_update
 #: model:ir.model.fields,field_description:l10n_br_cte.field_cte_40_tunidcarga____last_update
-#: model:ir.model.fields,field_description:l10n_br_cte.field_ir_actions_report____last_update
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_cargo_quantity_infos____last_update
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_modal_aereo____last_update
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_modal_aereo_peri____last_update
@@ -3944,19 +3915,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_modal_rodo____last_update
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_modal_rodo_occ____last_update
 #: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_cte_transported_vehicles____last_update
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_comment____last_update
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document____last_update
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document_line____last_update
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document_mixin_fields____last_update
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document_related____last_update
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document_supplement____last_update
-#: model:ir.model.fields,field_description:l10n_br_cte.field_l10n_br_fiscal_document_type____last_update
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_city____last_update
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_company____last_update
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_config_settings____last_update
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_country____last_update
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_country_state____last_update
-#: model:ir.model.fields,field_description:l10n_br_cte.field_res_partner____last_update
 msgid "Last Modified on"
 msgstr ""
 
