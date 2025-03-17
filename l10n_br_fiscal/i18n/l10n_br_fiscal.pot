@@ -2222,6 +2222,7 @@ msgid "Customhouse Charges"
 msgstr ""
 
 #. module: l10n_br_fiscal
+#: model:product.product,mdfe30_xProd:l10n_br_fiscal.customized_development_sale
 #: model:product.product,name:l10n_br_fiscal.customized_development_sale
 #: model:product.template,name:l10n_br_fiscal.customized_development_sale_product_template
 msgid "Customized Odoo Development"
