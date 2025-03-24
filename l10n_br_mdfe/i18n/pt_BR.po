@@ -5036,6 +5036,7 @@ msgstr ""
 
 #. module: l10n_br_mdfe
 #: model:ir.model,name:l10n_br_mdfe.model_product_product
+#: model:ir.model.fields,field_description:l10n_br_mdfe.field_l10n_br_mdfe_product_lotacao__product_id
 msgid "Product"
 msgstr "Produto"
 
