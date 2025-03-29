@@ -4078,10 +4078,19 @@ msgid "Invoice Lines"
 msgstr ""
 
 #. module: l10n_br_account
+#: model:ir.model.fields,field_description:l10n_br_account.field_account_bank_statement_line__move_count
+#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__move_count
+#: model:ir.model.fields,field_description:l10n_br_account.field_account_payment__move_count
+#: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_document__move_count
+msgid "Invoice count"
+msgstr ""
+
+#. module: l10n_br_account
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_bank_statement_line__move_ids
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_move__move_ids
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_payment__move_ids
 #: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_document__move_ids
+#: model_terms:ir.ui.view,arch_db:l10n_br_account.nfe_document_form_inherit
 msgid "Invoices"
 msgstr ""
 
@@ -5621,6 +5630,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_shippering_id
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_payment__partner_shippering_id
 msgid "Shipper Address"
+msgstr ""
+
+#. module: l10n_br_account
+#: model_terms:ir.ui.view,arch_db:l10n_br_account.nfe_document_form_inherit
+msgid "Show related invoices"
 msgstr ""
 
 #. module: l10n_br_account
