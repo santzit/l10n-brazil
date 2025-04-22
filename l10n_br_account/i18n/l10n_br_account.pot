@@ -29,6 +29,14 @@ msgid "<span>Fiscal Details</span>"
 msgstr ""
 
 #. module: l10n_br_account
+#: model:ir.model,name:l10n_br_account.model_l10n_br_account_decorator_mixin
+msgid ""
+"A mixin to decorate l10n_br_fiscal_document(.line) easily.\n"
+"    It specially deals with related and compute fields inherited with _inherits.\n"
+"    "
+msgstr ""
+
+#. module: l10n_br_account
 #: model_terms:ir.ui.view,arch_db:l10n_br_account.fiscal_operation_form
 msgid "Account"
 msgstr ""
@@ -74,11 +82,6 @@ msgid "All Documents"
 msgstr ""
 
 #. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move_line__allow_csll_irpj
-msgid "Allow Csll Irpj"
-msgstr ""
-
-#. module: l10n_br_account
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_move_line__amount_total
 msgid "Amount Total"
 msgstr ""
@@ -105,29 +108,9 @@ msgid "Brazilian Tax"
 msgstr ""
 
 #. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move_line__cfop_destination
-msgid "CFOP Destination"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_cnpj_cpf
-msgid "CNPJ"
-msgstr ""
-
-#. module: l10n_br_account
 #: model_terms:ir.ui.view,arch_db:l10n_br_account.fiscal_invoice_search
 #: model_terms:ir.ui.view,arch_db:l10n_br_account.invoice_search
 msgid "CNPJ/CPF"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move_line__cofins_cst_code
-msgid "COFINS CST Code"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move_line__cofinsst_cst_code
-msgid "COFINS ST CST Code"
 msgstr ""
 
 #. module: l10n_br_account
@@ -148,119 +131,9 @@ msgid "Cannot import in non draft Account Move!"
 msgstr ""
 
 #. module: l10n_br_account
-#: model:ir.model.fields,help:l10n_br_account.field_account_move__partner_is_company
-msgid "Check if the contact is a company, otherwise it is a person"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_id
-msgid "Company"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_cnpj_cpf
-msgid "Company CNPJ"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_city_id
-msgid "Company City"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_country_id
-msgid "Company Country"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_district
-msgid "Company District"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_legal_name
-msgid "Company Legal Name"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_cnae_main_id
-msgid "Company Main CNAE"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_inscr_mun
-msgid "Company Municipal Tax Number"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_name
-msgid "Company Name"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_number
-msgid "Company Number"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_phone
-msgid "Company Phone"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_inscr_est_st
-msgid "Company ST State Tax Number"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_state_id
-msgid "Company State"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_inscr_est
-msgid "Company State Tax Number"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_street
-msgid "Company Street"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_street2
-msgid "Company Street2"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_suframa
-msgid "Company Suframa"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_tax_framework
-msgid "Company Tax Framework"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move_line__partner_company_type
-msgid "Company Type"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__company_zip
-msgid "Company ZIP"
-msgstr ""
-
-#. module: l10n_br_account
 #: code:addons/l10n_br_account/models/account_move.py:0
 #, python-format
 msgid "Company mismatch!"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_ind_ie_dest
-msgid "Contribuinte do ICMS"
 msgstr ""
 
 #. module: l10n_br_account
@@ -318,6 +191,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_tax_group__display_name
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_tax_template__display_name
 #: model:ir.model.fields,field_description:l10n_br_account.field_ir_model_data__display_name
+#: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_account_decorator_mixin__display_name
 #: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_document__display_name
 #: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_document_line__display_name
 #: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_operation__display_name
@@ -371,11 +245,6 @@ msgstr ""
 #. module: l10n_br_account
 #: model_terms:ir.ui.view,arch_db:l10n_br_account.invoice_form
 msgid "Extra Info"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move_line__ind_final
-msgid "Final Consumption Operation"
 msgstr ""
 
 #. module: l10n_br_account
@@ -455,11 +324,6 @@ msgid "Fiscal Position"
 msgstr ""
 
 #. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move_line__fiscal_genre_code
-msgid "Fiscal Product Genre Code"
-msgstr ""
-
-#. module: l10n_br_account
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_bank_statement_line__fiscal_proxy_company_id
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_move__fiscal_proxy_company_id
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_payment__fiscal_proxy_company_id
@@ -534,11 +398,6 @@ msgid "Force Fiscal Operation"
 msgstr ""
 
 #. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move_line__icms_cst_code
-msgid "ICMS CST Code"
-msgstr ""
-
-#. module: l10n_br_account
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_chart_template__id
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_incoterms__id
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_move__id
@@ -548,6 +407,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_tax_group__id
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_tax_template__id
 #: model:ir.model.fields,field_description:l10n_br_account.field_ir_model_data__id
+#: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_account_decorator_mixin__id
 #: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_document__id
 #: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_document_line__id
 #: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_operation__id
@@ -555,16 +415,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_tax__id
 #: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_tax_group__id
 msgid "ID"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move_line__ipi_cst_code
-msgid "IPI CST Code"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,help:l10n_br_account.field_account_move_line__cfop_destination
-msgid "Identifies the operation destination."
 msgstr ""
 
 #. module: l10n_br_account
@@ -595,15 +445,6 @@ msgstr ""
 #. module: l10n_br_account
 #: model:ir.model,name:l10n_br_account.model_account_incoterms
 msgid "Incoterms"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,help:l10n_br_account.field_account_move_line__partner_is_public_entity
-msgid ""
-"Indicates whether the entity in question is a public organization or "
-"government-related entity. It encompasses a range of entities such as "
-"municipal governments, state-owned enterprises (where the government is the "
-"largest shareholder), and other government-controlled organizations."
 msgstr ""
 
 #. module: l10n_br_account
@@ -659,6 +500,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_tax_group____last_update
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_tax_template____last_update
 #: model:ir.model.fields,field_description:l10n_br_account.field_ir_model_data____last_update
+#: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_account_decorator_mixin____last_update
 #: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_document____last_update
 #: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_document_line____last_update
 #: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_operation____last_update
@@ -669,7 +511,6 @@ msgid "Last Modified on"
 msgstr ""
 
 #. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_legal_name
 #: model_terms:ir.ui.view,arch_db:l10n_br_account.fiscal_invoice_search
 #: model_terms:ir.ui.view,arch_db:l10n_br_account.invoice_search
 msgid "Legal Name"
@@ -686,11 +527,6 @@ msgid ""
 msgstr ""
 
 #. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_cnae_main_id
-msgid "Main CNAE"
-msgstr ""
-
-#. module: l10n_br_account
 #: model:ir.model,name:l10n_br_account.model_ir_model_data
 msgid "Model Data"
 msgstr ""
@@ -701,11 +537,6 @@ msgstr ""
 msgid ""
 "More than 1 fiscal document!You should open the fiscal viewand perform the "
 "action on each document!"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_inscr_mun
-msgid "Municipal Tax Number"
 msgstr ""
 
 #. module: l10n_br_account
@@ -752,89 +583,9 @@ msgid "Outgoing Document"
 msgstr ""
 
 #. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move_line__pis_cst_code
-msgid "PIS CST Code"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move_line__pisst_cst_code
-msgid "PIS ST CST Code"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_id
-msgid "Partner"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_city_id
-msgid "Partner City"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_country_id
-msgid "Partner Country"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_district
-msgid "Partner District"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_is_company
-msgid "Partner Is Company?"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_name
-msgid "Partner Name"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_number
-msgid "Partner Number"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_phone
-msgid "Partner Phone"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_state_id
-msgid "Partner State"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_street
-msgid "Partner Street"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_street2
-msgid "Partner Street2"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_zip
-msgid "Partner Zip"
-msgstr ""
-
-#. module: l10n_br_account
 #: code:addons/l10n_br_account/models/account_move.py:0
 #, python-format
 msgid "Partner mismatch!"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__processador_edoc
-msgid "Processador documentos eletrônicos"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move_line__partner_is_public_entity
-msgid "Public Entity"
 msgstr ""
 
 #. module: l10n_br_account
@@ -843,26 +594,14 @@ msgid "Show related invoices"
 msgstr ""
 
 #. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_inscr_est
 #: model_terms:ir.ui.view,arch_db:l10n_br_account.fiscal_invoice_search
 #: model_terms:ir.ui.view,arch_db:l10n_br_account.invoice_search
 msgid "State Tax Number"
 msgstr ""
 
 #. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_suframa
-msgid "Suframa"
-msgstr ""
-
-#. module: l10n_br_account
 #: model:ir.model,name:l10n_br_account.model_account_tax
 msgid "Tax"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__partner_tax_framework
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move_line__tax_framework
-msgid "Tax Framework"
 msgstr ""
 
 #. module: l10n_br_account
@@ -879,12 +618,6 @@ msgstr ""
 #. module: l10n_br_account
 #: model:ir.model,name:l10n_br_account.model_account_tax_template
 msgid "Templates for Taxes"
-msgstr ""
-
-#. module: l10n_br_account
-#: model:ir.model.fields,help:l10n_br_account.field_account_move__company_legal_name
-#: model:ir.model.fields,help:l10n_br_account.field_account_move__partner_legal_name
-msgid "Used in fiscal documents"
 msgstr ""
 
 #. module: l10n_br_account
