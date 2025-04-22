@@ -86,7 +86,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_delivery_carrier_vehicle__carrier_id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_fiscal_document__carrier_id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_fiscal_document_mixin__carrier_id
-#: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_fiscal_document_mixin_fields__carrier_id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_pos_order__carrier_id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_purchase_order__carrier_id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_repair_order__carrier_id
@@ -140,15 +139,15 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_account_move__display_name
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_delivery_carrier__display_name
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_delivery_carrier_vehicle__display_name
-#: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_fiscal_document_mixin_fields__display_name
+#: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_fiscal_document_mixin__display_name
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_sale_order__display_name
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_stock_picking__display_name
 msgid "Display Name"
 msgstr ""
 
 #. module: l10n_br_delivery
-#: model:ir.model,name:l10n_br_delivery.model_l10n_br_fiscal_document_mixin_fields
-msgid "Document Fiscal Mixin Fields"
+#: model:ir.model,name:l10n_br_delivery.model_l10n_br_fiscal_document_mixin
+msgid "Document Fiscal Mixin"
 msgstr ""
 
 #. module: l10n_br_delivery
@@ -176,7 +175,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_contract_contract__fiscal_proxy_incoterm_id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_fiscal_document__fiscal_proxy_incoterm_id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_fiscal_document_mixin__fiscal_proxy_incoterm_id
-#: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_fiscal_document_mixin_fields__fiscal_proxy_incoterm_id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_pos_order__fiscal_proxy_incoterm_id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_purchase_order__fiscal_proxy_incoterm_id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_repair_order__fiscal_proxy_incoterm_id
@@ -196,7 +194,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_account_move__id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_delivery_carrier__id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_delivery_carrier_vehicle__id
-#: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_fiscal_document_mixin_fields__id
+#: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_fiscal_document_mixin__id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_sale_order__id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_stock_picking__id
 msgid "ID"
@@ -205,7 +203,6 @@ msgstr ""
 #. module: l10n_br_delivery
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_contract_contract__incoterm_id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_fiscal_document_mixin__incoterm_id
-#: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_fiscal_document_mixin_fields__incoterm_id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_pos_order__incoterm_id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_purchase_order__incoterm_id
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_repair_order__incoterm_id
@@ -238,8 +235,6 @@ msgstr ""
 #: model:ir.model.fields,help:l10n_br_delivery.field_l10n_br_fiscal_document__incoterm_id
 #: model:ir.model.fields,help:l10n_br_delivery.field_l10n_br_fiscal_document_mixin__fiscal_proxy_incoterm_id
 #: model:ir.model.fields,help:l10n_br_delivery.field_l10n_br_fiscal_document_mixin__incoterm_id
-#: model:ir.model.fields,help:l10n_br_delivery.field_l10n_br_fiscal_document_mixin_fields__fiscal_proxy_incoterm_id
-#: model:ir.model.fields,help:l10n_br_delivery.field_l10n_br_fiscal_document_mixin_fields__incoterm_id
 #: model:ir.model.fields,help:l10n_br_delivery.field_pos_order__fiscal_proxy_incoterm_id
 #: model:ir.model.fields,help:l10n_br_delivery.field_pos_order__incoterm_id
 #: model:ir.model.fields,help:l10n_br_delivery.field_purchase_order__fiscal_proxy_incoterm_id
@@ -267,7 +262,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_account_move____last_update
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_delivery_carrier____last_update
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_delivery_carrier_vehicle____last_update
-#: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_fiscal_document_mixin_fields____last_update
+#: model:ir.model.fields,field_description:l10n_br_delivery.field_l10n_br_fiscal_document_mixin____last_update
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_sale_order____last_update
 #: model:ir.model.fields,field_description:l10n_br_delivery.field_stock_picking____last_update
 msgid "Last Modified on"
