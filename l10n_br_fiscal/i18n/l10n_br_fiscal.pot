@@ -974,14 +974,12 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_discount_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_discount_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_discount_value
 msgid "Amount Discount"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_estimate_tax
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_estimate_tax
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_estimate_tax
 msgid "Amount Estimate Tax"
 msgstr ""
 
@@ -990,14 +988,12 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__financial_total
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__financial_total
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_financial_total
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_financial_total
 msgid "Amount Financial"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_financial_total_gross
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_financial_total_gross
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_financial_total_gross
 msgid "Amount Financial Gross"
 msgstr ""
 
@@ -1010,7 +1006,6 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_price_gross
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_price_gross
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_price_gross
 msgid "Amount Gross"
 msgstr ""
 
@@ -1019,7 +1014,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__amount_tax
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__amount_tax
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_tax
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_tax
 msgid "Amount Tax"
 msgstr ""
 
@@ -1046,7 +1040,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__amount_total
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__amount_total
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_total
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_total
 msgid "Amount Total"
 msgstr ""
 
@@ -1055,7 +1048,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__amount_untaxed
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__amount_untaxed
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_untaxed
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_untaxed
 msgid "Amount Untaxed"
 msgstr ""
 
@@ -1067,7 +1059,6 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_price_gross
 #: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_price_gross
-#: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_price_gross
 msgid "Amount without discount."
 msgstr ""
 
@@ -1262,7 +1253,6 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__ind_pres
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__ind_pres
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__ind_pres
 msgid "Buyer Presence"
 msgstr ""
 
@@ -1444,7 +1434,6 @@ msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_cnpj_cpf
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_cnpj_cpf
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_related__cpfcnpj_type__cnpj
 msgid "CNPJ"
 msgstr ""
@@ -1481,7 +1470,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__cofins_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__cofins_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_cofins_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_cofins_base
 msgid "COFINS Base"
 msgstr ""
 
@@ -1536,14 +1524,12 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_cofins_wh_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_cofins_wh_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_cofins_wh_base
 msgid "COFINS Ret Base"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_cofins_wh_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_cofins_wh_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_cofins_wh_value
 msgid "COFINS Ret Value"
 msgstr ""
 
@@ -1571,7 +1557,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__cofinsst_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__cofinsst_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_cofinsst_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_cofinsst_base
 msgid "COFINS ST Base"
 msgstr ""
 
@@ -1592,7 +1577,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__cofinsst_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__cofinsst_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_cofinsst_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_cofinsst_value
 msgid "COFINS ST Value"
 msgstr ""
 
@@ -1601,7 +1585,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__cofins_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__cofins_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_cofins_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_cofins_value
 msgid "COFINS Value"
 msgstr ""
 
@@ -1657,7 +1640,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__csll_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__csll_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_csll_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_csll_base
 msgid "CSLL Base"
 msgstr ""
 
@@ -1688,14 +1670,12 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_csll_wh_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_csll_wh_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_csll_wh_base
 msgid "CSLL Ret Base"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_csll_wh_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_csll_wh_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_csll_wh_value
 msgid "CSLL Ret Value"
 msgstr ""
 
@@ -1704,7 +1684,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__csll_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__csll_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_csll_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_csll_value
 msgid "CSLL Value"
 msgstr ""
 
@@ -1848,7 +1827,6 @@ msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_is_company
-#: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_is_company
 #: model:ir.model.fields,help:l10n_br_fiscal.field_res_partner__is_company
 #: model:ir.model.fields,help:l10n_br_fiscal.field_res_users__is_company
 msgid "Check if the contact is a company, otherwise it is a person"
@@ -1984,7 +1962,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__comment_ids
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__comment_ids
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__comment_ids
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__comment_ids
 msgid "Comments"
 msgstr ""
 
@@ -2011,8 +1988,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_email__company_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__company_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__company_id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__company_id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_serie__company_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_invalidate_number__company_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_operation__company_id
@@ -2030,103 +2005,86 @@ msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_cnpj_cpf
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_cnpj_cpf
 msgid "Company CNPJ"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_city_id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_city_id
 msgid "Company City"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_country_id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_country_id
 msgid "Company Country"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_district
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_district
 msgid "Company District"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_legal_name
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_legal_name
 msgid "Company Legal Name"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_cnae_main_id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_cnae_main_id
 msgid "Company Main CNAE"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_inscr_mun
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_inscr_mun
 msgid "Company Municipal Tax Number"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_name
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_name
 msgid "Company Name"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_number
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_number
 msgid "Company Number"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_phone
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_phone
 msgid "Company Phone"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_inscr_est_st
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_inscr_est_st
 msgid "Company ST State Tax Number"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_state_id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_state_id
 msgid "Company State"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_inscr_est
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_inscr_est
 msgid "Company State Tax Number"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_street
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_street
 msgid "Company Street"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_street2
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_street2
 msgid "Company Street2"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_suframa
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_suframa
 msgid "Company Suframa"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_tax_framework
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_tax_framework
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_operation_line__company_tax_framework
 msgid "Company Tax Framework"
 msgstr ""
@@ -2139,7 +2097,6 @@ msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__company_zip
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_zip
 msgid "Company ZIP"
 msgstr ""
 
@@ -2194,7 +2151,6 @@ msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_ind_ie_dest
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_ind_ie_dest
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_partner_profile__ind_ie_dest
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_res_partner__ind_ie_dest
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_res_users__ind_ie_dest
@@ -2392,7 +2348,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__currency_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__currency_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__currency_id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__currency_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_related__currency_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_simplified_tax_range__currency_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_tax__currency_id
@@ -2412,21 +2367,18 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__customer_additional_data
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__customer_additional_data
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__customer_additional_data
 msgid "Customer Additional Data"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document__manual_customer_additional_data
 #: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__manual_customer_additional_data
-#: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__manual_customer_additional_data
 msgid "Customer Additional data manually entered by user"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_ii_customhouse_charges
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_ii_customhouse_charges
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_ii_customhouse_charges
 msgid "Customhouse Charges"
 msgstr ""
 
@@ -2560,7 +2512,6 @@ msgstr ""
 #: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document__delivery_costs
 #: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document_line__delivery_costs
 #: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__delivery_costs
-#: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__delivery_costs
 #: model:ir.model.fields,help:l10n_br_fiscal.field_res_company__delivery_costs
 #: model:ir.model.fields,help:l10n_br_fiscal.field_res_config_settings__delivery_costs
 msgid ""
@@ -2577,7 +2528,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__delivery_costs
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__delivery_costs
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__delivery_costs
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__delivery_costs
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_res_company__delivery_costs
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_res_config_settings__delivery_costs
 #: model_terms:ir.ui.view,arch_db:l10n_br_fiscal.fiscal_res_company_form
@@ -2656,9 +2606,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__display_name
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin_methods__display_name
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__display_name
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__display_name
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_methods__display_name
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__display_name
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_related__display_name
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_serie__display_name
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_status_wizard__display_name
@@ -2720,11 +2668,6 @@ msgid "Document Fiscal Mixin"
 msgstr ""
 
 #. module: l10n_br_fiscal
-#: model:ir.model,name:l10n_br_fiscal.model_l10n_br_fiscal_document_mixin_fields
-msgid "Document Fiscal Mixin Fields"
-msgstr ""
-
-#. module: l10n_br_fiscal
 #: model_terms:ir.ui.view,arch_db:l10n_br_fiscal.document_form
 msgid "Document Info"
 msgstr ""
@@ -2739,14 +2682,12 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__key_check_digit
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__key_check_digit
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__key_check_digit
 msgid "Document Key Check Digit"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__key_random_code
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__key_random_code
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__key_random_code
 msgid "Document Key Random Code"
 msgstr ""
 
@@ -2759,7 +2700,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_base_wizard_mixin__document_number
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__document_number
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__document_number
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__document_number
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_status_wizard__document_number
 msgid "Document Number"
 msgstr ""
@@ -2773,7 +2713,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_base_wizard_mixin__document_serie
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__document_serie_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__document_serie_id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__document_serie_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_status_wizard__document_serie
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_invalidate_number__document_serie_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_operation_document_type__document_serie_id
@@ -2805,7 +2744,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_base_wizard_mixin__document_type_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__document_type_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__document_type_id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__document_type_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_status_wizard__document_type_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_type__type
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_invalidate_number__document_type_id
@@ -3131,7 +3069,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__ind_final
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__ind_final
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__ind_final
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__ind_final
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_tax_definition__ind_final
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_res_partner__ind_final
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_res_users__ind_final
@@ -3170,7 +3107,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__financial_discount_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__financial_discount_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_financial_discount_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_financial_discount_value
 msgid "Financial Discount Value"
 msgstr ""
 
@@ -3194,14 +3130,12 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__fiscal_additional_data
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__fiscal_additional_data
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__fiscal_additional_data
 msgid "Fiscal Additional Data"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document__manual_fiscal_additional_data
 #: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__manual_fiscal_additional_data
-#: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__manual_fiscal_additional_data
 msgid "Fiscal Additional data manually entered by user"
 msgstr ""
 
@@ -3355,7 +3289,6 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__fiscal_operation_type
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__fiscal_operation_type
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__fiscal_operation_type
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_operation_line__fiscal_operation_type
 #: model_terms:ir.ui.view,arch_db:l10n_br_fiscal.operation_search
 msgid "Fiscal Operation Type"
@@ -3621,7 +3554,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__force_compute_delivery_costs_by_total
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__force_compute_delivery_costs_by_total
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__force_compute_delivery_costs_by_total
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__force_compute_delivery_costs_by_total
 msgid "Force Compute Delivery Costs By Total"
 msgstr ""
 
@@ -3630,7 +3562,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__freight_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__freight_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_freight_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_freight_value
 msgid "Freight Value"
 msgstr ""
 
@@ -3824,7 +3755,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__icms_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__icms_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_icms_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_icms_base
 msgid "ICMS Base"
 msgstr ""
 
@@ -3861,7 +3791,6 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_icms_destination_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_icms_destination_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_icms_destination_value
 msgid "ICMS Destination Value"
 msgstr ""
 
@@ -4081,7 +4010,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__icmsfcp_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__icmsfcp_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_icmsfcp_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_icmsfcp_base
 msgid "ICMS FCP Base"
 msgstr ""
 
@@ -4347,7 +4275,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__icmsfcpst_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__icmsfcpst_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_icmsfcpst_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_icmsfcpst_value
 msgid "ICMS FCP ST Value"
 msgstr ""
 
@@ -4366,7 +4293,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__icmsfcp_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__icmsfcp_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_icmsfcp_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_icmsfcp_value
 msgid "ICMS FCP Value"
 msgstr ""
 
@@ -4524,7 +4450,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__icms_origin_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__icms_origin_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_icms_origin_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_icms_origin_value
 msgid "ICMS Origin Value"
 msgstr ""
 
@@ -4624,7 +4549,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__icmsst_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__icmsst_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_icmsst_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_icmsst_base
 msgid "ICMS ST Base"
 msgstr ""
 
@@ -4756,7 +4680,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__icmsst_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__icmsst_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_icmsst_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_icmsst_value
 msgid "ICMS ST Value"
 msgstr ""
 
@@ -4805,7 +4728,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__icms_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__icms_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_icms_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_icms_value
 msgid "ICMS Value"
 msgstr ""
 
@@ -4827,7 +4749,6 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_icmssn_credit_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_icmssn_credit_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_icmssn_credit_value
 msgid "ICMSSN Credit Value"
 msgstr ""
 
@@ -4848,9 +4769,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin_methods__id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_methods__id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_related__id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_serie__id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_status_wizard__id
@@ -4912,7 +4831,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__ii_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__ii_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_ii_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_ii_base
 msgid "II Base"
 msgstr ""
 
@@ -4921,7 +4839,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__ii_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__ii_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_ii_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_ii_value
 msgid "II Value"
 msgstr ""
 
@@ -4950,7 +4867,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__inss_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__inss_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_inss_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_inss_base
 msgid "INSS Base"
 msgstr ""
 
@@ -4981,14 +4897,12 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_inss_wh_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_inss_wh_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_inss_wh_base
 msgid "INSS Ret Base"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_inss_wh_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_inss_wh_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_inss_wh_value
 msgid "INSS Ret Value"
 msgstr ""
 
@@ -4997,7 +4911,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__inss_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__inss_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_inss_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_inss_value
 msgid "INSS Value"
 msgstr ""
 
@@ -5040,7 +4953,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__ipi_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__ipi_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_ipi_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_ipi_base
 msgid "IPI Base"
 msgstr ""
 
@@ -5098,7 +5010,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__ipi_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__ipi_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_ipi_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_ipi_value
 msgid "IPI Value"
 msgstr ""
 
@@ -5138,7 +5049,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__irpj_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__irpj_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_irpj_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_irpj_base
 msgid "IRPJ Base"
 msgstr ""
 
@@ -5169,14 +5079,12 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_irpj_wh_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_irpj_wh_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_irpj_wh_base
 msgid "IRPJ Ret Base"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_irpj_wh_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_irpj_wh_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_irpj_wh_value
 msgid "IRPJ Ret Value"
 msgstr ""
 
@@ -5185,7 +5093,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__irpj_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__irpj_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_irpj_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_irpj_value
 msgid "IRPJ Value"
 msgstr ""
 
@@ -5239,7 +5146,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__issqn_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__issqn_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_issqn_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_issqn_base
 msgid "ISSQN Base"
 msgstr ""
 
@@ -5312,14 +5218,12 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_issqn_wh_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_issqn_wh_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_issqn_wh_base
 msgid "ISSQN Ret Base"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_issqn_wh_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_issqn_wh_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_issqn_wh_value
 msgid "ISSQN Ret Value"
 msgstr ""
 
@@ -5328,7 +5232,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__issqn_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__issqn_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_issqn_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_issqn_value
 msgid "ISSQN Value"
 msgstr ""
 
@@ -5537,7 +5440,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__insurance_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__insurance_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_insurance_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_insurance_value
 msgid "Insurance Value"
 msgstr ""
 
@@ -5685,7 +5587,6 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__document_key
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__document_key
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__document_key
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_tax_estimate__key
 msgid "Key"
 msgstr ""
@@ -5712,9 +5613,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin____last_update
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin_methods____last_update
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin____last_update
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields____last_update
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_methods____last_update
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin____last_update
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_related____last_update
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_serie____last_update
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_status_wizard____last_update
@@ -5857,7 +5756,6 @@ msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_legal_name
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_legal_name
 msgid "Legal Name"
 msgstr ""
 
@@ -6003,7 +5901,6 @@ msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_cnae_main_id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_cnae_main_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_res_company__cnae_main_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_res_partner__cnae_main_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_res_users__cnae_main_id
@@ -6027,14 +5924,12 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__manual_customer_additional_data
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__manual_customer_additional_data
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__manual_customer_additional_data
 msgid "Manual Customer Additional Data"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__manual_fiscal_additional_data
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__manual_fiscal_additional_data
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__manual_fiscal_additional_data
 msgid "Manual Fiscal Additional Data"
 msgstr ""
 
@@ -6196,11 +6091,6 @@ msgid "Month"
 msgstr ""
 
 #. module: l10n_br_fiscal
-#: model:ir.model,name:l10n_br_fiscal.model_l10n_br_fiscal_document_move_mixin
-msgid "Move Document Fiscal Mixin"
-msgstr ""
-
-#. module: l10n_br_fiscal
 #: model_terms:ir.ui.view,arch_db:l10n_br_fiscal.cfop_form
 msgid "Move Settings"
 msgstr ""
@@ -6217,7 +6107,6 @@ msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_inscr_mun
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_inscr_mun
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_res_partner__inscr_mun
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_res_users__inscr_mun
 msgid "Municipal Tax Number"
@@ -6356,7 +6245,6 @@ msgstr ""
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__contract_contract__ind_pres__4
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document__ind_pres__4
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin__ind_pres__4
-#: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin_fields__ind_pres__4
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__pos_order__ind_pres__4
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__purchase_order__ind_pres__4
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__repair_order__ind_pres__4
@@ -6604,7 +6492,6 @@ msgstr ""
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_line__issqn_incentive__2
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_line_mixin__issqn_incentive__2
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin__ind_final__0
-#: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin_fields__ind_final__0
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_tax_definition__ind_final__0
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_pos_product_fiscal_map__issqn_incentive__2
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_repair_fiscal_line_mixin__issqn_incentive__2
@@ -6645,7 +6532,6 @@ msgstr ""
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__contract_contract__ind_pres__2
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document__ind_pres__2
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin__ind_pres__2
-#: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin_fields__ind_pres__2
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__pos_order__ind_pres__2
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__purchase_order__ind_pres__2
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__repair_order__ind_pres__2
@@ -6659,7 +6545,6 @@ msgstr ""
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__contract_contract__ind_pres__9
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document__ind_pres__9
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin__ind_pres__9
-#: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin_fields__ind_pres__9
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__pos_order__ind_pres__9
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__purchase_order__ind_pres__9
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__repair_order__ind_pres__9
@@ -6673,7 +6558,6 @@ msgstr ""
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__contract_contract__ind_pres__3
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document__ind_pres__3
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin__ind_pres__3
-#: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin_fields__ind_pres__3
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__pos_order__ind_pres__3
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__purchase_order__ind_pres__3
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__repair_order__ind_pres__3
@@ -6687,7 +6571,6 @@ msgstr ""
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__contract_contract__ind_pres__0
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document__ind_pres__0
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin__ind_pres__0
-#: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin_fields__ind_pres__0
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__pos_order__ind_pres__0
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__purchase_order__ind_pres__0
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__repair_order__ind_pres__0
@@ -6731,7 +6614,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__fiscal_operation_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__fiscal_operation_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__fiscal_operation_id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__fiscal_operation_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_operation_document_type__fiscal_operation_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_operation_line__fiscal_operation_id
 #: model:ir.ui.menu,name:l10n_br_fiscal.operation_menu
@@ -6808,7 +6690,6 @@ msgstr ""
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__contract_contract__ind_pres__1
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document__ind_pres__1
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin__ind_pres__1
-#: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin_fields__ind_pres__1
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__pos_order__ind_pres__1
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__purchase_order__ind_pres__1
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__repair_order__ind_pres__1
@@ -6822,7 +6703,6 @@ msgstr ""
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__contract_contract__ind_pres__5
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document__ind_pres__5
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin__ind_pres__5
-#: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin_fields__ind_pres__5
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__pos_order__ind_pres__5
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__purchase_order__ind_pres__5
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__repair_order__ind_pres__5
@@ -6854,7 +6734,6 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_other_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_other_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_other_value
 msgid "Other Costs"
 msgstr ""
 
@@ -6984,7 +6863,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__pis_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__pis_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_pis_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_pis_base
 msgid "PIS Base"
 msgstr ""
 
@@ -7055,14 +6933,12 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_pis_wh_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_pis_wh_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_pis_wh_base
 msgid "PIS Ret Base"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__amount_pis_wh_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_pis_wh_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_pis_wh_value
 msgid "PIS Ret Value"
 msgstr ""
 
@@ -7090,7 +6966,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__pisst_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__pisst_base
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_pisst_base
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_pisst_base
 msgid "PIS ST Base"
 msgstr ""
 
@@ -7111,7 +6986,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__pisst_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__pisst_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_pisst_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_pisst_value
 msgid "PIS ST Value"
 msgstr ""
 
@@ -7120,7 +6994,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__pis_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__pis_value
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_pis_value
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_pis_value
 msgid "PIS Value"
 msgstr ""
 
@@ -7174,8 +7047,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__partner_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__partner_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__partner_id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__partner_id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_status_wizard__partner_id
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_partner_profile__partner_ids
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_subsequent_operation__partner_id
@@ -7188,37 +7059,31 @@ msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_city_id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_city_id
 msgid "Partner City"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_country_id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_country_id
 msgid "Partner Country"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_district
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_district
 msgid "Partner District"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_is_company
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_is_company
 msgid "Partner Is Company?"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_name
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_name
 msgid "Partner Name"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_number
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_number
 msgid "Partner Number"
 msgstr ""
 
@@ -7236,7 +7101,6 @@ msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_phone
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_phone
 msgid "Partner Phone"
 msgstr ""
 
@@ -7254,19 +7118,16 @@ msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_state_id
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_state_id
 msgid "Partner State"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_street
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_street
 msgid "Partner Street"
 msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_street2
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_street2
 msgid "Partner Street2"
 msgstr ""
 
@@ -7277,7 +7138,6 @@ msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_zip
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_zip
 msgid "Partner Zip"
 msgstr ""
 
@@ -7494,7 +7354,6 @@ msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__processador_edoc
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__processador_edoc
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_res_company__processador_edoc
 msgid "Processador documentos eletrônicos"
 msgstr ""
@@ -8185,7 +8044,6 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__document_serie
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__document_serie
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__document_serie
 msgid "Serie Number"
 msgstr ""
 
@@ -8278,7 +8136,6 @@ msgstr ""
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_line__issqn_incentive__1
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_line_mixin__issqn_incentive__1
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin__ind_final__1
-#: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_mixin_fields__ind_final__1
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_tax_definition__ind_final__1
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_pos_product_fiscal_map__issqn_incentive__1
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_repair_fiscal_line_mixin__issqn_incentive__1
@@ -8405,7 +8262,6 @@ msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_inscr_est
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_inscr_est
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_res_partner__inscr_est
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_res_users__inscr_est
 msgid "State Tax Number"
@@ -8501,7 +8357,6 @@ msgstr ""
 
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_suframa
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_suframa
 msgid "Suframa"
 msgstr ""
 
@@ -8814,7 +8669,6 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_tax_framework
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__tax_framework
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_tax_framework
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_partner_profile__tax_framework
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_res_company__tax_framework
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_res_partner__tax_framework
@@ -9054,7 +8908,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line__amount_tax_withholding
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_line_mixin__amount_tax_withholding
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__amount_tax_withholding
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__amount_tax_withholding
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_tax_group__tax_withholding
 msgid "Tax Withholding"
 msgstr ""
@@ -9210,7 +9063,6 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document__total_weight
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin__total_weight
-#: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_document_mixin_fields__total_weight
 msgid "Total Weight"
 msgstr ""
 
@@ -9397,8 +9249,6 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document__company_legal_name
 #: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document__partner_legal_name
-#: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__company_legal_name
-#: model:ir.model.fields,help:l10n_br_fiscal.field_l10n_br_fiscal_document_move_mixin__partner_legal_name
 msgid "Used in fiscal documents"
 msgstr ""
 
