@@ -28,6 +28,11 @@ msgid ""
 msgstr ""
 
 #. module: spec_driven_model
+#: model:ir.model,name:spec_driven_model.model_spec_mixin_export
+msgid "A mixin providing serialization features."
+msgstr ""
+
+#. module: spec_driven_model
 #: model:ir.model.fields,field_description:spec_driven_model.field_spec_mixin__display_name
 #: model:ir.model.fields,field_description:spec_driven_model.field_spec_mixin_export__display_name
 #: model:ir.model.fields,field_description:spec_driven_model.field_spec_mixin_import__display_name
@@ -52,11 +57,6 @@ msgstr "Última Modificação em"
 #: code:addons/spec_driven_model/models/spec_models.py:0
 #, python-format
 msgid "Open..."
-msgstr ""
-
-#. module: spec_driven_model
-#: model:ir.model,name:spec_driven_model.model_spec_mixin_export
-msgid "a mixin providing serialization features"
 msgstr ""
 
 #. module: spec_driven_model
