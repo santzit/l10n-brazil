@@ -50,10 +50,6 @@ MOVE_TAX_USER_TYPE = {
     "in_refund": "purchase",
 }
 
-# l10n_br_fiscal.document field names that are shadowed
-# by account.move fields:
-SHADOWED_FIELDS = ["company_id", "currency_id", "user_id", "partner_id"]
-
 
 class AccountMove(models.Model):
     _name = "account.move"
@@ -108,6 +104,51 @@ class AccountMove(models.Model):
         compute="_compute_fiscal_operation_type",
     )
 
+    # -------------------------------------------------------------------------
+    # SHADOWED FIELDS SYNC
+    # These fields have the same name in account.move
+    # and l10n_br_fiscal.document. So they wouldn't get updated
+    # by the _inherits system. An alternative would be changing their name
+    # in l10n_br_fiscal but that would make the code unreadable and fiscal mixin
+    # methods would fail to do what we expect from them in the Odoo objects.
+    # -------------------------------------------------------------------------
+
+    user_id = fields.Many2one(inverse="_inverse_user_id")
+    partner_shipping_id = fields.Many2one(inverse="_inverse_partner_shipping_id")
+
+    @api.onchange("company_id")
+    def _inverse_company_id(self):
+        for move in self:
+            for doc in move.fiscal_document_ids:
+                doc.company_id = move.company_id
+        return super()._inverse_partner_id()
+
+    @api.onchange("currency_id")
+    def _inverse_currency_id(self):
+        for move in self:
+            for doc in move.fiscal_document_ids:
+                doc.currency_id = move.currency_id
+        return super()._inverse_currency_id()
+
+    @api.onchange("partner_id")
+    def _inverse_partner_id(self):
+        for move in self:
+            for doc in move.fiscal_document_ids:
+                doc.partner_id = move.partner_id
+        return super()._inverse_partner_id()
+
+    @api.onchange("user_id")
+    def _inverse_user_id(self):
+        for move in self:
+            for doc in move.fiscal_document_ids:
+                doc.user_id = move.user_id
+
+    @api.onchange("partner_shipping_id")
+    def _inverse_partner_shipping_id(self):
+        for move in self:
+            for doc in move.fiscal_document_ids:
+                doc.partner_shipping_id = move.partner_shipping_id
+
     @api.onchange("document_type_id")
     def _inverse_document_type_id(self):
         if (self.document_type_id and not self.fiscal_document_id) or (
@@ -118,11 +159,8 @@ class AccountMove(models.Model):
     def _compute_fiscal_document_id(self):
         for move in self:
             if move.document_type_id and not move.fiscal_document_id:
-                fiscal_doc_vals = {}
-                for field in self._shadowed_fields():
-                    fiscal_doc_vals[f"fiscal_proxy_{field}"] = getattr(move, field)
                 move.fiscal_document_id = (
-                    self.env["l10n_br_fiscal.document"].create(fiscal_doc_vals).id
+                    self.env["l10n_br_fiscal.document"].create({}).id
                 )
             elif not move.document_type_id and move.fiscal_document_id:
                 bad_fiscal_doc = move.fiscal_document_id
@@ -140,10 +178,10 @@ class AccountMove(models.Model):
                     )
                 )
 
-    @api.depends("line_ids", "invoice_line_ids")
+    @api.depends("line_ids", "invoice_line_ids", "fiscal_document_id")
     def _compute_fiscal_document_ids(self):
         for move in self:
-            docs = self.env["l10n_br_fiscal.document"]
+            docs = move.fiscal_document_id
             for line in move.invoice_line_ids:
                 docs |= line.document_id
             move.fiscal_document_ids = docs
@@ -166,12 +204,6 @@ class AccountMove(models.Model):
         """Get object lines instances used to compute fields"""
         return self.mapped("invoice_line_ids")
 
-    @api.model
-    def _shadowed_fields(self):
-        """Return the list of shadowed fields that are synchronized
-        from account.move."""
-        return SHADOWED_FIELDS
-
     def ensure_one_doc(self):
         self.ensure_one()
         if len(self.fiscal_document_ids) > 1:
@@ -187,7 +219,7 @@ class AccountMove(models.Model):
     def default_get(self, fields_list):
         defaults = super().default_get(fields_list)
         move_type = self.env.context.get("default_move_type", "out_invoice")
-        if not move_type == "entry":
+        if move_type != "entry":
             defaults["fiscal_operation_type"] = MOVE_TO_OPERATION[move_type]
             if defaults["fiscal_operation_type"] == FISCAL_OUT:
                 defaults["issuer"] = DOCUMENT_ISSUER_COMPANY
@@ -432,16 +464,10 @@ class AccountMove(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        self._inject_shadowed_fields(vals_list)
         invoice = super(AccountMove, self.with_context(create_from_move=True)).create(
             vals_list
         )
         return invoice
-
-    def write(self, values):
-        self._inject_shadowed_fields([values])
-        result = super().write(values)
-        return result
 
     def unlink(self):
         """Allow to delete draft or cancelled invoices"""
@@ -507,7 +533,7 @@ class AccountMove(models.Model):
                     )
             move.fiscal_document_ids.filtered(
                 lambda d: d.state_edoc != SITUACAO_EDOC_EM_DIGITACAO
-            ).document_back2draft()
+            ).action_document_back2draft()
         return super().button_draft()
 
     def action_document_send(self):
@@ -709,12 +735,6 @@ class AccountMove(models.Model):
         if not move_id or not move.fiscal_document_id:
             move_form.invoice_date = fiscal_document.document_date
             move_form.date = fiscal_document.document_date
-            for field in self._shadowed_fields():
-                if field in ("company_id", "user_id"):  # (readonly fields)
-                    continue
-                if not move_form._view["fields"].get(field):
-                    continue
-                setattr(move_form, field, getattr(fiscal_document, field))
             move_form.document_type_id = fiscal_document.document_type_id
             move_form.fiscal_document_id = fiscal_document
             move_form.fiscal_operation_id = fiscal_document.fiscal_operation_id
