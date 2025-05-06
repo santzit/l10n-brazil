@@ -4,7 +4,11 @@
 
 from odoo import api, fields, models
 
-from ..constants.fiscal import DOCUMENT_ISSUER, DOCUMENT_ISSUER_COMPANY, SITUACAO_EDOC
+from odoo.addons.l10n_br_fiscal.constants.fiscal import (
+    DOCUMENT_ISSUER,
+    DOCUMENT_ISSUER_COMPANY,
+    SITUACAO_EDOC,
+)
 
 
 class DocumentEmail(models.Model):

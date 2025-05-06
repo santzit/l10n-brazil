@@ -8,7 +8,7 @@
         <field name="issuer">company</field>
         <field
             name="email_template_id"
-            ref="l10n_br_fiscal.fiscal_document_change_state_template"
+            ref="l10n_br_fiscal_notification.fiscal_document_change_state_template"
         />
         <field name="company_id" ref="l10n_br_base.empresa_lucro_presumido" />
     </record>
@@ -21,7 +21,7 @@
         <field name="issuer">company</field>
         <field
             name="email_template_id"
-            ref="l10n_br_fiscal.fiscal_document_change_state_template_nfse"
+            ref="l10n_br_fiscal_notification.fiscal_document_change_state_template_nfse"
         />
         <field name="company_id" ref="l10n_br_base.empresa_lucro_presumido" />
     </record>
@@ -33,7 +33,7 @@
         <field name="issuer">company</field>
         <field
             name="email_template_id"
-            ref="l10n_br_fiscal.fiscal_document_change_state_template"
+            ref="l10n_br_fiscal_notification.fiscal_document_change_state_template"
         />
         <field name="company_id" ref="l10n_br_base.empresa_simples_nacional" />
     </record>
@@ -46,7 +46,7 @@
         <field name="issuer">company</field>
         <field
             name="email_template_id"
-            ref="l10n_br_fiscal.fiscal_document_change_state_template_nfse"
+            ref="l10n_br_fiscal_notification.fiscal_document_change_state_template_nfse"
         />
         <field name="company_id" ref="l10n_br_base.empresa_simples_nacional" />
     </record>
