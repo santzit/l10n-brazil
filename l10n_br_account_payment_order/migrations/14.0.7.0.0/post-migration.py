@@ -2,7 +2,11 @@
 # @author Magno Costa <magno.costa@akretion.com.br>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+import logging
+
 from openupgradelib import openupgrade
+
+_logger = logging.getLogger(__name__)
 
 
 def update_payment_mode_inbound(env):
@@ -110,45 +114,48 @@ def update_payment_mode_inbound(env):
             cnab_config.liq_return_move_code_ids = [(6, 0, liq_code_ids)]
 
         # Codigos ainda Char
-        cnab_config.write(
-            {
-                "invoice_print": row[13],
-                "instructions": row[14],
-                "cnab_company_bank_code": row[15],
-                "convention_code": row[16],
-                "condition_issuing_paper": row[17],
-                "communication_2": row[18],
-                "boleto_wallet": row[19],
-                "boleto_modality": row[20],
-                "boleto_variation": row[21],
-                "boleto_accept": row[22],
-                "boleto_species": row[23],
-                "boleto_protest_code": row[24],
-                "boleto_days_protest": row[25],
-                "generate_own_number": row[26],
-                "own_number_sequence_id": row[27],
-                "cnab_sequence_id": row[28],
-                "boleto_interest_code": row[29],
-                "boleto_interest_perc": row[30],
-                "boleto_fee_code": row[31],
-                "boleto_fee_perc": row[32],
-                "boleto_discount_perc": row[33],
-                "boleto_byte_idt": row[34],
-                "boleto_post": row[35],
-            }
-        )
+        try:
+            cnab_config.write(
+                {
+                    "invoice_print": row[13],
+                    "instructions": row[14],
+                    "cnab_company_bank_code": row[15],
+                    "convention_code": row[16],
+                    "condition_issuing_paper": row[17],
+                    "communication_2": row[18],
+                    "boleto_wallet": row[19],
+                    "boleto_modality": row[20],
+                    "boleto_variation": row[21],
+                    "boleto_accept": row[22],
+                    "boleto_species": row[23],
+                    "boleto_protest_code": row[24],
+                    "boleto_days_protest": row[25],
+                    "generate_own_number": row[26],
+                    "own_number_sequence_id": row[27],
+                    "cnab_sequence_id": row[28],
+                    "boleto_interest_code": row[29],
+                    "boleto_interest_perc": row[30],
+                    "boleto_fee_code": row[31],
+                    "boleto_fee_perc": row[32],
+                    "boleto_discount_perc": row[33],
+                    "boleto_byte_idt": row[34],
+                    "boleto_post": row[35],
+                }
+            )
 
-        # Contas Contabeis
-        account_fields = {
-            36: "interest_fee_account_id",
-            37: "discount_account_id",
-            38: "rebate_account_id",
-            39: "tariff_charge_account_id",
-            40: "not_payment_account_id",
-        }
-        for index, field in account_fields.items():
-            if row[index]:
-                setattr(cnab_config, field, row[index])
+            # Contas Contabeis
+            account_fields = {
+                36: "interest_fee_account_id",
+                37: "discount_account_id",
+                38: "rebate_account_id",
+                39: "tariff_charge_account_id",
+                40: "not_payment_account_id",
+            }
+            for index, field in account_fields.items():
+                if row[index]:
+                    setattr(cnab_config, field, row[index])
+        except Exception as e:
+            _logger.warning(f"Could not write CNAB config: {e}")
 
 
 def update_payment_mode_outbound(env):
