@@ -37,6 +37,7 @@ setuptools.setup(
         'odoo-addon-l10n_br_nfe_spec>=15.0dev,<15.1dev',
         'odoo-addon-l10n_br_nfse>=15.0dev,<15.1dev',
         'odoo-addon-l10n_br_nfse_focus>=15.0dev,<15.1dev',
+        'odoo-addon-l10n_br_nfse_paulistana>=15.0dev,<15.1dev',
         'odoo-addon-l10n_br_purchase>=15.0dev,<15.1dev',
         'odoo-addon-l10n_br_resource>=15.0dev,<15.1dev',
         'odoo-addon-l10n_br_sale>=15.0dev,<15.1dev',
