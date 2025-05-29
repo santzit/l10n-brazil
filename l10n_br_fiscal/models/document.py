@@ -234,7 +234,16 @@ class Document(models.Model):
 
     partner_cnpj_cpf = fields.Char(
         string="CNPJ",
-        related="partner_id.cnpj_cpf",
+        compute="_compute_partner_cnpj_cpf",
+        store=True,
+    )
+
+    has_vat_specification = fields.Boolean(
+        string="Has VAT Specification",
+        default=False,
+        help="Indicates whether this fiscal document includes a specific "
+        "VAT (CNPJ/CPF) identification that must be preserved — "
+        "commonly known in Brazil as 'CPF na nota'.",
     )
 
     partner_inscr_est = fields.Char(
@@ -561,6 +570,16 @@ class Document(models.Model):
     )
     def _compute_amount(self):
         return super()._compute_amount()
+
+    @api.depends("partner_id", "has_vat_specification")
+    def _compute_partner_cnpj_cpf(self):
+        for record in self:
+            if record.partner_id and not record.has_vat_specification:
+                record.partner_cnpj_cpf = record.partner_id.cnpj_cpf
+            elif not record.partner_id:
+                record.partner_cnpj_cpf = False
+            # if record.has_vat_specification is True, keep current value
+            # (no assignment needed as the field retains its current value)
 
     def unlink(self):
         forbidden_states_unlink = [
