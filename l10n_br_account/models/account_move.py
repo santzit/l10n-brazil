@@ -55,7 +55,10 @@ SHADOWED_FIELDS = ["company_id", "currency_id", "user_id", "partner_id"]
 class AccountMove(models.Model):
     _name = "account.move"
     _fiscal_decorator_model = "l10n_br_fiscal.document"
-    _fiscal_decorator_compute_blacklist = ["_compute_amount"]
+    _fiscal_decorator_compute_blacklist = [
+        "_compute_amount",
+        "_compute_status_description",
+    ]
     _inherit = [
         _name,
         "l10n_br_fiscal.document.mixin.methods",
