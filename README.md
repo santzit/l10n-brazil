@@ -28,15 +28,15 @@ addon | version | maintainers | summary
 --- | --- | --- | ---
 [l10n_br_account_due_list](l10n_br_account_due_list/) | 13.0.1.0.0 |  | Brazilian Account Due List
 [l10n_br_account_payment_order](l10n_br_account_payment_order/) | 13.0.1.0.0 |  | Brazilian Payment Order
-[l10n_br_base](l10n_br_base/) | 13.0.2.0.0 | [![renatonlima](https://github.com/renatonlima.png?size=30px)](https://github.com/renatonlima) [![rvalyi](https://github.com/rvalyi.png?size=30px)](https://github.com/rvalyi) | Customization of base module for implementations in Brazil.
+[l10n_br_base](l10n_br_base/) | 13.0.2.0.0 | <a href='https://github.com/renatonlima'><img src='https://github.com/renatonlima.png' width='32' height='32' style='border-radius:50%;' alt='renatonlima'/></a> <a href='https://github.com/rvalyi'><img src='https://github.com/rvalyi.png' width='32' height='32' style='border-radius:50%;' alt='rvalyi'/></a> | Customization of base module for implementations in Brazil.
 [l10n_br_coa](l10n_br_coa/) | 13.0.2.0.0 |  | Base do plano de conta brasileiro
-[l10n_br_coa_generic](l10n_br_coa_generic/) | 13.0.2.0.0 | [![mileo](https://github.com/mileo.png?size=30px)](https://github.com/mileo) | Plano de Contas para empresas do Regime normal (Micro e pequenas empresas)
-[l10n_br_coa_simple](l10n_br_coa_simple/) | 13.0.2.0.0 | [![renatonlima](https://github.com/renatonlima.png?size=30px)](https://github.com/renatonlima) | Plano de Contas ITG 1000 para Microempresas e Empresa de Pequeno Porte
-[l10n_br_currency_rate_update](l10n_br_currency_rate_update/) | 13.0.1.0.0 | [![renatonlima](https://github.com/renatonlima.png?size=30px)](https://github.com/renatonlima) | Update exchange rates using OCA modules for Brazil
-[l10n_br_fiscal](l10n_br_fiscal/) | 13.0.3.1.0 | [![renatonlima](https://github.com/renatonlima.png?size=30px)](https://github.com/renatonlima) | Brazilian fiscal core module.
-[l10n_br_nfe_spec](l10n_br_nfe_spec/) | 13.0.1.0.0 | [![rvalyi](https://github.com/rvalyi.png?size=30px)](https://github.com/rvalyi) | nfe spec
+[l10n_br_coa_generic](l10n_br_coa_generic/) | 13.0.2.0.0 | <a href='https://github.com/mileo'><img src='https://github.com/mileo.png' width='32' height='32' style='border-radius:50%;' alt='mileo'/></a> | Plano de Contas para empresas do Regime normal (Micro e pequenas empresas)
+[l10n_br_coa_simple](l10n_br_coa_simple/) | 13.0.2.0.0 | <a href='https://github.com/renatonlima'><img src='https://github.com/renatonlima.png' width='32' height='32' style='border-radius:50%;' alt='renatonlima'/></a> | Plano de Contas ITG 1000 para Microempresas e Empresa de Pequeno Porte
+[l10n_br_currency_rate_update](l10n_br_currency_rate_update/) | 13.0.1.0.0 | <a href='https://github.com/renatonlima'><img src='https://github.com/renatonlima.png' width='32' height='32' style='border-radius:50%;' alt='renatonlima'/></a> | Update exchange rates using OCA modules for Brazil
+[l10n_br_fiscal](l10n_br_fiscal/) | 13.0.3.1.0 | <a href='https://github.com/renatonlima'><img src='https://github.com/renatonlima.png' width='32' height='32' style='border-radius:50%;' alt='renatonlima'/></a> | Brazilian fiscal core module.
+[l10n_br_nfe_spec](l10n_br_nfe_spec/) | 13.0.1.0.0 | <a href='https://github.com/rvalyi'><img src='https://github.com/rvalyi.png' width='32' height='32' style='border-radius:50%;' alt='rvalyi'/></a> | nfe spec
 [l10n_br_stock](l10n_br_stock/) | 13.0.1.0.0 |  | Brazilian Localization Warehouse
-[spec_driven_model](spec_driven_model/) | 13.0.1.0.0 | [![rvalyi](https://github.com/rvalyi.png?size=30px)](https://github.com/rvalyi) | Tools for specifications driven mixins (from xsd for instance)
+[spec_driven_model](spec_driven_model/) | 13.0.1.0.0 | <a href='https://github.com/rvalyi'><img src='https://github.com/rvalyi.png' width='32' height='32' style='border-radius:50%;' alt='rvalyi'/></a> | Tools for specifications driven mixins (from xsd for instance)
 
 [//]: # (end addons)
 
