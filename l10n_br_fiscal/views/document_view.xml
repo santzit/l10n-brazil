@@ -335,12 +335,16 @@
             <page name="partners" string="Partners">
               <group name="partner">
                 <field name="partner_id" />
+                <field name="has_vat_specification" />
               </group>
               <group>
                 <group name="partner_left">
                   <field name="partner_legal_name" readonly="1" />
                   <field name="partner_name" readonly="1" />
-                  <field name="partner_cnpj_cpf" readonly="1" />
+                  <field
+                                        name="partner_cnpj_cpf"
+                                        attrs="{'readonly': [('has_vat_specification', '=', False)]}"
+                                    />
                   <field name="partner_inscr_est" readonly="1" />
                   <field name="partner_ind_ie_dest" readonly="1" />
                   <field name="partner_street" readonly="1" />
