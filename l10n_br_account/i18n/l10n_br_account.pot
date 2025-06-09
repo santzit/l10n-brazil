@@ -279,9 +279,6 @@ msgid "Fiscal Documents"
 msgstr ""
 
 #. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_bank_statement_line__incoterm_id
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__incoterm_id
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_payment__incoterm_id
 #: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_document__incoterm_id
 msgid "Fiscal Inconterm"
 msgstr ""
@@ -448,9 +445,6 @@ msgid "Incoterms"
 msgstr ""
 
 #. module: l10n_br_account
-#: model:ir.model.fields,help:l10n_br_account.field_account_bank_statement_line__incoterm_id
-#: model:ir.model.fields,help:l10n_br_account.field_account_move__incoterm_id
-#: model:ir.model.fields,help:l10n_br_account.field_account_payment__incoterm_id
 #: model:ir.model.fields,help:l10n_br_account.field_l10n_br_fiscal_document__incoterm_id
 msgid ""
 "International Commercial Terms are a series of predefined commercial terms "
@@ -464,9 +458,6 @@ msgid "Invoice Lines"
 msgstr ""
 
 #. module: l10n_br_account
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_bank_statement_line__move_count
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__move_count
-#: model:ir.model.fields,field_description:l10n_br_account.field_account_payment__move_count
 #: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_document__move_count
 msgid "Invoice count"
 msgstr ""
