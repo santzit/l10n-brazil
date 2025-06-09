@@ -17,7 +17,7 @@ class FiscalDocumentLine(models.Model):
     # proxy fields to enable writing the related (shadowed) fields
     # to the fiscal doc line from the aml through the _inherits system
     # despite they have the same names.
-    fiscal_proxy_name = fields.Text(
+    fiscal_proxy_name = fields.Char(
         string="Fiscal Proxy Name",
         related="name",
         readonly=False,
