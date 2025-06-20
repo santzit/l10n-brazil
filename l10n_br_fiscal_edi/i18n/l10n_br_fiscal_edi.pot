@@ -367,6 +367,11 @@ msgid "EDI"
 msgstr ""
 
 #. module: l10n_br_fiscal_edi
+#: model:ir.model.fields.selection,name:l10n_br_fiscal_edi.selection__l10n_br_fiscal_event__type__15
+msgid "Encerramento de MDFe"
+msgstr ""
+
+#. module: l10n_br_fiscal_edi
 #: model:ir.model.fields,field_description:l10n_br_fiscal_edi.field_l10n_br_fiscal_event__environment
 msgid "Environment"
 msgstr ""
