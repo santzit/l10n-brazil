@@ -3040,6 +3040,13 @@ msgid "Embalagem"
 msgstr "Embalagem"
 
 #. module: l10n_br_fiscal
+#: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document__state_edoc__encerrada
+#: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_email__state_edoc__encerrada
+#: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_subsequent_operation__generation_situation__encerrada
+msgid "Encerrada"
+msgstr ""
+
+#. module: l10n_br_fiscal
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_operation_line__date_end
 #: model:ir.model.fields,field_description:l10n_br_fiscal.field_l10n_br_fiscal_tax_definition__date_end
 msgid "End Date"
@@ -9704,6 +9711,7 @@ msgstr "Você precisa definir um documento fiscal padrão em sua empresa !"
 #. module: l10n_br_fiscal
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_base_wizard_mixin__state__confirm
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_cancel_wizard__state__confirm
+#: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_closure_wizard__state__confirm
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_correction_wizard__state__confirm
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_import_wizard_mixin__state__confirm
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_status_wizard__state__confirm
@@ -9720,6 +9728,7 @@ msgstr "dias"
 #. module: l10n_br_fiscal
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_base_wizard_mixin__state__done
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_cancel_wizard__state__done
+#: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_closure_wizard__state__done
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_correction_wizard__state__done
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_import_wizard_mixin__state__done
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_status_wizard__state__done
@@ -9736,6 +9745,7 @@ msgstr "erpbrasil.edoc"
 #. module: l10n_br_fiscal
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_base_wizard_mixin__state__init
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_cancel_wizard__state__init
+#: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_closure_wizard__state__init
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_correction_wizard__state__init
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_import_wizard_mixin__state__init
 #: model:ir.model.fields.selection,name:l10n_br_fiscal.selection__l10n_br_fiscal_document_status_wizard__state__init
@@ -9757,6 +9767,11 @@ msgstr ""
 #. module: l10n_br_fiscal
 #: model_terms:ir.ui.view,arch_db:l10n_br_fiscal.document_form
 msgid "is <strong>Cancelled</strong>"
+msgstr ""
+
+#. module: l10n_br_fiscal
+#: model_terms:ir.ui.view,arch_db:l10n_br_fiscal.document_form
+msgid "is <strong>Closed</strong>"
 msgstr ""
 
 #. module: l10n_br_fiscal
