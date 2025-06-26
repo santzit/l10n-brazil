@@ -7,15 +7,15 @@ msgstr ""
 "Project-Id-Version: Odoo Server 12.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-05-21 19:52+0000\n"
-"PO-Revision-Date: 2024-12-21 15:52+0000\n"
-"Last-Translator: Marcel Savegnago <marcel.savegnago@gmail.com>\n"
+"PO-Revision-Date: 2025-06-26 12:18+0000\n"
+"Last-Translator: felipemotter <felipkin@gmail.com>\n"
 "Language-Team: \n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.6.2\n"
+"X-Generator: Weblate 5.10.4\n"
 
 #. module: l10n_br_sale
 #: model_terms:ir.ui.view,arch_db:l10n_br_sale.report_saleorder_document_l10n_br_sale
@@ -65,7 +65,7 @@ msgstr "Dados adicionais inseridos manualmente pelo usuário"
 #. module: l10n_br_sale
 #: model:res.groups,name:l10n_br_sale.group_total_discount
 msgid "Allow Amount Discount on Sales Orders"
-msgstr "Permite o Desconto de Montante em Pedidos de Venda"
+msgstr "Permite o Desconto no total dos Pedidos de Venda"
 
 #. module: l10n_br_sale
 #: model:ir.model.fields,field_description:l10n_br_sale.field_sale_order_line__allow_csll_irpj
