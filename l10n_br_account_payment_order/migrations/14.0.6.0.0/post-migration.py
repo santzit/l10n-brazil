@@ -2,7 +2,11 @@
 # @author Magno Costa <magno.costa@akretion.com.br>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+import logging
+
 from openupgradelib import openupgrade
+
+_logger = logging.getLogger(__name__)
 
 
 def unifying_cnab_codes(env):
@@ -104,8 +108,8 @@ def unifying_cnab_codes(env):
 
         # Relação payment_method_ids x return_move_code
         payment_method_id_colunm = (
-            "l10n_br_cnab_mov_instruction_code_id"
-        )  # nome tava errado
+            "l10n_br_cnab_mov_instruction_code_id"  # nome tava errado
+        )
         return_move_code_id_colunm = "payment_method_id"
         env.cr.execute(
             f"""
@@ -117,17 +121,24 @@ def unifying_cnab_codes(env):
         payment_method_ids = [
             payment_method_id[0] for payment_method_id in env.cr.fetchall()
         ]
-        env["l10n_br_cnab.code"].create(
-            {
-                "name": row[1],
-                "code": row[2],
-                "code_type": "return_move_code",
-                "bank_ids": [(6, 0, bank_ids)],
-                "payment_method_ids": [(6, 0, payment_method_ids)],
-            }
-        )
+        try:
+            env["l10n_br_cnab.code"].create(
+                {
+                    "name": row[1],
+                    "code": row[2],
+                    "code_type": "return_move_code",
+                    "bank_ids": [(6, 0, bank_ids)],
+                    "payment_method_ids": [(6, 0, payment_method_ids)],
+                }
+            )
+        except Exception as e:
+            _logger.warning(f"Could not create CNAB code {e}")
 
     # Codigo da Carteira
+    if not openupgrade.table_exists(env.cr, "l10n_br_cnab_boleto_wallet_code"):
+        _logger.warning("No table l10n_br_cnab_boleto_wallet_code; exiting... ")
+        return
+
     env.cr.execute(
         """
     SELECT lcmic.id, lcmic.name, lcmic.code, lcmic.bank_id, lcmic.payment_method_id
