@@ -46,7 +46,7 @@ addon | version | maintainers | summary
 [l10n_br_fiscal_dfe](l10n_br_fiscal_dfe/) | 16.0.1.0.2 |  | Distribuição de documentos fiscais
 [l10n_br_fiscal_edi](l10n_br_fiscal_edi/) | 16.0.1.5.1 | <a href='https://github.com/renatonlima'><img src='https://github.com/renatonlima.png' width='32' height='32' style='border-radius:50%;' alt='renatonlima'/></a> <a href='https://github.com/rvalyi'><img src='https://github.com/rvalyi.png' width='32' height='32' style='border-radius:50%;' alt='rvalyi'/></a> <a href='https://github.com/mileo'><img src='https://github.com/mileo.png' width='32' height='32' style='border-radius:50%;' alt='mileo'/></a> | Common EDI fiscal features
 [l10n_br_fiscal_notification](l10n_br_fiscal_notification/) | 16.0.1.0.0 | <a href='https://github.com/mileo'><img src='https://github.com/mileo.png' width='32' height='32' style='border-radius:50%;' alt='mileo'/></a> | Define fiscal document notifications
-[l10n_br_fiscal_subsequent_document](l10n_br_fiscal_subsequent_document/) | 16.0.1.0.0 |  | Documentos Fiscais Subsequentes
+[l10n_br_fiscal_subsequent_document](l10n_br_fiscal_subsequent_document/) | 16.0.1.0.1 |  | Documentos Fiscais Subsequentes
 [l10n_br_hr](l10n_br_hr/) | 16.0.1.0.3 |  | Brazilian Localization HR
 [l10n_br_ie_search](l10n_br_ie_search/) | 16.0.1.3.1 |  | Integração com a API SintegraWS e SEFAZ
 [l10n_br_mdfe](l10n_br_mdfe/) | 16.0.2.1.0 | <a href='https://github.com/mileo'><img src='https://github.com/mileo.png' width='32' height='32' style='border-radius:50%;' alt='mileo'/></a> <a href='https://github.com/marcelsavegnago'><img src='https://github.com/marcelsavegnago.png' width='32' height='32' style='border-radius:50%;' alt='marcelsavegnago'/></a> | Brazilian Eletronic Invoice MDF-e
