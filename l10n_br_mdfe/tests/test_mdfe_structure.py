@@ -3,6 +3,7 @@
 
 from io import StringIO
 
+from odoo.exceptions import UserError
 from odoo.tests import SavepointCase
 
 from odoo.addons.spec_driven_model.models.spec_models import SpecModel
@@ -160,3 +161,25 @@ class MDFeStructure(SavepointCase):
 
     def test_doc_visit_stack(self):
         pass
+
+    def test_check_aquaviario(self):
+        mdfe = self.env.ref("l10n_br_mdfe.demo_mdfe_sn_modal_aquaviario")
+        with self.assertRaises(UserError):
+            mdfe.mdfe30_infTermCarreg = [
+                (0, 0, {"loading_harbor": "BRADR"}),
+                (0, 0, {"loading_harbor": "BRAFU"}),
+                (0, 0, {"loading_harbor": "BRAJU"}),
+                (0, 0, {"loading_harbor": "BRALT"}),
+                (0, 0, {"loading_harbor": "BRAMM"}),
+                (0, 0, {"loading_harbor": "BRAMW"}),
+            ]
+
+        with self.assertRaises(UserError):
+            mdfe.mdfe30_infTermDescarreg = [
+                (0, 0, {"unloading_harbor": "BRAFU"}),
+                (0, 0, {"unloading_harbor": "BRBZC"}),
+                (0, 0, {"unloading_harbor": "BRAJU"}),
+                (0, 0, {"unloading_harbor": "BRALT"}),
+                (0, 0, {"unloading_harbor": "BRAMM"}),
+                (0, 0, {"unloading_harbor": "BRAMW"}),
+            ]
