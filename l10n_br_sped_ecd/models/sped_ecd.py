@@ -92,7 +92,7 @@ class Registro0000(models.Model):
             "NOME": record.legal_name,
             "CNPJ": misc.punctuation_rm(record.cnpj_cpf),
             "UF": record.state_id.code,
-            "IE": misc.punctuation_rm(record.inscr_est),
+            "IE": misc.punctuation_rm(record.l10n_br_ie_code),
             "COD_MUN": record.city_id.ibge_code,
             "IM": misc.punctuation_rm(record.inscr_mun or ""),
             # "IND_SIT_ESP": (will use the declaration field directly),
@@ -203,7 +203,7 @@ class Registro0150(models.Model):
             "CPF": not record.is_company and misc.punctuation_rm(record.cnpj_cpf) or "",
             "NIT": 0,  # Número de Identificação do Trabalhador, Pis, Pasep, SUS.
             "UF": record.state_id.code,
-            "IE": misc.punctuation_rm(record.inscr_est),
+            "IE": misc.punctuation_rm(record.l10n_br_ie_code),
             "IE_ST": 0,  # Inscrição Estadual do participante na unidade da feder...
             "COD_MUN": misc.punctuation_rm(record.city_id.ibge_code),
             "IM": misc.punctuation_rm(record.inscr_mun or ""),
