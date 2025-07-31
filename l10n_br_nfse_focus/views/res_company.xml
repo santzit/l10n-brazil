@@ -27,6 +27,10 @@
                     name="focusnfe_nfse_cnae_code_value"
                     attrs="{'invisible': [('provedor_nfse','!=', 'focusnfe')]}"
                 />
+                <field
+                    name="focusnfe_tax_rate_format"
+                    attrs="{'invisible': [('provedor_nfse','!=', 'focusnfe')]}"
+                />
             </field>
         </field>
     </record>
