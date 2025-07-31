@@ -42,6 +42,11 @@ msgid "Companies"
 msgstr ""
 
 #. module: l10n_br_nfse_focus
+#: model:ir.model.fields.selection,name:l10n_br_nfse_focus.selection__res_company__focusnfe_tax_rate_format__decimal
+msgid "Decimal"
+msgstr ""
+
+#. module: l10n_br_nfse_focus
 #: code:addons/l10n_br_nfse_focus/models/document.py:0
 #, python-format
 msgid "Error communicating with NFSe service: %s"
@@ -70,6 +75,11 @@ msgstr ""
 #. module: l10n_br_nfse_focus
 #: model:ir.model.fields,field_description:l10n_br_nfse_focus.field_res_company__focusnfe_production_token
 msgid "FocusNFe Production Token"
+msgstr ""
+
+#. module: l10n_br_nfse_focus
+#: model:ir.model.fields,field_description:l10n_br_nfse_focus.field_res_company__focusnfe_tax_rate_format
+msgid "Focusnfe Tax Rate Format"
 msgstr ""
 
 #. module: l10n_br_nfse_focus
@@ -110,6 +120,11 @@ msgstr ""
 #. module: l10n_br_nfse_focus
 #: model:ir.model.fields,field_description:l10n_br_nfse_focus.field_res_company__provedor_nfse
 msgid "NFSe Provider"
+msgstr ""
+
+#. module: l10n_br_nfse_focus
+#: model:ir.model.fields.selection,name:l10n_br_nfse_focus.selection__res_company__focusnfe_tax_rate_format__percentage
+msgid "Percentage"
 msgstr ""
 
 #. module: l10n_br_nfse_focus
