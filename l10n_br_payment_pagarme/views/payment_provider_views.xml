@@ -1,0 +1,18 @@
+<odoo>
+    <record id="view_payment_provider_form_inherit_pagarme" model="ir.ui.view">
+        <field name="name">payment.provider.form.inherit.pagarme</field>
+        <field name="model">payment.provider</field>
+        <field name="inherit_id" ref="payment.payment_provider_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='credentials']" position="inside">
+                <div attrs="{'invisible': [('code', '!=', 'pagarme')]}">
+                    <group>
+                        <!--field name="pagarme_public_key"/-->
+                        <field name="pagarme_api_key" password="True"/>
+                        <field name="pagarme_encryption_key" password="True"/>
+                    </group>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
