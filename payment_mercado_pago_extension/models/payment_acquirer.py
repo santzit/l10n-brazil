@@ -1,22 +1,29 @@
 from odoo import models, fields
 
-class PaymentAcquirerMercadoPago(models.Model):
+class PaymentAcquirer(models.Model):
     _inherit = 'payment.acquirer'
 
+    mercado_pago_public_key = fields.Char(
+        string='Mercado Pago Public Key',
+        help='Public key provided by Mercado Pago for transparent checkout',
+        groups='base.group_user'
+    )
 
     def _mercado_pago_prepare_payment_values(self, partner):
-        """Extend payment values to include VAT/CPF and Name."""
-        values = super()._mercado_pago_prepare_payment_values(partner)
+        """Prepare payment values to include VAT/CPF and Name for Brazilian customers."""
+        values = {}
         identification_type = None
         identification_number = None
 
         # Assuming partner.vat contains CPF or CNPJ
         if partner.vat:
-            if len(partner.vat) == 11:
+            # Remove any formatting characters
+            vat_clean = ''.join(filter(str.isdigit, partner.vat))
+            if len(vat_clean) == 11:
                 identification_type = 'CPF'
-            else:
+            elif len(vat_clean) == 14:
                 identification_type = 'CNPJ'
-            identification_number = partner.vat
+            identification_number = vat_clean
 
         values['payer'] = {
             'name': partner.name,
