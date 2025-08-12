@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Mercado Pago Payment Acquirer View -->
+        <record id="view_payment_acquirer_mercado_pago_form" model="ir.ui.view">
+            <field name="name">payment.acquirer.mercado_pago.form</field>
+            <field name="model">payment.acquirer</field>
+            <field name="inherit_id" ref="payment.payment_acquirer_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='acquirer']" position="after">
+                    <group string="Mercado Pago Configuration" attrs="{'invisible': [('provider', '!=', 'mercado_pago')]}">
+                        <field name="mercado_pago_public_key" password="True" 
+                               placeholder="TEST-xxxxxxxx or APP_USR-xxxxxxxx"/>
+                        <div colspan="2">
+                            <p>
+                                <strong>Para configurar o Mercado Pago:</strong><br/>
+                                1. Acesse seu painel do Mercado Pago<br/>
+                                2. Vá para "Credenciais" nas configurações da sua conta<br/>
+                                3. Copie a "Chave pública" (Public Key)<br/>
+                                4. Cole a chave no campo acima<br/>
+                                <br/>
+                                <strong>Nota:</strong> Use credenciais de teste para ambiente de desenvolvimento.
+                            </p>
+                        </div>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
