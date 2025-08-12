@@ -1,8 +1,0 @@
-<odoo>
-    <data noupdate="1">
-        <record id="payment_provider_pagarme" model="payment.provider">
-            <field name="name">Pagar.me</field>
-            <field name="code">pagarme</field>
-        </record>
-    </data>
-</odoo>
