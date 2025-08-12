@@ -1,0 +1,18 @@
+<odoo>
+    <template id="mercado_pago_transparent_checkout" inherit_id="payment.checkout_form">
+        <xpath expr="//form" position="inside">
+            <div id="mercado_pago_checkout">
+                <!-- Mercado Pago Transparent Checkout widget will be loaded here -->
+            </div>
+        </xpath>
+        <xpath expr="//script[last()]" position="after">
+            <script src="https://sdk.mercadopago.com/js/v2"></script>
+            <script>
+                odoo.define('payment_mercado_pago_extension.mercado_pago_transparent', function(require){
+                    require('web.dom_ready');
+                    // Initialization logic for Mercado Pago SDK
+                });
+            </script>
+        </xpath>
+    </template>
+</odoo>
