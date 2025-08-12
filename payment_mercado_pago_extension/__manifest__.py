@@ -1,12 +1,1 @@
-# License AGPL-3 - See http://www.gnu.org/licenses/agpl-3.0.html
-{
-    "name": "Mercado Pago Checkout Prefill Extension",
-    "version": "16.0.6.0.0",
-    "category": "Accounting/Payment Acquirers",
-    "summary": "Prefill VAT/CPF and Name in Mercado Pago Checkout",
-    "depends": ["payment_mercado_pago"],
-    "author": 'SantzIT,Odoo Community Association (OCA)",
-    "website": "https://github.com/OCA/l10n-brazil",
-    "license": "AGPL-3",
-    "installable": True,
-}
+{\n    'name': 'Mercado Pago Transparent Checkout',\n    'version': '16.0.1.0.0',\n    'category': 'Accounting/Payment Acquirers',\n    'summary': 'Integration with Mercado Pago Transparent Checkout for Odoo payments',\n    'description': '''\n        This module integrates Mercado Pago Transparent Checkout as a payment provider in Odoo.\n        It allows customers to pay directly via Mercado Pago without redirection.\n    ''',\n    'author': 'Your Company',\n    'website': 'https://yourcompany.com',\n    'depends': [\n        'payment',\n    ],\n    'data': [\n        'templates/transparent_checkout.xml',\n    ],\n    'assets': {\n        'web.assets_frontend': [\n            'payment_mercado_pago_extension/static/src/js/mercado_pago_transparent.js',\n        ],\n    },\n    'installable': True,\n    'application': False,\n    'license': 'LGPL-3',\n}
