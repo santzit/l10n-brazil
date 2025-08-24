@@ -1,0 +1,257 @@
+# Copyright 2024 KMEE INFORMATICA LTDA
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+
+import logging
+import requests
+from urllib.parse import urljoin
+
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError, ValidationError
+
+_logger = logging.getLogger(__name__)
+
+
+class PaymentProvider(models.Model):
+    _inherit = "payment.provider"
+
+    code = fields.Selection(
+        selection_add=[("pagarme", "Pagar.me")],
+        ondelete={"pagarme": "set default"}
+    )
+
+    # Pagar.me specific configuration fields
+    pagarme_api_key = fields.Char(
+        string="Pagar.me API Key",
+        help="Your Pagar.me API key (starts with sk_)",
+        required_if_provider="pagarme",
+        groups="base.group_system",
+    )
+    pagarme_encryption_key = fields.Char(
+        string="Pagar.me Encryption Key",
+        help="Pagar.me encryption key for card data encryption",
+        required_if_provider="pagarme",
+        groups="base.group_system",
+    )
+    pagarme_webhook_url = fields.Char(
+        string="Webhook URL",
+        help="This URL will be automatically configured. Use it in your Pagar.me dashboard.",
+        compute="_compute_pagarme_webhook_url",
+        readonly=True,
+    )
+    pagarme_max_installments = fields.Integer(
+        string="Maximum Installments",
+        default=12,
+        help="Maximum number of installments allowed",
+    )
+    pagarme_min_installment_amount = fields.Float(
+        string="Minimum Installment Amount",
+        default=5.0,
+        help="Minimum amount per installment in BRL",
+    )
+
+    @api.depends("code")
+    def _compute_pagarme_webhook_url(self):
+        """Compute the webhook URL for Pagar.me."""
+        for provider in self:
+            if provider.code == "pagarme":
+                base_url = provider.get_base_url()
+                provider.pagarme_webhook_url = urljoin(base_url, "/payment/pagarme/webhook")
+            else:
+                provider.pagarme_webhook_url = False
+
+    @api.constrains("pagarme_api_key")
+    def _check_pagarme_api_key(self):
+        """Validate Pagar.me API key format."""
+        for provider in self:
+            if provider.code == "pagarme" and provider.pagarme_api_key:
+                if not provider.pagarme_api_key.startswith("sk_"):
+                    raise ValidationError(_("Pagar.me API key must start with 'sk_'"))
+
+    def _pagarme_make_request(self, endpoint, data=None, method="POST"):
+        """Make a request to Pagar.me API."""
+        if self.code != "pagarme":
+            return super()._pagarme_make_request(endpoint, data, method)
+
+        if not self.pagarme_api_key:
+            raise UserError(_("Pagar.me API key is not configured"))
+
+        # Determine base URL based on environment
+        if self.state == "test":
+            base_url = "https://api.pagar.me/core/v5/"
+        else:
+            base_url = "https://api.pagar.me/core/v5/"
+
+        url = urljoin(base_url, endpoint)
+        
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Basic {self.pagarme_api_key}:",
+        }
+
+        try:
+            if method.upper() == "GET":
+                response = requests.get(url, headers=headers, timeout=30)
+            elif method.upper() == "POST":
+                response = requests.post(url, json=data, headers=headers, timeout=30)
+            elif method.upper() == "PUT":
+                response = requests.put(url, json=data, headers=headers, timeout=30)
+            else:
+                raise UserError(_("Unsupported HTTP method: %s") % method)
+
+            response.raise_for_status()
+            
+            if response.content:
+                return response.json()
+            else:
+                return {}
+
+        except requests.exceptions.Timeout:
+            raise UserError(_("Timeout while communicating with Pagar.me"))
+        except requests.exceptions.ConnectionError:
+            raise UserError(_("Connection error while communicating with Pagar.me"))
+        except requests.exceptions.HTTPError as e:
+            error_msg = _("HTTP error while communicating with Pagar.me: %s") % e
+            
+            # Try to extract error details from response
+            try:
+                error_data = e.response.json() if e.response.content else {}
+                if "errors" in error_data:
+                    error_details = []
+                    for error in error_data["errors"]:
+                        error_details.append(f"{error.get('field', 'general')}: {error.get('message', str(error))}")
+                    error_msg += "\nDetails: " + "; ".join(error_details)
+            except (ValueError, AttributeError):
+                pass
+                
+            raise UserError(error_msg)
+        except Exception as e:
+            raise UserError(_("Unexpected error while communicating with Pagar.me: %s") % str(e))
+
+    def _prepare_pagarme_customer_data(self, partner):
+        """Prepare customer data for Pagar.me API."""
+        if self.code != "pagarme":
+            return super()._prepare_pagarme_customer_data(partner)
+
+        # Determine document type and format
+        document = partner.cnpj_cpf or ""
+        clean_document = document.replace(".", "").replace("-", "").replace("/", "")
+        
+        if len(clean_document) == 11:
+            document_type = "cpf"
+            customer_type = "individual"
+        elif len(clean_document) == 14:
+            document_type = "cnpj"
+            customer_type = "company"
+        else:
+            raise UserError(_("Invalid document format for partner %s") % partner.name)
+
+        # Prepare phone number
+        phone = partner.phone or partner.mobile or ""
+        clean_phone = "".join(filter(str.isdigit, phone))
+        
+        if len(clean_phone) >= 10:
+            area_code = clean_phone[-10:-8] if len(clean_phone) >= 10 else "11"
+            number = clean_phone[-8:] if len(clean_phone) >= 8 else "99999999"
+        else:
+            area_code = "11"
+            number = "99999999"
+
+        customer_data = {
+            "name": partner.name or "",
+            "email": partner.email or "",
+            "document": clean_document,
+            "document_type": document_type,
+            "type": customer_type,
+            "phones": {
+                "home_phone": {
+                    "country_code": "55",
+                    "area_code": area_code,
+                    "number": number,
+                }
+            },
+            "address": {
+                "street": partner.street or "",
+                "street_number": partner.l10n_br_number or "S/N",
+                "neighborhood": partner.l10n_br_district or "",
+                "city": partner.city or "",
+                "state": partner.state_id.code if partner.state_id else "",
+                "zip_code": partner.zip.replace("-", "") if partner.zip else "",
+                "country": partner.country_id.code if partner.country_id else "BR",
+                "complement": partner.street2 or "",
+            }
+        }
+
+        return customer_data
+
+    def _prepare_pagarme_order_data(self, tx_values):
+        """Prepare order data for Pagar.me API."""
+        if self.code != "pagarme":
+            return super()._prepare_pagarme_order_data(tx_values)
+
+        items = []
+        
+        # If we have sale order, use order lines
+        if "sale_order_ids" in tx_values and tx_values["sale_order_ids"]:
+            sale_orders = self.env["sale.order"].browse(tx_values["sale_order_ids"])
+            for order in sale_orders:
+                for line in order.order_line:
+                    items.append({
+                        "id": str(line.id),
+                        "title": line.name or line.product_id.name,
+                        "unit_price": int(line.price_unit * 100),  # Convert to cents
+                        "quantity": int(line.product_uom_qty),
+                        "tangible": True,
+                    })
+        else:
+            # Fallback to generic item
+            items.append({
+                "id": "1",
+                "title": f"Payment - {tx_values.get('reference', 'Transaction')}",
+                "unit_price": int(tx_values["amount"] * 100),  # Convert to cents
+                "quantity": 1,
+                "tangible": False,
+            })
+
+        order_data = {
+            "amount": int(tx_values["amount"] * 100),  # Amount in cents
+            "currency": "BRL",
+            "items": items,
+        }
+
+        return order_data
+
+    def _prepare_pagarme_payment_data(self, tx_values, card_data):
+        """Prepare payment data for Pagar.me API."""
+        if self.code != "pagarme":
+            return super()._prepare_pagarme_payment_data(tx_values, card_data)
+
+        payment_data = {
+            "payment_method": "credit_card",
+            "credit_card": {
+                "installments": card_data.get("installments", 1),
+                "statement_descriptor": "PAGARME",
+                "card": {
+                    "number": card_data.get("card_number"),
+                    "holder_name": card_data.get("card_holder_name"),
+                    "exp_month": int(card_data.get("card_exp_month")),
+                    "exp_year": int(card_data.get("card_exp_year")),
+                    "cvv": card_data.get("card_cvv"),
+                }
+            }
+        }
+
+        return payment_data
+
+    def _get_supported_currencies(self):
+        """Return supported currencies for Pagar.me (BRL only)."""
+        supported_currencies = super()._get_supported_currencies()
+        if self.code == "pagarme":
+            supported_currencies = supported_currencies.filtered(lambda c: c.name == "BRL")
+        return supported_currencies
+
+    def _get_supported_countries(self):
+        """Return supported countries for Pagar.me (Brazil only)."""
+        supported_countries = super()._get_supported_countries()
+        if self.code == "pagarme":
+            supported_countries = supported_countries.filtered(lambda c: c.code == "BR")
+        return supported_countries

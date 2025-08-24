@@ -8,31 +8,20 @@
         <field name="state">disabled</field>
         <field name="is_published">false</field>
         <field name="company_id" ref="base.main_company"/>
-        <field name="redirect_form_view_id" ref="redirect_form"/>
-        <field name="inline_form_view_id" ref="inline_form"/>
         
         <!-- Pagar.me specific fields -->
         <field name="pagarme_api_key"></field>
         <field name="pagarme_encryption_key"></field>
-        <field name="pagarme_webhook_url"></field>
         
         <!-- Payment method configuration -->
         <field name="capture_manually">false</field>
         <field name="allow_tokenization">true</field>
-        <field name="allow_express_checkout">false</field>
         
         <!-- Supported countries (Brazil) -->
         <field name="country_ids" eval="[(6, 0, [ref('base.br')])]"/>
         
         <!-- Supported currencies (BRL) -->
         <field name="currency_ids" eval="[(6, 0, [ref('base.BRL')])]"/>
-        
-        <!-- Module that handles this provider -->
-        <field name="module_id" ref="base.module_payment_pagarme"/>
-        <field name="module_state">installed</field>
-        
-        <!-- Image/logo -->
-        <field name="image_128" type="base64" file="payment_pagarme/static/img/pagarme_logo.png"/>
         
         <!-- Provider specific configuration -->
         <field name="pre_msg">
@@ -66,49 +55,5 @@
             <p>Please try again or contact support if the problem persists.</p>
             ]]>
         </field>
-    </record>
-
-    <!-- Payment method configuration for Credit Card -->
-    <record id="payment_method_pagarme_credit_card" model="payment.method">
-        <field name="name">Credit Card</field>
-        <field name="code">credit_card</field>
-        <field name="provider_ids" eval="[(6, 0, [ref('payment_provider_pagarme')])]"/>
-        <field name="primary">true</field>
-        <field name="active">true</field>
-        <field name="sequence">1</field>
-        <field name="image_payment_form" type="base64" file="payment_pagarme/static/img/credit_card_icon.png"/>
-    </record>
-
-    <!-- Payment method configuration for PIX (future use) -->
-    <record id="payment_method_pagarme_pix" model="payment.method">
-        <field name="name">PIX</field>
-        <field name="code">pix</field>
-        <field name="provider_ids" eval="[(6, 0, [ref('payment_provider_pagarme')])]"/>
-        <field name="primary">false</field>
-        <field name="active">false</field>
-        <field name="sequence">2</field>
-        <field name="image_payment_form" type="base64" file="payment_pagarme/static/img/pix_icon.png"/>
-    </record>
-
-    <!-- Payment method configuration for Boleto (future use) -->
-    <record id="payment_method_pagarme_boleto" model="payment.method">
-        <field name="name">Boleto Bancário</field>
-        <field name="code">boleto</field>
-        <field name="provider_ids" eval="[(6, 0, [ref('payment_provider_pagarme')])]"/>
-        <field name="primary">false</field>
-        <field name="active">false</field>
-        <field name="sequence">3</field>
-        <field name="image_payment_form" type="base64" file="payment_pagarme/static/img/boleto_icon.png"/>
-    </record>
-
-    <!-- Payment Journal Entry -->
-    <record id="payment_journal_pagarme" model="account.journal">
-        <field name="name">Pagar.me</field>
-        <field name="code">PAGARME</field>
-        <field name="type">bank</field>
-        <field name="currency_id" ref="base.BRL"/>
-        <field name="company_id" ref="base.main_company"/>
-        <field name="sequence">100</field>
-        <field name="active">true</field>
     </record>
 </odoo>
