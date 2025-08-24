@@ -1,59 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <!-- Pagar.me Payment Provider Data -->
+<odoo noupdate="1">
+
     <record id="payment_provider_pagarme" model="payment.provider">
         <field name="name">Pagar.me</field>
         <field name="code">pagarme</field>
-        <field name="sequence">10</field>
         <field name="state">disabled</field>
-        <field name="is_published">false</field>
-        <field name="company_id" ref="base.main_company"/>
-        
-        <!-- Pagar.me specific fields -->
-        <field name="pagarme_api_key"></field>
-        <field name="pagarme_encryption_key"></field>
-        
-        <!-- Payment method configuration -->
-        <field name="capture_manually">false</field>
-        <field name="allow_tokenization">true</field>
-        
-        <!-- Supported countries (Brazil) -->
-        <field name="country_ids" eval="[(6, 0, [ref('base.br')])]"/>
-        
-        <!-- Supported currencies (BRL) -->
-        <field name="currency_ids" eval="[(6, 0, [ref('base.BRL')])]"/>
-        
-        <!-- Provider specific configuration -->
-        <field name="pre_msg">
-            <![CDATA[
-            <p>Pay securely with your credit card through Pagar.me.</p>
-            <ul>
-                <li>Support for all major credit card brands</li>
-                <li>Installment payments available</li>
-                <li>Secure encryption of sensitive data</li>
-                <li>Real-time transaction processing</li>
-            </ul>
-            ]]>
-        </field>
-        
-        <field name="pending_msg">
-            <![CDATA[
-            <p>Your payment is being processed by Pagar.me.</p>
-            <p>You will receive a confirmation email shortly.</p>
-            ]]>
-        </field>
-        
-        <field name="auth_msg">
-            <![CDATA[
-            <p>Your payment has been successfully processed by Pagar.me.</p>
-            ]]>
-        </field>
-        
-        <field name="cancel_msg">
-            <![CDATA[
-            <p>Your payment was not processed by Pagar.me.</p>
-            <p>Please try again or contact support if the problem persists.</p>
-            ]]>
-        </field>
+        <field name="allow_tokenization">True</field>
     </record>
+
 </odoo>
