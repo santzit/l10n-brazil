@@ -1,0 +1,75 @@
+/* Stone/Pagar.me Payment Provider Styles */
+
+.o_payment_form .stone_pagarme_form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.stone_pagarme_form .form-group {
+    margin-bottom: 15px;
+}
+
+.stone_pagarme_form .form-control {
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    font-size: 14px;
+}
+
+.stone_pagarme_form .card-input {
+    background: url('/stone_pagarme_payment/static/src/img/cards.png') no-repeat right center;
+    background-size: 60px;
+    padding-right: 70px;
+}
+
+.stone_pagarme_form .form-row {
+    display: flex;
+    gap: 10px;
+}
+
+.stone_pagarme_form .form-row .form-group {
+    flex: 1;
+}
+
+.stone_pagarme_form .installments-select {
+    width: 100%;
+}
+
+.stone_pagarme_form .payment-processing {
+    display: none;
+    text-align: center;
+    padding: 20px;
+}
+
+.stone_pagarme_form .payment-processing .spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.stone_pagarme_form .alert {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+.stone_pagarme_form .alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.stone_pagarme_form .alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}

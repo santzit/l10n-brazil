@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Stone/Pagar.me Payment Provider Form View -->
+    <record id="payment_provider_form_stone_pagarme" model="ir.ui.view">
+        <field name="name">payment.provider.form.stone_pagarme</field>
+        <field name="model">payment.provider</field>
+        <field name="inherit_id" ref="payment.payment_provider_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='provider_credentials']" position="after">
+                <group name="stone_pagarme_credentials" 
+                       invisible="code != 'stone_pagarme'"
+                       string="Stone/Pagar.me Credentials">
+                    <field name="stone_pagarme_api_key" password="True"/>
+                    <field name="stone_pagarme_encryption_key" password="True"/>
+                </group>
+                <group name="stone_pagarme_config"
+                       invisible="code != 'stone_pagarme'"
+                       string="Stone/Pagar.me Configuration">
+                    <field name="stone_pagarme_webhook_url" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Stone/Pagar.me Payment Provider Configuration Note -->
+    <record id="payment_provider_stone_pagarme_note" model="ir.ui.view">
+        <field name="name">payment.provider.stone_pagarme.note</field>
+        <field name="model">payment.provider</field>
+        <field name="inherit_id" ref="payment.payment_provider_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='provider_config']" position="after">
+                <div name="stone_pagarme_config_note" 
+                     invisible="code != 'stone_pagarme'"
+                     class="alert alert-info">
+                    <h4>Stone/Pagar.me Configuration</h4>
+                    <p>
+                        <strong>API Key:</strong> Your Stone/Pagar.me API key for authenticating requests.
+                        You can find this in your Stone/Pagar.me dashboard under API settings.
+                    </p>
+                    <p>
+                        <strong>Encryption Key:</strong> Your Stone/Pagar.me encryption key used to securely 
+                        transmit card data. This is essential for transparent checkout functionality.
+                    </p>
+                    <p>
+                        <strong>Webhook URL:</strong> Configure this URL in your Stone/Pagar.me dashboard 
+                        to receive payment notifications. This enables automatic transaction status updates.
+                    </p>
+                    <p>
+                        <strong>Currency Support:</strong> Stone/Pagar.me only supports Brazilian Real (BRL).
+                        Ensure your transactions are in BRL currency.
+                    </p>
+                    <p>
+                        <strong>Customer Data:</strong> Stone/Pagar.me requires Brazilian customer information 
+                        including CPF/CNPJ. Ensure your customer records have proper Brazilian localization data.
+                    </p>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Stone/Pagar.me Inline Payment Form -->
+    <template id="stone_pagarme_inline_form">
+        <form name="stone_pagarme_inline_form" class="stone_pagarme_form">
+            <div class="stone_pagarme_errors"></div>
+            
+            <div class="payment-form">
+                <div class="form-group">
+                    <label for="card_number">Card Number</label>
+                    <input type="text" 
+                           name="card_number" 
+                           class="form-control card-input" 
+                           placeholder="1234 5678 9012 3456"
+                           maxlength="19"
+                           required="required"/>
+                </div>
+                
+                <div class="form-group">
+                    <label for="card_holder_name">Card Holder Name</label>
+                    <input type="text" 
+                           name="card_holder_name" 
+                           class="form-control" 
+                           placeholder="Nome como no cartão"
+                           required="required"/>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="card_expiration_date">Expiry Date</label>
+                        <input type="text" 
+                               name="card_expiration_date" 
+                               class="form-control" 
+                               placeholder="MM/YY"
+                               maxlength="5"
+                               required="required"/>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="card_cvv">CVV</label>
+                        <input type="text" 
+                               name="card_cvv" 
+                               class="form-control" 
+                               placeholder="123"
+                               maxlength="4"
+                               required="required"/>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="installments">Installments</label>
+                    <select name="installments" class="form-control installments-select">
+                        <option value="1">1x sem juros</option>
+                        <option value="2">2x sem juros</option>
+                        <option value="3">3x sem juros</option>
+                        <option value="4">4x sem juros</option>
+                        <option value="5">5x sem juros</option>
+                        <option value="6">6x sem juros</option>
+                        <option value="7">7x sem juros</option>
+                        <option value="8">8x sem juros</option>
+                        <option value="9">9x sem juros</option>
+                        <option value="10">10x sem juros</option>
+                        <option value="11">11x sem juros</option>
+                        <option value="12">12x sem juros</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="payment-processing">
+                <div class="spinner"></div>
+                <p>Processing payment...</p>
+            </div>
+        </form>
+    </template>
+
+    <!-- Stone/Pagar.me Redirect Payment Form -->
+    <template id="stone_pagarme_redirect_form">
+        <form name="stone_pagarme_redirect_form" 
+              action="/payment/stone_pagarme/return" 
+              method="post">
+            <input type="hidden" name="reference" t-att-value="reference"/>
+            <!-- This form would redirect to Stone/Pagar.me hosted checkout if implemented -->
+            <div class="alert alert-info">
+                <p>You will be redirected to Stone/Pagar.me to complete your payment.</p>
+            </div>
+        </form>
+    </template>
+
+</odoo>
