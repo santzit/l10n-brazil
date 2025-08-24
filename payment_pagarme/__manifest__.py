@@ -1,0 +1,33 @@
+# Copyright 2024 KMEE INFORMATICA LTDA
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+
+{
+    "name": "Payment Pagar.me",
+    "summary": "Stone/Pagar.me transparent checkout payment provider for Brazilian market",
+    "version": "16.0.1.0.0",
+    "license": "AGPL-3",
+    "author": "KMEE, Odoo Community Association (OCA)",
+    "website": "https://github.com/OCA/l10n-brazil",
+    "category": "Accounting/Payment Providers",
+    "depends": [
+        "payment",
+        "l10n_br_base",
+    ],
+    "data": [
+        "data/pagarme_provider.xml",
+        "views/payment_pagarme_templates.xml",
+    ],
+    "assets": {
+        "web.assets_frontend": [
+            "payment_pagarme/static/src/js/pagarme_checkout.js",
+        ],
+    },
+    "installable": True,
+    "application": False,
+    "auto_install": False,
+    "external_dependencies": {
+        "python": [
+            "requests",
+        ]
+    },
+}
