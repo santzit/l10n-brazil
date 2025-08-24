@@ -6,37 +6,94 @@ odoo.define('payment_pagarme.checkout', function (require) {
     'use strict';
 
     var core = require('web.core');
-    var publicWidget = require('web.public.widget');
     var PaymentFormMixin = require('payment.payment_form_mixin');
 
     var _t = core._t;
 
     /**
-     * Pagar.me Payment Form Widget
+     * Pagar.me Payment Form Mixin
      * Handles transparent checkout for Pagar.me payments
      */
-    var PagarmePaymentForm = publicWidget.Widget.extend(PaymentFormMixin, {
-        selector: '.pagarme-payment-form',
-        events: {
-            'submit #pagarme-payment-form': '_onSubmitForm',
-            'input #pagarme_card_number': '_onCardNumberInput',
-            'input #pagarme_customer_document': '_onDocumentInput', 
-            'input #pagarme_zipcode': '_onZipcodeInput',
-            'change #pagarme_installments': '_onInstallmentsChange',
-        },
+    var PagarmePaymentForm = PaymentFormMixin.extend({
+        events: _.extend({}, PaymentFormMixin.prototype.events, {
+            'input input[name="pagarme_card_number"]': '_onCardNumberInput',
+            'input input[name="pagarme_customer_document"]': '_onDocumentInput', 
+            'input input[name="pagarme_zipcode"]': '_onZipcodeInput',
+            'change select[name="pagarme_installments"]': '_onInstallmentsChange',
+        }),
 
         /**
          * @override
          */
         start: function () {
             this._super.apply(this, arguments);
-            this._initializeForm();
+            if (this._isProviderPagarme()) {
+                this._initializeForm();
+            }
             return this._super.apply(this, arguments);
         },
 
         //--------------------------------------------------------------------------
         // Private
         //--------------------------------------------------------------------------
+
+        /**
+         * Check if provider is Pagar.me
+         * @private
+         * @returns {Boolean}
+         */
+        _isProviderPagarme: function () {
+            return this.$('input[name="provider_code"]').val() === 'pagarme';
+        },
+
+        /**
+         * @override
+         */
+        _processPayment: function () {
+            if (!this._isProviderPagarme()) {
+                return this._super.apply(this, arguments);
+            }
+            return this._processPagarmePayment();
+        },
+
+        /**
+         * Process Pagar.me payment
+         * @private
+         */
+        _processPagarmePayment: function () {
+            var self = this;
+            
+            if (!this._validatePagarmeForm()) {
+                return Promise.reject();
+            }
+            
+            // Show loading
+            this._showLoading();
+            
+            // Prepare payment data
+            var paymentData = this._preparePagarmePaymentData();
+            
+            // Send to backend for processing
+            return this._rpc({
+                route: '/payment/pagarme/process_payment',
+                params: paymentData,
+            }).then(function (result) {
+                self._hideLoading();
+                
+                if (result.status === 'success') {
+                    // Redirect to status page
+                    window.location.href = result.redirect_url;
+                } else {
+                    self._displayError(result.message || 'Erro ao processar pagamento');
+                    return Promise.reject();
+                }
+            }).catch(function (error) {
+                self._hideLoading();
+                self._displayError('Erro interno. Tente novamente.');
+                console.error('Payment processing error:', error);
+                return Promise.reject();
+            });
+        },
 
         /**
          * Initialize the payment form
@@ -61,7 +118,9 @@ odoo.define('payment_pagarme.checkout', function (require) {
          * @private
          */
         _populateYearOptions: function () {
-            var $yearSelect = this.$('#pagarme_card_exp_year');
+            var $yearSelect = this.$('select[name="pagarme_card_exp_year"]');
+            if ($yearSelect.length === 0) return;
+            
             var currentYear = new Date().getFullYear();
             
             for (var i = 0; i <= 10; i++) {
@@ -105,7 +164,7 @@ odoo.define('payment_pagarme.checkout', function (require) {
          * @param {Array} installments - Available installment options
          */
         _updateInstallmentOptions: function (installments) {
-            var $installmentsSelect = this.$('#pagarme_installments');
+            var $installmentsSelect = this.$('select[name="pagarme_installments"]');
             $installmentsSelect.empty();
             
             installments.forEach(function (option) {
@@ -124,19 +183,19 @@ odoo.define('payment_pagarme.checkout', function (require) {
          */
         _initializeInputMasks: function () {
             // Card number mask
-            this._applyMask('#pagarme_card_number', '0000 0000 0000 0000');
+            this._applyMask('input[name="pagarme_card_number"]', '0000 0000 0000 0000');
             
             // Document mask (CPF/CNPJ)
-            this._applyDocumentMask('#pagarme_customer_document');
+            this._applyDocumentMask('input[name="pagarme_customer_document"]');
             
             // Phone mask
-            this._applyMask('#pagarme_customer_phone', '(00) 00000-0000');
+            this._applyMask('input[name="pagarme_customer_phone"]', '(00) 00000-0000');
             
             // Zipcode mask
-            this._applyMask('#pagarme_zipcode', '00000-000');
+            this._applyMask('input[name="pagarme_zipcode"]', '00000-000');
             
             // CVV mask
-            this._applyMask('#pagarme_card_cvv', '0000');
+            this._applyMask('input[name="pagarme_card_cvv"]', '0000');
         },
 
         /**
@@ -208,7 +267,7 @@ odoo.define('payment_pagarme.checkout', function (require) {
                 elo: /^((((636368)|(438935)|(504175)|(451416)|(636297))\d{0,10})|((5067)|(4576)|(4011))\d{0,12})$/,
             };
             
-            this.$('#pagarme_card_number').on('input', function () {
+            this.$('input[name="pagarme_card_number"]').on('input', function () {
                 var cardNumber = this.value.replace(/\s/g, '');
                 var detectedBrand = null;
                 
@@ -238,22 +297,6 @@ odoo.define('payment_pagarme.checkout', function (require) {
         //--------------------------------------------------------------------------
         // Handlers
         //--------------------------------------------------------------------------
-
-        /**
-         * Handle form submission
-         * @private
-         * @param {Event} ev
-         */
-        _onSubmitForm: function (ev) {
-            ev.preventDefault();
-            ev.stopPropagation();
-            
-            if (!this._validateForm()) {
-                return;
-            }
-            
-            this._processPayment();
-        },
 
         /**
          * Handle card number input
@@ -321,11 +364,11 @@ odoo.define('payment_pagarme.checkout', function (require) {
         //--------------------------------------------------------------------------
 
         /**
-         * Validate the entire form
+         * Validate the Pagar.me form
          * @private
          * @returns {Boolean}
          */
-        _validateForm: function () {
+        _validatePagarmeForm: function () {
             var isValid = true;
             
             // Validate required fields
@@ -357,7 +400,7 @@ odoo.define('payment_pagarme.checkout', function (require) {
          * @returns {Boolean}
          */
         _validateCardNumber: function () {
-            var cardNumber = this.$('#pagarme_card_number').val().replace(/\s/g, '');
+            var cardNumber = this.$('input[name="pagarme_card_number"]').val().replace(/\s/g, '');
             
             // Luhn algorithm validation
             var sum = 0;
@@ -380,9 +423,9 @@ odoo.define('payment_pagarme.checkout', function (require) {
             var isValid = (sum % 10) === 0 && cardNumber.length >= 13;
             
             if (!isValid) {
-                this._markFieldInvalid('#pagarme_card_number', 'Número do cartão inválido');
+                this._markFieldInvalid('input[name="pagarme_card_number"]', 'Número do cartão inválido');
             } else {
-                this._markFieldValid('#pagarme_card_number');
+                this._markFieldValid('input[name="pagarme_card_number"]');
             }
             
             return isValid;
@@ -394,7 +437,7 @@ odoo.define('payment_pagarme.checkout', function (require) {
          * @returns {Boolean}
          */
         _validateDocument: function () {
-            var document = this.$('#pagarme_customer_document').val().replace(/\D/g, '');
+            var document = this.$('input[name="pagarme_customer_document"]').val().replace(/\D/g, '');
             var isValid = false;
             
             if (document.length === 11) {
@@ -404,9 +447,9 @@ odoo.define('payment_pagarme.checkout', function (require) {
             }
             
             if (!isValid) {
-                this._markFieldInvalid('#pagarme_customer_document', 'CPF/CNPJ inválido');
+                this._markFieldInvalid('input[name="pagarme_customer_document"]', 'CPF/CNPJ inválido');
             } else {
-                this._markFieldValid('#pagarme_customer_document');
+                this._markFieldValid('input[name="pagarme_customer_document"]');
             }
             
             return isValid;
@@ -488,52 +531,19 @@ odoo.define('payment_pagarme.checkout', function (require) {
         //--------------------------------------------------------------------------
 
         /**
-         * Process the payment
-         * @private
-         */
-        _processPayment: function () {
-            var self = this;
-            
-            // Show loading
-            this._showLoading();
-            
-            // Prepare payment data
-            var paymentData = this._preparePaymentData();
-            
-            // Send to backend for processing
-            this._rpc({
-                route: '/payment/pagarme/process_payment',
-                params: paymentData,
-            }).then(function (result) {
-                self._hideLoading();
-                
-                if (result.status === 'success') {
-                    // Redirect to status page
-                    window.location.href = result.redirect_url;
-                } else {
-                    self._showError(result.message || 'Erro ao processar pagamento');
-                }
-            }).catch(function (error) {
-                self._hideLoading();
-                self._showError('Erro interno. Tente novamente.');
-                console.error('Payment processing error:', error);
-            });
-        },
-
-        /**
          * Prepare payment data for API
          * @private
          * @returns {Object}
          */
-        _preparePaymentData: function () {
+        _preparePagarmePaymentData: function () {
             return {
                 reference: this.$('input[name="reference"]').val(),
-                card_number: this.$('#pagarme_card_number').val().replace(/\s/g, ''),
-                card_holder_name: this.$('#pagarme_card_holder_name').val(),
-                card_exp_month: this.$('#pagarme_card_exp_month').val(),
-                card_exp_year: this.$('#pagarme_card_exp_year').val(),
-                card_cvv: this.$('#pagarme_card_cvv').val(),
-                installments: parseInt(this.$('#pagarme_installments').val()),
+                card_number: this.$('input[name="pagarme_card_number"]').val().replace(/\s/g, ''),
+                card_holder_name: this.$('input[name="pagarme_card_holder_name"]').val(),
+                card_exp_month: this.$('select[name="pagarme_card_exp_month"]').val(),
+                card_exp_year: this.$('select[name="pagarme_card_exp_year"]').val(),
+                card_cvv: this.$('input[name="pagarme_card_cvv"]').val(),
+                installments: parseInt(this.$('select[name="pagarme_installments"]').val()),
             };
         },
 
@@ -546,9 +556,7 @@ odoo.define('payment_pagarme.checkout', function (require) {
          * @private
          */
         _showLoading: function () {
-            this.$('#pagarme-loading').removeClass('d-none');
-            this.$('#pagarme-form-container').addClass('d-none');
-            this.$('#pagarme-submit-button').prop('disabled', true);
+            this._toggleLoadingButton(true);
         },
 
         /**
@@ -556,20 +564,16 @@ odoo.define('payment_pagarme.checkout', function (require) {
          * @private
          */
         _hideLoading: function () {
-            this.$('#pagarme-loading').addClass('d-none');
-            this.$('#pagarme-form-container').removeClass('d-none');
-            this.$('#pagarme-submit-button').prop('disabled', false);
+            this._toggleLoadingButton(false);
         },
 
         /**
-         * Show error message
+         * Display error message
          * @private
          * @param {String} message
          */
-        _showError: function (message) {
-            this.$('#pagarme-error-messages')
-                .text(message)
-                .removeClass('d-none');
+        _displayError: function (message) {
+            this._displayNotification(_t('Payment Error'), message, 'warning');
         },
 
         /**
@@ -620,8 +624,8 @@ odoo.define('payment_pagarme.checkout', function (require) {
         },
     });
 
-    // Auto-initialize the widget when the page loads
-    publicWidget.registry.PagarmePaymentForm = PagarmePaymentForm;
+    // Register the mixin
+    PaymentFormMixin.include(PagarmePaymentForm);
 
     return PagarmePaymentForm;
 });
