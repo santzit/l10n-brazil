@@ -294,3 +294,26 @@ class PaymentProvider(models.Model):
         if self.code == "pagarme":
             supported_countries = supported_countries.filtered(lambda c: c.code == "BR")
         return supported_countries
+
+    def _should_build_inline_form(self, is_validation=False):
+        """Return whether the inline form should be instantiated if Pagar.me is selected."""
+        if self.code != 'pagarme':
+            return super()._should_build_inline_form(is_validation)
+        
+        _logger.warning("=========== PAGAR.ME DEBUG ===========")
+        _logger.warning("_should_build_inline_form called! is_validation=%s", is_validation)
+        _logger.warning("======================================")
+        
+        return True
+
+    def _get_inline_form_template(self):
+        """Return the template for the inline form."""
+        if self.code != 'pagarme':
+            return super()._get_inline_form_template()
+        
+        _logger.warning("=========== PAGAR.ME DEBUG ===========")
+        _logger.warning("_get_inline_form_template called!")
+        _logger.warning("Returning template: payment_pagarme.inline_form")
+        _logger.warning("======================================")
+        
+        return 'payment_pagarme.inline_form'
