@@ -2,7 +2,16 @@
 <odoo>
 
     <template id="inline_form" name="Pagar.me Inline Form">
-        <div t-attf-id="o_pagarme_payment_container_{{payment_option_id}}" class="o_pagarme_payment_form">
+        <div t-attf-id="o_pagarme_payment_container_{{payment_option_id or provider_id or id}}" class="o_pagarme_payment_form">
+            <!-- Debug Information -->
+            <div class="alert alert-success" style="margin: 15px 0; padding: 15px; border: 2px solid #28a745;">
+                <h5 style="margin: 0 0 10px 0;">✅ PAGAR.ME TEMPLATE RENDERED SUCCESSFULLY!</h5>
+                <div><strong>Container ID:</strong> <code>o_pagarme_payment_container_<t t-esc="payment_option_id or provider_id or id"/></code></div>
+                <div><strong>Provider ID:</strong> <t t-esc="provider_id"/></div>
+                <div><strong>Payment Option ID:</strong> <t t-esc="payment_option_id"/></div>
+                <div><strong>Template Variables:</strong> payment_option_id=<t t-esc="payment_option_id"/>, provider_id=<t t-esc="provider_id"/>, id=<t t-esc="id"/></div>
+            </div>
+            
             <!-- Card input form -->
             <div class="card" style="margin: 15px 0; padding: 20px;">
                 <h5 class="card-title">💳 Dados do Cartão de Crédito</h5>

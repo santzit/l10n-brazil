@@ -483,15 +483,24 @@ class PaymentTransaction(models.Model):
         _logger.warning("_get_processing_info called for transaction: %s", self.reference)
         _logger.warning("Provider: %s (ID: %s)", self.provider_id.name, self.provider_id.id)
         _logger.warning("State: %s", self.state)
+        _logger.warning("Provider code: %s", self.provider_code)
         _logger.warning("===============================================")
         
-        # Return processing info for inline payment form
-        return {
+        # Return processing info that forces inline payment processing
+        processing_info = {
             'provider_id': self.provider_id.id,
             'provider_code': 'pagarme',
             'reference': self.reference,
             'access_token': self.access_token,
         }
+        
+        # CRITICAL: Add inline form configuration to force inline processing
+        if hasattr(self.provider_id, 'inline_form_view_id') and self.provider_id.inline_form_view_id:
+            processing_info['inline_form_view_id'] = self.provider_id.inline_form_view_id.id
+            _logger.warning("ADDED INLINE FORM VIEW ID: %s", self.provider_id.inline_form_view_id.id)
+        
+        _logger.warning("PROCESSING INFO: %s", processing_info)
+        return processing_info
 
     def _get_tx_from_notification_data(self, provider_code, notification_data):
         """Override to handle Pagar.me notification data."""

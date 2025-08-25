@@ -330,3 +330,18 @@ class PaymentProvider(models.Model):
         
         return template_name
 
+    @api.model
+    def _get_compatible_providers(self, *args, **kwargs):
+        """Override to force Pagar.me inline form detection."""
+        providers = super()._get_compatible_providers(*args, **kwargs)
+        
+        # Force inline form support for Pagar.me providers
+        pagarme_providers = providers.filtered(lambda p: p.code == 'pagarme')
+        for provider in pagarme_providers:
+            _logger.warning("FORCING INLINE FORM SUPPORT FOR PAGAR.ME PROVIDER %s", provider.name)
+            # Ensure the provider has inline form configuration
+            if not provider.inline_form_view_id:
+                _logger.error("PAGAR.ME PROVIDER %s MISSING INLINE_FORM_VIEW_ID!", provider.name)
+        
+        return providers
+
