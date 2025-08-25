@@ -1,97 +1,60 @@
 /** @odoo-module **/
 
+import publicWidget from 'web.public.widget';
+
 console.log('🚀 PAGAR.ME MODULE LOADING...');
 
-// Enhanced approach - check for template and provide comprehensive debugging
-(function() {
-    'use strict';
-    
-    let checkStarted = false;
-    
-    function startTemplateCheck() {
-        if (checkStarted) return;
-        checkStarted = true;
+publicWidget.registry.PagarmePaymentForm = publicWidget.Widget.extend({
+    selector: '.o_pagarme_payment_form',
+    events: {
+        'input #pagarme_card_number': '_onCardNumberInput',
+        'input #pagarme_card_expiry': '_onExpiryInput',
+        'input #pagarme_card_cvv': '_onCvvInput',
+    },
+
+    init: function () {
+        this._super.apply(this, arguments);
+        console.log('📦 Pagar.me payment form widget initialized');
+    },
+
+    start: function () {
+        console.log('🎯 PAGAR.ME PAYMENT FORM STARTED!');
+        console.log('✅ Template rendered successfully - form is ready for payment processing');
         
-        console.log('📦 Pagar.me template checker starting...');
+        // Show success message
+        this._showMessage('✅ Pagar.me Ready', 'Payment form loaded successfully. Enter your card details to proceed.', 'success');
         
-        // Immediate check
-        checkForTemplate();
-        
-        // Periodic checks
-        let checkCount = 0;
-        const maxChecks = 30; // Increased check count
-        
-        const checkInterval = setInterval(() => {
-            checkCount++;
-            console.log(`🔍 Pagar.me template check #${checkCount}`);
-            
-            if (checkForTemplate()) {
-                clearInterval(checkInterval);
-                return;
-            }
-            
-            if (checkCount >= maxChecks) {
-                console.log('⏰ TIMEOUT: Template check stopped after', maxChecks, 'attempts');
-                showMessage('❌ Template não encontrado', 'Template Pagar.me não foi renderizado após 15 segundos. Verifique se o provider está ativo e configurado corretamente.', 'warning');
-                clearInterval(checkInterval);
-            }
-        }, 500);
-        
-        // Also check when clicking pay buttons
-        document.addEventListener('click', function(event) {
-            const target = event.target;
-            if (target && (
-                target.textContent?.includes('Pay') || 
-                target.textContent?.includes('Pagar') ||
-                target.classList.contains('btn-payment') ||
-                target.closest('[name="o_payment_submit_button"]')
-            )) {
-                console.log('🔘 Pay button clicked, checking for template...');
-                setTimeout(() => checkForTemplate(), 100);
-                setTimeout(() => checkForTemplate(), 500);
-                setTimeout(() => checkForTemplate(), 1000);
-            }
-        });
-    }
-    
-    function checkForTemplate() {
-        // Look for various Pagar.me indicators
-        const indicators = {
-            container: document.querySelector('[id*="o_pagarme_payment_container"]'),
-            form: document.querySelector('.o_pagarme_payment_form'),
-            debugTemplate: document.querySelector('[style*="background: #28a745"]'),
-            cardField: document.getElementById('pagarme_card_number'),
-            successBanner: document.querySelector('[style*="PAGAR.ME TEMPLATE RENDERED"]')
-        };
-        
-        const found = Object.values(indicators).some(el => el !== null);
-        
-        if (found) {
-            console.log('✅ PAGAR.ME TEMPLATE DETECTED!');
-            Object.entries(indicators).forEach(([key, element]) => {
-                if (element) {
-                    console.log(`✓ ${key}:`, element.id || element.className, element.tagName);
-                }
-            });
-            
-            showMessage('✅ Template Funcionando!', 'Template Pagar.me foi detectado e renderizado com sucesso! Os campos de cartão estão disponíveis.', 'success');
-            return true;
+        return this._super.apply(this, arguments);
+    },
+
+    _onCardNumberInput: function (ev) {
+        const input = ev.currentTarget;
+        let value = input.value.replace(/\s/g, '').replace(/\D/g, '');
+        value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+        input.value = value;
+    },
+
+    _onExpiryInput: function (ev) {
+        const input = ev.currentTarget;
+        let value = input.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2, 4);
         }
-        
-        return false;
-    }
-    
-    function showMessage(title, message, type) {
+        input.value = value;
+    },
+
+    _onCvvInput: function (ev) {
+        const input = ev.currentTarget;
+        input.value = input.value.replace(/\D/g, '');
+    },
+
+    _showMessage: function (title, message, type) {
         const existingMessage = document.querySelector('.pagarme-status-message');
         if (existingMessage) {
             existingMessage.remove();
         }
         
-        const container = document.querySelector('.o_payment_form') || 
-                         document.querySelector('#payment_method') ||
-                         document.querySelector('main') ||
-                         document.body;
-        
+        const container = this.$el[0];
         if (!container) return;
         
         const alertClass = type === 'success' ? 'alert-success' : type === 'warning' ? 'alert-warning' : 'alert-danger';
@@ -99,14 +62,14 @@ console.log('🚀 PAGAR.ME MODULE LOADING...');
         
         const messageDiv = document.createElement('div');
         messageDiv.className = `alert ${alertClass} pagarme-status-message`;
-        messageDiv.style.cssText = 'margin: 15px 0; padding: 15px; border-radius: 8px; font-weight: bold; border: 2px solid;';
+        messageDiv.style.cssText = 'margin: 10px 0; padding: 10px; border-radius: 5px; font-size: 14px;';
         messageDiv.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <strong>${icon} ${title}</strong><br>
-                    <span style="font-weight: normal;">${message}</span>
+                    <strong>${icon} ${title}</strong>
+                    <span style="margin-left: 10px;">${message}</span>
                 </div>
-                <button type="button" style="background: none; border: none; font-size: 18px; cursor: pointer;" onclick="this.closest('.pagarme-status-message').remove()">&times;</button>
+                <button type="button" style="background: none; border: none; font-size: 16px; cursor: pointer;" onclick="this.closest('.pagarme-status-message').remove()">&times;</button>
             </div>
         `;
         
@@ -118,20 +81,9 @@ console.log('🚀 PAGAR.ME MODULE LOADING...');
                 if (messageDiv.parentElement) {
                     messageDiv.remove();
                 }
-            }, 15000);
+            }, 10000);
         }
-    }
-    
-    // Start checks when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', startTemplateCheck);
-    } else {
-        startTemplateCheck();
-    }
-    
-    // Also start when page is fully loaded (for dynamic content)
-    window.addEventListener('load', startTemplateCheck);
-    
-})();
+    },
+});
 
-console.log('🔧 Pagar.me template checker loaded and ready!');
+console.log('🔧 Pagar.me payment form widget registered!');

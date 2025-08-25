@@ -474,6 +474,25 @@ class PaymentTransaction(models.Model):
         
         return True
 
+    def _get_processing_info(self):
+        """Override to return the processing information for Pagar.me transactions."""
+        if self.provider_code != 'pagarme':
+            return super()._get_processing_info()
+        
+        _logger.warning("=========== PAGAR.ME PROCESSING INFO ===========")
+        _logger.warning("_get_processing_info called for transaction: %s", self.reference)
+        _logger.warning("Provider: %s (ID: %s)", self.provider_id.name, self.provider_id.id)
+        _logger.warning("State: %s", self.state)
+        _logger.warning("===============================================")
+        
+        # Return processing info for inline payment form
+        return {
+            'provider_id': self.provider_id.id,
+            'provider_code': 'pagarme',
+            'reference': self.reference,
+            'access_token': self.access_token,
+        }
+
     def _get_tx_from_notification_data(self, provider_code, notification_data):
         """Override to handle Pagar.me notification data."""
         if provider_code != "pagarme":

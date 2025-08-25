@@ -3,15 +3,6 @@
 
     <template id="inline_form" name="Pagar.me Inline Form">
         <div t-attf-id="o_pagarme_payment_container_{{payment_option_id}}" class="o_pagarme_payment_form">
-            <!-- Prominent success indicator with enhanced debugging -->
-            <div style="background: #28a745; color: white; padding: 20px; margin: 15px 0; font-weight: bold; border: 4px solid #155724; border-radius: 8px; text-align: center; font-size: 16px;">
-                ✅ PAGAR.ME TEMPLATE RENDERED SUCCESSFULLY!
-                <br/>🎉 Inline form integration is working correctly!
-                <br/>📋 Payment Option ID: <span t-esc="payment_option_id"/>
-                <br/>🎯 Container ID: o_pagarme_payment_container_<span t-esc="payment_option_id"/>
-                <br/>🔧 Template called at: <span t-esc="context_today()"/>
-            </div>
-            
             <!-- Card input form -->
             <div class="card" style="margin: 15px 0; padding: 20px;">
                 <h5 class="card-title">💳 Dados do Cartão de Crédito</h5>
@@ -46,11 +37,6 @@
                                    maxlength="4" autocomplete="cc-csc" required="true"/>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Debug info -->
-                <div style="background: #f8f9fa; padding: 10px; margin-top: 15px; border-radius: 5px; font-size: 12px;">
-                    🐛 <strong>Debug Info:</strong> Template loaded successfully. Provider: Pagar.me
                 </div>
             </div>
         </div>
