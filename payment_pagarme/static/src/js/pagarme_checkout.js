@@ -47,29 +47,40 @@ const pagarmeTransparentCheckoutMixin = {
             console.log(`Element ${i}:`, el.id, el.className, el.outerHTML.substring(0, 100));
         });
         
-        // Look for the specific container
-        const container = document.getElementById(`o_pagarme_payment_container_${paymentOptionId}`);
-        console.log('Looking for container ID:', `o_pagarme_payment_container_${paymentOptionId}`);
-        console.log('Container found:', container);
+        // Try multiple container ID patterns to find the template
+        let container = null;
+        const possibleIds = [
+            `o_pagarme_payment_container_${paymentOptionId}`,
+            `o_pagarme_payment_container_${provider}`,
+            `o_pagarme_payment_container_pagarme`,
+        ];
         
-        if (container) {
-            console.log('✅ CONTAINER FOUND!');
-            console.log('Container HTML:', container.outerHTML);
+        console.log('Trying container IDs:', possibleIds);
+        
+        for (const containerId of possibleIds) {
+            container = document.getElementById(containerId);
+            console.log(`Looking for container ID: ${containerId} - Found:`, !!container);
+            if (container) {
+                console.log('✅ CONTAINER FOUND with ID:', containerId);
+                console.log('Container HTML:', container.outerHTML);
+                break;
+            }
         }
         
-        // Look for debug template (updated to green background)
-        const debugTemplate = document.querySelector('[style*="background: green"]');
+        // Look for debug template (red background for enhanced visibility)
+        const debugTemplate = document.querySelector('[style*="background: red"]');
         console.log('Debug template found:', debugTemplate);
         
         if (debugTemplate) {
             console.log('✅ DEBUG TEMPLATE FOUND!');
             console.log('Template content:', debugTemplate.outerHTML);
         } else {
-            console.log('❌ Green debug template NOT found');
-            // Also check for old red template
-            const oldDebugTemplate = document.querySelector('[style*="background: red"]');
-            if (oldDebugTemplate) {
-                console.log('Found old red debug template');
+            console.log('❌ Red debug template NOT found');
+            // Also check for any Pagar.me template
+            const anyPagarmeTemplate = document.querySelector('.o_pagarme_payment_form');
+            if (anyPagarmeTemplate) {
+                console.log('✅ Found Pagar.me template by class:', anyPagarmeTemplate.outerHTML);
+                container = anyPagarmeTemplate;
             }
         }
         
