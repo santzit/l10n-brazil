@@ -64,6 +64,9 @@ class PaymentProvider(models.Model):
             _logger.warning("Pagar.me: No compatible Pagar.me providers found")
             
         return providers
+
+    @api.depends('code')
+    def _compute_feature_support_fields(self):
         """Override to enable additional features for Pagar.me."""
         super()._compute_feature_support_fields()
         self.filtered(lambda p: p.code == 'pagarme').update({
@@ -72,13 +75,6 @@ class PaymentProvider(models.Model):
             'support_tokenization': True,  # Enable tokenization to match provider data
             'support_express_checkout': False,
         })
-
-    def _get_supported_currencies(self):
-        """Override to return supported currencies for Pagar.me."""
-        supported_currencies = super()._get_supported_currencies()
-        if self.code == 'pagarme':
-            return supported_currencies.filtered(lambda c: c.name == 'BRL')
-        return supported_currencies
 
     def _should_build_inline_form(self, is_validation=False):
         """Override to enable inline form for Pagar.me."""
@@ -130,6 +126,13 @@ class PaymentProvider(models.Model):
         if self.code != 'pagarme':
             return super()._get_default_payment_method_codes()
         return ['card']  # Only credit card payments
+
+    def _get_supported_currencies(self):
+        """Override to return supported currencies for Pagar.me."""
+        supported_currencies = super()._get_supported_currencies()
+        if self.code == 'pagarme':
+            return supported_currencies.filtered(lambda c: c.name == 'BRL')
+        return supported_currencies
 
     @api.depends("code")
     def _compute_pagarme_webhook_url(self):
@@ -323,13 +326,6 @@ class PaymentProvider(models.Model):
         }
 
         return payment_data
-
-    def _get_supported_currencies(self):
-        """Return supported currencies for Pagar.me (BRL only)."""
-        supported_currencies = super()._get_supported_currencies()
-        if self.code == "pagarme":
-            supported_currencies = supported_currencies.filtered(lambda c: c.name == "BRL")
-        return supported_currencies
 
     def _get_supported_countries(self):
         """Return supported countries for Pagar.me (Brazil only)."""
