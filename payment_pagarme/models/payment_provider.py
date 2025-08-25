@@ -70,7 +70,8 @@ class PaymentProvider(models.Model):
         if self.code != 'pagarme':
             return super()._should_build_inline_form(is_validation)
         
-        _logger.info("Pagar.me: _should_build_inline_form called for provider %s (is_validation=%s)", self.id, is_validation)
+        _logger.info("Pagar.me: _should_build_inline_form called for provider %s (code=%s, is_validation=%s)", self.id, self.code, is_validation)
+        _logger.info("Pagar.me: Provider state: %s, name: %s", self.state, self.name)
         result = True
         _logger.info("Pagar.me: _should_build_inline_form returning: %s", result)
         return result
@@ -81,8 +82,17 @@ class PaymentProvider(models.Model):
             return super()._get_inline_form_template(is_validation)
         
         template_name = 'payment_pagarme.inline_form'
-        _logger.info("Pagar.me: _get_inline_form_template called for provider %s (is_validation=%s), returning template: %s", 
-                    self.id, is_validation, template_name)
+        _logger.info("Pagar.me: _get_inline_form_template called for provider %s (code=%s, is_validation=%s)", self.id, self.code, is_validation)
+        _logger.info("Pagar.me: Provider state: %s, name: %s", self.state, self.name)
+        _logger.info("Pagar.me: Returning template: %s", template_name)
+        
+        # Check if template exists
+        try:
+            template = self.env.ref(template_name)
+            _logger.info("Pagar.me: Template found: %s (ID: %s)", template.name, template.id)
+        except Exception as e:
+            _logger.error("Pagar.me: Template not found: %s - Error: %s", template_name, e)
+            
         return template_name
 
     @api.depends("code")

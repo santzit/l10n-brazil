@@ -2,9 +2,20 @@
 <odoo>
 
     <template id="inline_form" name="Pagar.me Inline Form">
-        <div t-attf-id="o_pagarme_payment_container_{{provider_id}}" 
-             t-att-data-provider-id="provider_id" 
+        <!-- Try different variable names that Odoo might use -->
+        <t t-set="container_id" t-value="payment_option_id or provider_id or id"/>
+        <div t-attf-id="o_pagarme_payment_container_{{container_id}}" 
+             t-att-data-provider-id="container_id" 
+             t-att-data-payment-option-id="payment_option_id or provider_id or id"
              class="o_pagarme_payment_form">
+            
+            <!-- Debug info to help identify the correct variable -->
+            <div style="display: none;" class="debug-info">
+                <span t-esc="'payment_option_id: ' + str(payment_option_id or 'None')"/>
+                <span t-esc="'provider_id: ' + str(provider_id or 'None')"/>  
+                <span t-esc="'id: ' + str(id or 'None')"/>
+                <span t-esc="'container_id: ' + str(container_id or 'None')"/>
+            </div>
             
             <!-- Pagar.me Branding -->
             <div class="text-center mb-3">

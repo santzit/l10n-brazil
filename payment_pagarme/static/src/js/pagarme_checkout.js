@@ -165,15 +165,43 @@ const pagarmeTransparentCheckoutMixin = {
 
         console.log('Pagar.me: This is a Pagar.me provider, proceeding with initialization');
         
-        // Look for the payment container
-        const container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
-        console.log('Pagar.me: Looking for container with ID:', `#o_pagarme_payment_container_${paymentOptionId}`);
+        // Look for the payment container - try multiple possible IDs
+        let container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
+        let containerId = `o_pagarme_payment_container_${paymentOptionId}`;
+        
+        // If not found, try to find any pagarme container
+        if (container.length === 0) {
+            container = this.$('[id*="o_pagarme_payment_container"]').first();
+            if (container.length > 0) {
+                containerId = container.attr('id');
+                console.log('Pagar.me: Found alternative container with ID:', containerId);
+            }
+        }
+        
+        console.log('Pagar.me: Looking for container with ID:', containerId);
         console.log('Pagar.me: Container found:', container.length > 0);
         
         if (container.length === 0) {
             console.warn('Pagar.me: Payment container not found for provider ID:', paymentOptionId);
+            console.warn('Pagar.me: This could mean the inline template is not being rendered');
             console.warn('Pagar.me: Available containers in DOM:', this.$('[id*="pagarme"]').map(function() { return this.id; }).get());
-            console.warn('Pagar.me: All payment containers:', this.$('[id*="payment_container"]').map(function() { return this.id; }).get());
+            console.warn('Pagar.me: Available payment containers:', this.$('[id*="payment_container"], [id*="payment"], [class*="payment"]').map(function() { return this.id; }).get());
+            console.warn('Pagar.me: Current payment option details:');
+            const paymentOptionInput = this.$(`input[name="payment_option_id"][value="${paymentOptionId}"]`);
+            if (paymentOptionInput.length > 0) {
+                console.warn('Pagar.me: Payment option found:', {
+                    value: paymentOptionInput.val(),
+                    providerCode: paymentOptionInput.data('provider-code') || paymentOptionInput.attr('data-provider-code'),
+                    checked: paymentOptionInput.is(':checked')
+                });
+            }
+            
+            // Check if there are any debug info elements that might tell us the variable values
+            const debugInfo = this.$('.debug-info');
+            if (debugInfo.length > 0) {
+                console.warn('Pagar.me: Debug info found:', debugInfo.text());
+            }
+            
             return Promise.resolve();
         }
 
@@ -194,7 +222,18 @@ const pagarmeTransparentCheckoutMixin = {
      * @param {number} paymentOptionId
      */
     _initializePagarmeForm: function (paymentOptionId) {
-        const container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
+        // Try to find the container with flexible ID matching
+        let container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
+        
+        // If not found, try to find any pagarme container
+        if (container.length === 0) {
+            container = this.$('[id*="o_pagarme_payment_container"]').first();
+        }
+        
+        if (container.length === 0) {
+            console.warn('Pagar.me: Cannot initialize form - container not found');
+            return;
+        }
         
         // Populate year options
         this._populateYearOptions(container);
@@ -299,23 +338,60 @@ const pagarmeTransparentCheckoutMixin = {
         console.log('Pagar.me: Starting form validation for provider ID:', paymentOptionId);
         
         // First, let's debug what's in the DOM
-        console.log('Pagar.me: All Pagar.me containers in DOM:', this.$('[id*="pagarme"]').map(function() { 
-            return { id: this.id, visible: $(this).is(':visible'), hasClass: this.className }; 
+        console.log('Pagar.me: All elements with "pagarme" in DOM:', this.$('[id*="pagarme"], [class*="pagarme"]').map(function() { 
+            return { id: this.id, class: this.className, visible: $(this).is(':visible'), tag: this.tagName }; 
         }).get());
-        console.log('Pagar.me: All payment containers in DOM:', this.$('[id*="payment_container"]').map(function() { 
-            return { id: this.id, visible: $(this).is(':visible'), hasClass: this.className }; 
+        console.log('Pagar.me: All payment-related elements in DOM:', this.$('[id*="payment"], [class*="payment"]').map(function() { 
+            return { id: this.id, class: this.className, visible: $(this).is(':visible'), tag: this.tagName }; 
+        }).get());
+        console.log('Pagar.me: All inline form containers in DOM:', this.$('[id*="inline"], [class*="inline"]').map(function() { 
+            return { id: this.id, class: this.className, visible: $(this).is(':visible'), tag: this.tagName }; 
         }).get());
         
-        const container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
-        console.log('Pagar.me: Looking for container with selector:', `#o_pagarme_payment_container_${paymentOptionId}`);
+        // Try to find the container with flexible ID matching
+        let container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
+        let containerId = `o_pagarme_payment_container_${paymentOptionId}`;
+        
+        // If not found, try to find any pagarme container
+        if (container.length === 0) {
+            container = this.$('[id*="o_pagarme_payment_container"]').first();
+            if (container.length > 0) {
+                containerId = container.attr('id');
+                console.log('Pagar.me: Found alternative container with ID:', containerId);
+            }
+        }
+        
+        console.log('Pagar.me: Looking for container with selector:', `#${containerId}`);
         console.log('Pagar.me: Container found:', container.length > 0);
         
         if (container.length === 0) {
-            console.error('Pagar.me: payment container not found:', paymentOptionId);
-            console.error('Pagar.me: Available payment forms in DOM:');
-            this.$('[class*="payment"]').each(function(index) {
-                console.error(`  - ${index}: ID="${this.id}", Class="${this.className}"`);
+            console.error('Pagar.me: payment container not found for paymentOptionId:', paymentOptionId);
+            console.error('Pagar.me: This likely means the inline form template is not being rendered');
+            console.error('Pagar.me: Available payment-related elements in DOM:');
+            this.$('[id*="payment"], [class*="payment"], [id*="pagarme"], [class*="pagarme"]').each(function(index) {
+                console.error(`  - ${index}: ID="${this.id}", Class="${this.className}", Tag="${this.tagName}", Visible="${$(this).is(':visible')}"`);
             });
+            console.error('Pagar.me: Checking if this is the correct payment option...');
+            
+            // Check if we're dealing with the right payment option
+            const currentPaymentOption = this.$(`input[name="payment_option_id"][value="${paymentOptionId}"]`);
+            if (currentPaymentOption.length > 0) {
+                const providerCode = currentPaymentOption.data('provider-code') || currentPaymentOption.attr('data-provider-code');
+                console.error('Pagar.me: Payment option found with provider code:', providerCode);
+                if (providerCode !== 'pagarme') {
+                    console.error('Pagar.me: This is not a Pagar.me payment option, should not be validating');
+                    return true; // Don't validate if it's not our provider
+                }
+            } else {
+                console.error('Pagar.me: Payment option input not found for ID:', paymentOptionId);
+            }
+            
+            // Check for debug info to see what variables are available
+            const debugInfo = this.$('.debug-info');
+            if (debugInfo.length > 0) {
+                console.error('Pagar.me: Template debug info:', debugInfo.text());
+            }
+            
             return false;
         }
         console.log('Pagar.me: Found payment container, proceeding with validation');
@@ -515,7 +591,13 @@ const pagarmeTransparentCheckoutMixin = {
      * @returns {object}
      */
     _preparePagarmePaymentData: function (paymentOptionId) {
-        const container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
+        // Try to find the container with flexible ID matching
+        let container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
+        
+        // If not found, try to find any pagarme container
+        if (container.length === 0) {
+            container = this.$('[id*="o_pagarme_payment_container"]').first();
+        }
         
         // Helper function to safely get field values
         const getFieldValue = (selector) => {
