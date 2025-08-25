@@ -57,11 +57,15 @@ class PaymentProvider(models.Model):
         # Add debugging for provider compatibility
         pagarme_providers = providers.filtered(lambda p: p.code == 'pagarme')
         if pagarme_providers:
-            _logger.info("Pagar.me: Provider is compatible, found %d Pagar.me providers", len(pagarme_providers))
+            _logger.warning("========= PAGAR.ME PROVIDER DEBUG =========")
+            _logger.warning("Found %d Pagar.me providers", len(pagarme_providers))
             for provider in pagarme_providers:
-                _logger.info("Pagar.me: Compatible provider - ID: %s, Name: %s, State: %s", provider.id, provider.name, provider.state)
+                _logger.warning("Provider - ID: %s, Name: %s, State: %s", provider.id, provider.name, provider.state)
+                _logger.warning("Inline form view ID: %s", provider.inline_form_view_id)
+                _logger.warning("Allow tokenization: %s", provider.allow_tokenization)
+            _logger.warning("==========================================")
         else:
-            _logger.warning("Pagar.me: No compatible Pagar.me providers found")
+            _logger.warning("PAGAR.ME: No compatible Pagar.me providers found")
             
         return providers
 

@@ -1,68 +1,137 @@
 /** @odoo-module */
 
+console.log('🚀 PAGAR.ME MODULE LOADING...');
+
 import checkoutForm from 'payment.checkout_form';
 import manageForm from 'payment.manage_form';
+
+console.log('📦 Payment modules imported:', { checkoutForm, manageForm });
 
 const pagarmeTransparentCheckoutMixin = {
 
     /**
-     * Check if template is rendered when we click pay
+     * Process payment for Pagar.me provider
      */
     async _processPayment(provider, paymentOptionId, flow) {
-        console.log('Pagar.me: _processPayment called with:', { provider, paymentOptionId, flow });
+        console.log('=== PAGAR.ME PAYMENT DEBUG START ===');
+        console.log('_processPayment called with:', { provider, paymentOptionId, flow });
         
+        // Always call super for non-Pagar.me providers
         if (provider !== 'pagarme') {
+            console.log('Not a Pagar.me provider, calling super...');
             return this._super(...arguments);
         }
         
-        // Enhanced debugging for template detection
-        console.log('=== PAGAR.ME DEBUG START ===');
+        console.log('🎯 PAGAR.ME PROVIDER DETECTED!');
         console.log('Provider:', provider);
         console.log('Payment Option ID:', paymentOptionId);
         console.log('Flow:', flow);
         
-        // Look for the Pagar.me container
-        const pagarmeContainer = this.$('[id*="o_pagarme_payment_container"]');
-        console.log('Pagar.me containers found:', pagarmeContainer.length);
+        // Enhanced debugging for DOM and template detection
+        console.log('=== DOM DEBUG START ===');
         
-        if (pagarmeContainer.length > 0) {
-            console.log('Container ID:', pagarmeContainer.attr('id'));
-            console.log('Container content:', pagarmeContainer.html());
-        }
-        
-        // Check for debug template
-        const templateCheck = this.$('[style*="background: green"]');
-        const successCheck = this.$('div:contains("PAGAR.ME TEMPLATE RENDERED SUCCESSFULLY")');
-        
-        console.log('Debug template elements found:', templateCheck.length);
-        console.log('Success message elements found:', successCheck.length);
-        
-        // List all payment-related containers for debugging
-        const allPaymentContainers = this.$('[class*="payment"], [id*="payment"], [class*="o_"], [id*="o_"]');
-        console.log('All payment-related elements found:', allPaymentContainers.length);
-        allPaymentContainers.each(function(i, el) {
-            console.log(`Element ${i}:`, $(el).attr('class'), $(el).attr('id'));
+        // Check for any Pagar.me related elements
+        const allElements = document.querySelectorAll('*');
+        let pagarmeElements = [];
+        allElements.forEach(el => {
+            if (el.id && el.id.includes('pagarme')) {
+                pagarmeElements.push(el);
+            }
+            if (el.className && el.className.includes && el.className.includes('pagarme')) {
+                pagarmeElements.push(el);
+            }
         });
         
-        console.log('=== PAGAR.ME DEBUG END ===');
+        console.log('Found Pagar.me elements in DOM:', pagarmeElements.length);
+        pagarmeElements.forEach((el, i) => {
+            console.log(`Element ${i}:`, el.id, el.className, el.outerHTML.substring(0, 100));
+        });
         
-        if (templateCheck.length > 0 || successCheck.length > 0 || pagarmeContainer.length > 0) {
-            console.log('SUCCESS: Pagar.me template was rendered!');
-            console.log('Template content:', templateCheck.text() || successCheck.text() || pagarmeContainer.text());
+        // Look for the specific container
+        const container = document.getElementById(`o_pagarme_payment_container_${paymentOptionId}`);
+        console.log('Looking for container ID:', `o_pagarme_payment_container_${paymentOptionId}`);
+        console.log('Container found:', container);
+        
+        if (container) {
+            console.log('✅ CONTAINER FOUND!');
+            console.log('Container HTML:', container.outerHTML);
+        }
+        
+        // Look for debug template
+        const debugTemplate = document.querySelector('[style*="background: red"]');
+        console.log('Debug template found:', debugTemplate);
+        
+        if (debugTemplate) {
+            console.log('✅ DEBUG TEMPLATE FOUND!');
+            console.log('Template content:', debugTemplate.outerHTML);
+        }
+        
+        // Check for form fields
+        const cardNumberField = document.getElementById('pagarme_card_number');
+        console.log('Card number field found:', cardNumberField);
+        
+        console.log('=== DOM DEBUG END ===');
+        
+        // Determine if template was rendered
+        if (container || debugTemplate || cardNumberField) {
+            console.log('🎉 SUCCESS: Pagar.me template was rendered!');
             
             // Show success message
-            alert('✅ Template está funcionando! Container encontrado.');
+            this._displaySuccess('✅ Template funcionando!', 'Pagar.me template foi renderizado com sucesso!');
             return Promise.resolve();
         } else {
-            console.error('FAILED: Pagar.me template was NOT rendered!');
+            console.error('❌ FAILED: Pagar.me template was NOT rendered!');
+            console.error('Expected container ID:', `o_pagarme_payment_container_${paymentOptionId}`);
+            
+            // List all payment-related elements for debugging
+            const paymentElements = document.querySelectorAll('[class*="payment"], [id*="payment"], [class*="o_"], [id*="o_"]');
+            console.log('All payment/odoo elements found:', paymentElements.length);
+            paymentElements.forEach((el, i) => {
+                if (i < 10) { // Limit output
+                    console.log(`Payment element ${i}:`, el.tagName, el.className, el.id);
+                }
+            });
             
             // Show detailed error message
-            alert('❌ Template não foi renderizado. Verifique os logs do console para mais detalhes.');
-            this._displayError('Erro de Configuração', 'Template de pagamento não foi renderizado');
-            return Promise.reject("Template not rendered");
+            this._displayError('Erro de Template', 'Template de pagamento Pagar.me não foi renderizado. Verifique a configuração do provider.');
+            return Promise.reject("Pagar.me template not rendered");
+        }
+    },
+
+    /**
+     * Display success message
+     */
+    _displaySuccess(title, message) {
+        if (this.$el) {
+            const successDiv = $(`
+                <div class="alert alert-success alert-dismissible" style="margin: 10px 0;">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>${title}</strong> ${message}
+                </div>
+            `);
+            this.$el.prepend(successDiv);
+            setTimeout(() => successDiv.fadeOut(), 5000);
+        }
+    },
+
+    /**
+     * Display error message  
+     */
+    _displayError(title, message) {
+        if (this.$el) {
+            const errorDiv = $(`
+                <div class="alert alert-danger alert-dismissible" style="margin: 10px 0;">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>${title}</strong> ${message}
+                </div>
+            `);
+            this.$el.prepend(errorDiv);
         }
     }
 };
 
+// Apply the mixin to both checkout and manage forms
 checkoutForm.include(pagarmeTransparentCheckoutMixin);
 manageForm.include(pagarmeTransparentCheckoutMixin);
+
+console.log('🔧 Pagar.me payment mixin loaded and applied!');

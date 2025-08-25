@@ -3,12 +3,30 @@
 
     <template id="inline_form" name="Pagar.me Inline Form">
         <div t-attf-id="o_pagarme_payment_container_{{provider_id}}" class="o_pagarme_payment_form">
-            <!-- Debug: Show if template is rendering -->
-            <div style="background: green; color: white; padding: 10px; margin: 10px; font-weight: bold;">
-                ✅ PAGAR.ME TEMPLATE RENDERED! ID: <span t-esc="provider_id"/>
+            <!-- Enhanced debug information to identify the issue -->
+            <div style="background: red; color: white; padding: 15px; margin: 10px; font-weight: bold; border: 3px solid yellow;">
+                🚨 PAGAR.ME DEBUG TEMPLATE - PROVIDER ID: <span t-esc="provider_id"/>
+                <br/>All available variables: <span t-esc="request.env.context.keys()"/>
             </div>
-            <!-- Basic form fields -->
-            <input type="text" id="pagarme_card_number" placeholder="Número do cartão" class="form-control"/>
+            <!-- Card input fields -->
+            <div class="form-group">
+                <label for="pagarme_card_number">Número do Cartão:</label>
+                <input type="text" id="pagarme_card_number" placeholder="0000 0000 0000 0000" class="form-control"/>
+            </div>
+            <div class="form-group">
+                <label for="pagarme_card_holder">Nome no Cartão:</label>
+                <input type="text" id="pagarme_card_holder" placeholder="Nome conforme impresso no cartão" class="form-control"/>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="pagarme_card_expiry">Validade:</label>
+                    <input type="text" id="pagarme_card_expiry" placeholder="MM/AA" class="form-control"/>
+                </div>
+                <div class="col-md-6">
+                    <label for="pagarme_card_cvv">CVV:</label>
+                    <input type="text" id="pagarme_card_cvv" placeholder="123" class="form-control"/>
+                </div>
+            </div>
         </div>
     </template>
 
