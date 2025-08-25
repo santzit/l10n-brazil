@@ -11,8 +11,8 @@ odoo.define('payment_pagarme.checkout', function (require) {
     var _t = core._t;
 
     /**
-     * Pagar.me Payment Form Mixin
-     * Handles transparent checkout for Pagar.me payments
+     * Pagar.me Payment Form Enhancement
+     * Handles form validation and UI enhancements for Pagar.me payments
      */
     var PagarmePaymentForm = PaymentFormMixin.extend({
         events: _.extend({}, PaymentFormMixin.prototype.events, {
@@ -20,7 +20,6 @@ odoo.define('payment_pagarme.checkout', function (require) {
             'input input[name="pagarme_customer_document"]': '_onDocumentInput', 
             'input input[name="pagarme_zipcode"]': '_onZipcodeInput',
             'change select[name="pagarme_installments"]': '_onInstallmentsChange',
-            'submit .o_payment_form': '_onSubmit',
         }),
 
         /**
@@ -45,57 +44,6 @@ odoo.define('payment_pagarme.checkout', function (require) {
          */
         _isProviderPagarme: function () {
             return this.$('input[name="provider_code"]').val() === 'pagarme';
-        },
-
-        /**
-         * Handle form submission for Pagar.me payments
-         * @private
-         * @param {Event} ev
-         */
-        _onSubmit: function (ev) {
-            if (!this._isProviderPagarme()) {
-                return;
-            }
-            
-            ev.preventDefault();
-            
-            if (!this._validatePagarmeForm()) {
-                return;
-            }
-            
-            this._processPagarmePayment();
-        },
-
-        /**
-         * Process Pagar.me payment
-         * @private
-         */
-        _processPagarmePayment: function () {
-            var self = this;
-            var paymentData = this._preparePagarmePaymentData();
-            
-            this._showLoading();
-            
-            this._rpc({
-                route: '/payment/pagarme/process_payment',
-                params: paymentData
-            }).then(function (result) {
-                self._hideLoading();
-                
-                if (result.status === 'success') {
-                    if (result.redirect_url) {
-                        window.location.href = result.redirect_url;
-                    } else {
-                        window.location.reload();
-                    }
-                } else {
-                    self._displayError(result.message || _t('Erro no processamento do pagamento'));
-                }
-            }).catch(function (error) {
-                self._hideLoading();
-                self._displayError(_t('Erro de comunicação com o servidor'));
-                console.error('Pagar.me payment error:', error);
-            });
         },
 
         /**
@@ -367,11 +315,15 @@ odoo.define('payment_pagarme.checkout', function (require) {
         //--------------------------------------------------------------------------
 
         /**
-         * Validate the Pagar.me form
+         * Validate the Pagar.me form before submission
          * @private
          * @returns {Boolean}
          */
         _validatePagarmeForm: function () {
+            if (!this._isProviderPagarme()) {
+                return true;
+            }
+            
             var isValid = true;
             
             // Validate required fields
@@ -530,75 +482,8 @@ odoo.define('payment_pagarme.checkout', function (require) {
         },
 
         //--------------------------------------------------------------------------
-        // Payment Processing
-        //--------------------------------------------------------------------------
-
-        /**
-         * Prepare payment data for API
-         * @private
-         * @returns {Object}
-         */
-        _preparePagarmePaymentData: function () {
-            // Get reference from form
-            var reference = this.$('input[name="reference"]').val();
-            
-            // Collect card data
-            var cardData = {
-                card_number: this.$('input[name="pagarme_card_number"]').val().replace(/\s/g, ''),
-                card_holder_name: this.$('input[name="pagarme_card_holder_name"]').val(),
-                card_exp_month: this.$('select[name="pagarme_card_exp_month"]').val(),
-                card_exp_year: this.$('select[name="pagarme_card_exp_year"]').val(),
-                card_cvv: this.$('input[name="pagarme_card_cvv"]').val(),
-                installments: parseInt(this.$('select[name="pagarme_installments"]').val()),
-            };
-
-            // Collect customer data
-            var customerData = {
-                customer_name: this.$('input[name="pagarme_customer_name"]').val(),
-                customer_email: this.$('input[name="pagarme_customer_email"]').val(),
-                customer_document: this.$('input[name="pagarme_customer_document"]').val(),
-                customer_phone: this.$('input[name="pagarme_customer_phone"]').val(),
-            };
-
-            // Collect billing address
-            var billingData = {
-                billing_street: this.$('input[name="pagarme_billing_street"]').val(),
-                billing_street_number: this.$('input[name="pagarme_billing_street_number"]').val(),
-                billing_neighborhood: this.$('input[name="pagarme_billing_neighborhood"]').val(),
-                billing_city: this.$('input[name="pagarme_billing_city"]').val(),
-                billing_state: this.$('input[name="pagarme_billing_state"]').val(),
-                billing_zipcode: this.$('input[name="pagarme_zipcode"]').val(),
-            };
-
-            return {
-                reference: reference,
-                provider_code: 'pagarme',
-                payment_method_code: 'pagarme',
-                ...cardData,
-                ...customerData,
-                ...billingData
-            };
-        },
-
-        //--------------------------------------------------------------------------
         // UI Helpers
         //--------------------------------------------------------------------------
-
-        /**
-         * Show loading state
-         * @private
-         */
-        _showLoading: function () {
-            this.$('.o_payment_submit_button').prop('disabled', true).text(_t('Processando...'));
-        },
-
-        /**
-         * Hide loading state
-         * @private
-         */
-        _hideLoading: function () {
-            this.$('.o_payment_submit_button').prop('disabled', false).text(_t('Pagar Agora'));
-        },
 
         /**
          * Display error message
@@ -662,8 +547,25 @@ odoo.define('payment_pagarme.checkout', function (require) {
         },
     });
 
-    // Register the mixin
-    PaymentFormMixin.include(PagarmePaymentForm);
+    // Register the form validation enhancement without overriding core payment flow
+    PaymentFormMixin.include({
+        
+        /**
+         * @override
+         * Add Pagar.me form validation to the standard validation flow
+         */
+        _validateForm: function () {
+            var validation = this._super.apply(this, arguments);
+            
+            // Add Pagar.me specific validation if this is a Pagar.me payment
+            if (this.$('input[name="provider_code"]').val() === 'pagarme') {
+                var pagarmeValidation = this._validatePagarmeForm ? this._validatePagarmeForm() : true;
+                return validation && pagarmeValidation;
+            }
+            
+            return validation;
+        },
+    });
 
     return PagarmePaymentForm;
 });

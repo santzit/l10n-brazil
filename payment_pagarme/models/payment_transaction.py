@@ -88,6 +88,8 @@ class PaymentTransaction(models.Model):
             "partner_phone": self.partner_id.phone or self.partner_id.mobile,
             "partner_document": self.partner_id.cnpj_cpf,
             "customer_type": "company" if self.partner_id.is_company else "individual",
+            # Set the form action to submit to our payment endpoint
+            "form_action": f"{base_url}/payment/pagarme/payment",
         }
         
         # Add address information
