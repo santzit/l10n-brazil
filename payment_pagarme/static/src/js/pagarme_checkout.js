@@ -31,7 +31,7 @@ const pagarmeTransparentCheckoutMixin = {
         }
         
         // Check for debug template
-        const templateCheck = this.$('[style*="background: red"]');
+        const templateCheck = this.$('[style*="background: green"]');
         const successCheck = this.$('div:contains("PAGAR.ME TEMPLATE RENDERED SUCCESSFULLY")');
         
         console.log('Debug template elements found:', templateCheck.length);

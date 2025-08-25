@@ -2,29 +2,13 @@
 <odoo>
 
     <template id="inline_form" name="Pagar.me Inline Form">
-        <!-- Minimal inline form template exactly like Adyen -->
-        <div t-attf-id="o_pagarme_payment_container_{{provider_id or payment_option_id or id}}" class="o_pagarme_payment_form">
-            
-            <!-- Critical debug: Show if template is rendering -->
-            <div style="background: red; color: white; padding: 10px; margin: 10px; font-weight: bold; border: 2px solid white;">
-                ✅ PAGAR.ME TEMPLATE RENDERED SUCCESSFULLY! 
-                <br/>Provider ID: <span t-esc="provider_id or payment_option_id or id or 'UNKNOWN'"/>
-                <br/>Template loaded via: _get_inline_form_template()
+        <div t-attf-id="o_pagarme_payment_container_{{provider_id}}" class="o_pagarme_payment_form">
+            <!-- Debug: Show if template is rendering -->
+            <div style="background: green; color: white; padding: 10px; margin: 10px; font-weight: bold;">
+                ✅ PAGAR.ME TEMPLATE RENDERED! ID: <span t-esc="provider_id"/>
             </div>
-            
-            <!-- Minimal payment form -->
-            <div class="row">
-                <div class="col-md-12">
-                    <input type="text" id="pagarme_card_number" name="pagarme_card_number" placeholder="Número do cartão" class="form-control mb-2"/>
-                </div>
-                <div class="col-md-8">
-                    <input type="text" id="pagarme_card_holder_name" name="pagarme_card_holder_name" placeholder="Nome no cartão" class="form-control mb-2"/>
-                </div>
-                <div class="col-md-4">
-                    <input type="text" id="pagarme_card_cvv" name="pagarme_card_cvv" placeholder="CVV" class="form-control mb-2"/>
-                </div>
-            </div>
-            
+            <!-- Basic form fields -->
+            <input type="text" id="pagarme_card_number" placeholder="Número do cartão" class="form-control"/>
         </div>
     </template>
 
