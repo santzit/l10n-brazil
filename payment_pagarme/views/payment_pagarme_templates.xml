@@ -2,201 +2,203 @@
 <odoo>
     <!-- Pagar.me Inline Payment Form Template -->
     <template id="inline_form" name="Pagar.me Inline Form">
-        
-        <!-- Pagar.me Branding -->
-        <div class="row mb-3">
-            <div class="col-12 text-center">
-                <img src="/payment_pagarme/static/src/img/pagarme-icon.png" alt="Pagar.me" class="payment-provider-logo" style="height: 40px; margin-bottom: 10px;"/>
-                <p class="text-muted small">Pagamento seguro processado pela Pagar.me</p>
-            </div>
-        </div>
-        
-        <!-- Customer Information -->
-        <div class="row mb-3">
-            <div class="col-12">
-                <h5>Informações do Cliente</h5>
-            </div>
-        </div>
-        
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="pagarme_customer_name" class="form-label">Nome Completo *</label>
-                <input type="text" class="form-control" id="pagarme_customer_name" 
-                       name="pagarme_customer_name" required="required" 
-                       t-att-value="partner_name or ''"/>
-            </div>
-            <div class="col-md-6">
-                <label for="pagarme_customer_email" class="form-label">E-mail *</label>
-                <input type="email" class="form-control" id="pagarme_customer_email" 
-                       name="pagarme_customer_email" required="required"
-                       t-att-value="partner_email or ''"/>
-            </div>
-        </div>
-        
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="pagarme_customer_document" class="form-label">CPF/CNPJ *</label>
-                <input type="text" class="form-control" id="pagarme_customer_document" 
-                       name="pagarme_customer_document" required="required"
-                       placeholder="000.000.000-00 ou 00.000.000/0000-00"
-                       t-att-value="partner_document or ''"/>
-                <div class="invalid-feedback">
-                    Digite um CPF ou CNPJ válido
+        <div id="o_pagarme_inline_form" class="d-none">
+            
+            <!-- Pagar.me Branding -->
+            <div class="row mb-3">
+                <div class="col-12 text-center">
+                    <img src="/payment_pagarme/static/src/img/pagarme-icon.png" alt="Pagar.me" class="payment-provider-logo" style="height: 40px; margin-bottom: 10px;"/>
+                    <p class="text-muted small">Pagamento seguro processado pela Pagar.me</p>
                 </div>
             </div>
-            <div class="col-md-6">
-                <label for="pagarme_customer_phone" class="form-label">Telefone *</label>
-                <input type="tel" class="form-control" id="pagarme_customer_phone" 
-                       name="pagarme_customer_phone" required="required"
-                       placeholder="(11) 99999-9999"
-                       t-att-value="partner_phone or ''"/>
-            </div>
-        </div>
-        
-        <!-- Address Information -->
-        <div class="row mb-3" id="billing_address_section">
-            <div class="col-12">
-                <h5>Endereço de Cobrança</h5>
-            </div>
-        </div>
-        
-        <div class="row mb-3">
-            <div class="col-md-8">
-                <label for="pagarme_street" class="form-label">Endereço *</label>
-                <input type="text" class="form-control" id="pagarme_street" 
-                       name="pagarme_billing_street" required="required"
-                       t-att-value="billing_address.get('street', '') if billing_address else ''"/>
-            </div>
-            <div class="col-md-4">
-                <label for="pagarme_street_number" class="form-label">Número *</label>
-                <input type="text" class="form-control" id="pagarme_street_number" 
-                       name="pagarme_billing_street_number" required="required"
-                       t-att-value="billing_address.get('street_number', '') if billing_address else ''"/>
-            </div>
-        </div>
-        
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="pagarme_neighborhood" class="form-label">Bairro *</label>
-                <input type="text" class="form-control" id="pagarme_neighborhood" 
-                       name="pagarme_billing_neighborhood" required="required"
-                       t-att-value="billing_address.get('neighborhood', '') if billing_address else ''"/>
-            </div>
-            <div class="col-md-6">
-                <label for="pagarme_city" class="form-label">Cidade *</label>
-                <input type="text" class="form-control" id="pagarme_city" 
-                       name="pagarme_billing_city" required="required"
-                       t-att-value="billing_address.get('city', '') if billing_address else ''"/>
-            </div>
-        </div>
-        
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="pagarme_state" class="form-label">Estado *</label>
-                <input type="text" class="form-control" id="pagarme_state" 
-                       name="pagarme_billing_state" required="required"
-                       t-att-value="billing_address.get('state', '') if billing_address else ''"/>
-            </div>
-            <div class="col-md-6">
-                <label for="pagarme_zipcode" class="form-label">CEP *</label>
-                <input type="text" class="form-control" id="pagarme_zipcode" 
-                       name="pagarme_zipcode" required="required"
-                       placeholder="00000-000"
-                       t-att-value="billing_address.get('zipcode', '') if billing_address else ''"/>
-            </div>
-        </div>
-        
-        <!-- Credit Card Information -->
-        <div class="row mb-3">
-            <div class="col-12">
-                <h5>Informações do Cartão</h5>
-            </div>
-        </div>
-        
-        <div class="row mb-3">
-            <div class="col-12">
-                <label for="pagarme_card_number" class="form-label">Número do Cartão *</label>
-                <input type="text" class="form-control" id="pagarme_card_number" 
-                       name="pagarme_card_number" required="required"
-                       placeholder="0000 0000 0000 0000"
-                       autocomplete="cc-number"/>
-                <div class="card-type-icons mt-2">
-                    <img src="/payment_pagarme/static/img/visa.png" alt="Visa" class="card-icon"/>
-                    <img src="/payment_pagarme/static/img/mastercard.png" alt="Mastercard" class="card-icon"/>
-                    <img src="/payment_pagarme/static/img/amex.png" alt="American Express" class="card-icon"/>
-                    <img src="/payment_pagarme/static/img/elo.png" alt="Elo" class="card-icon"/>
+            
+            <!-- Customer Information -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <h5>Informações do Cliente</h5>
                 </div>
             </div>
-        </div>
-        
-        <div class="row mb-3">
-            <div class="col-12">
-                <label for="pagarme_card_holder_name" class="form-label">Nome no Cartão *</label>
-                <input type="text" class="form-control" id="pagarme_card_holder_name" 
-                       name="pagarme_card_holder_name" required="required"
-                       placeholder="Nome como está no cartão"
-                       autocomplete="cc-name"/>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="pagarme_customer_name" class="form-label">Nome Completo *</label>
+                    <input type="text" class="form-control" id="pagarme_customer_name" 
+                           name="pagarme_customer_name" required="required" 
+                           t-att-value="partner_name or ''"/>
+                </div>
+                <div class="col-md-6">
+                    <label for="pagarme_customer_email" class="form-label">E-mail *</label>
+                    <input type="email" class="form-control" id="pagarme_customer_email" 
+                           name="pagarme_customer_email" required="required"
+                           t-att-value="partner_email or ''"/>
+                </div>
             </div>
-        </div>
-        
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <label for="pagarme_card_exp_month" class="form-label">Mês *</label>
-                <select class="form-control" id="pagarme_card_exp_month" 
-                        name="pagarme_card_exp_month" required="required">
-                    <option value="">Mês</option>
-                    <option value="01">01</option>
-                    <option value="02">02</option>
-                    <option value="03">03</option>
-                    <option value="04">04</option>
-                    <option value="05">05</option>
-                    <option value="06">06</option>
-                    <option value="07">07</option>
-                    <option value="08">08</option>
-                    <option value="09">09</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                </select>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="pagarme_customer_document" class="form-label">CPF/CNPJ *</label>
+                    <input type="text" class="form-control" id="pagarme_customer_document" 
+                           name="pagarme_customer_document" required="required"
+                           placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                           t-att-value="partner_document or ''"/>
+                    <div class="invalid-feedback">
+                        Digite um CPF ou CNPJ válido
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label for="pagarme_customer_phone" class="form-label">Telefone *</label>
+                    <input type="tel" class="form-control" id="pagarme_customer_phone" 
+                           name="pagarme_customer_phone" required="required"
+                           placeholder="(11) 99999-9999"
+                           t-att-value="partner_phone or ''"/>
+                </div>
             </div>
-            <div class="col-md-4">
-                <label for="pagarme_card_exp_year" class="form-label">Ano *</label>
-                <select class="form-control" id="pagarme_card_exp_year" 
-                        name="pagarme_card_exp_year" required="required">
-                    <option value="">Ano</option>
-                    <!-- Years will be populated by JavaScript -->
-                </select>
+            
+            <!-- Address Information -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <h5>Endereço de Cobrança</h5>
+                </div>
             </div>
-            <div class="col-md-4">
-                <label for="pagarme_card_cvv" class="form-label">CVV *</label>
-                <input type="text" class="form-control" id="pagarme_card_cvv" 
-                       name="pagarme_card_cvv" required="required"
-                       placeholder="123"
-                       maxlength="4"
-                       autocomplete="cc-csc"/>
+            
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <label for="pagarme_street" class="form-label">Endereço *</label>
+                    <input type="text" class="form-control" id="pagarme_street" 
+                           name="pagarme_billing_street" required="required"
+                           t-att-value="billing_address.get('street', '') if billing_address else ''"/>
+                </div>
+                <div class="col-md-4">
+                    <label for="pagarme_street_number" class="form-label">Número *</label>
+                    <input type="text" class="form-control" id="pagarme_street_number" 
+                           name="pagarme_billing_street_number" required="required"
+                           t-att-value="billing_address.get('street_number', '') if billing_address else ''"/>
+                </div>
             </div>
-        </div>
-        
-        <!-- Installments -->
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="pagarme_installments" class="form-label">Parcelas *</label>
-                <select class="form-control" id="pagarme_installments" 
-                        name="pagarme_installments" required="required">
-                    <option value="1">1x sem juros</option>
-                    <!-- Additional installments will be loaded by JavaScript -->
-                </select>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="pagarme_neighborhood" class="form-label">Bairro *</label>
+                    <input type="text" class="form-control" id="pagarme_neighborhood" 
+                           name="pagarme_billing_neighborhood" required="required"
+                           t-att-value="billing_address.get('neighborhood', '') if billing_address else ''"/>
+                </div>
+                <div class="col-md-6">
+                    <label for="pagarme_city" class="form-label">Cidade *</label>
+                    <input type="text" class="form-control" id="pagarme_city" 
+                           name="pagarme_billing_city" required="required"
+                           t-att-value="billing_address.get('city', '') if billing_address else ''"/>
+                </div>
             </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="pagarme_state" class="form-label">Estado *</label>
+                    <input type="text" class="form-control" id="pagarme_state" 
+                           name="pagarme_billing_state" required="required"
+                           t-att-value="billing_address.get('state', '') if billing_address else ''"/>
+                </div>
+                <div class="col-md-6">
+                    <label for="pagarme_zipcode" class="form-label">CEP *</label>
+                    <input type="text" class="form-control" id="pagarme_zipcode" 
+                           name="pagarme_zipcode" required="required"
+                           placeholder="00000-000"
+                           t-att-value="billing_address.get('zipcode', '') if billing_address else ''"/>
+                </div>
+            </div>
+            
+            <!-- Credit Card Information -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <h5>Informações do Cartão</h5>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-12">
+                    <label for="pagarme_card_number" class="form-label">Número do Cartão *</label>
+                    <input type="text" class="form-control" id="pagarme_card_number" 
+                           name="pagarme_card_number" required="required"
+                           placeholder="0000 0000 0000 0000"
+                           autocomplete="cc-number"/>
+                    <div class="card-type-icons mt-2">
+                        <img src="/payment_pagarme/static/img/visa.png" alt="Visa" class="card-icon"/>
+                        <img src="/payment_pagarme/static/img/mastercard.png" alt="Mastercard" class="card-icon"/>
+                        <img src="/payment_pagarme/static/img/amex.png" alt="American Express" class="card-icon"/>
+                        <img src="/payment_pagarme/static/img/elo.png" alt="Elo" class="card-icon"/>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-12">
+                    <label for="pagarme_card_holder_name" class="form-label">Nome no Cartão *</label>
+                    <input type="text" class="form-control" id="pagarme_card_holder_name" 
+                           name="pagarme_card_holder_name" required="required"
+                           placeholder="Nome como está no cartão"
+                           autocomplete="cc-name"/>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="pagarme_card_exp_month" class="form-label">Mês *</label>
+                    <select class="form-control" id="pagarme_card_exp_month" 
+                            name="pagarme_card_exp_month" required="required">
+                        <option value="">Mês</option>
+                        <option value="01">01</option>
+                        <option value="02">02</option>
+                        <option value="03">03</option>
+                        <option value="04">04</option>
+                        <option value="05">05</option>
+                        <option value="06">06</option>
+                        <option value="07">07</option>
+                        <option value="08">08</option>
+                        <option value="09">09</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="pagarme_card_exp_year" class="form-label">Ano *</label>
+                    <select class="form-control" id="pagarme_card_exp_year" 
+                            name="pagarme_card_exp_year" required="required">
+                        <option value="">Ano</option>
+                        <!-- Years will be populated by JavaScript -->
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="pagarme_card_cvv" class="form-label">CVV *</label>
+                    <input type="text" class="form-control" id="pagarme_card_cvv" 
+                           name="pagarme_card_cvv" required="required"
+                           placeholder="123"
+                           maxlength="4"
+                           autocomplete="cc-csc"/>
+                </div>
+            </div>
+            
+            <!-- Installments -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="pagarme_installments" class="form-label">Parcelas *</label>
+                    <select class="form-control" id="pagarme_installments" 
+                            name="pagarme_installments" required="required">
+                        <option value="1">1x sem juros</option>
+                        <!-- Additional installments will be loaded by JavaScript -->
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Security info -->
+            <div class="mt-4 text-center">
+                <small class="text-muted">
+                    <i class="fa fa-shield-alt me-1"></i>
+                    Seus dados estão protegidos com criptografia SSL
+                </small>
+            </div>
+            
         </div>
-        
-        <!-- Security info -->
-        <div class="mt-4 text-center">
-            <small class="text-muted">
-                <i class="fa fa-shield-alt me-1"></i>
-                Seus dados estão protegidos com criptografia SSL
-            </small>
-        </div>
-        
     </template>
 
 </odoo>

@@ -26,11 +26,11 @@ odoo.define('payment_pagarme.checkout', function (require) {
          * @override
          */
         start: function () {
-            this._super.apply(this, arguments);
+            var def = this._super.apply(this, arguments);
             if (this._isProviderPagarme()) {
                 this._initializeForm();
             }
-            return this._super.apply(this, arguments);
+            return def;
         },
 
         //--------------------------------------------------------------------------
@@ -49,49 +49,34 @@ odoo.define('payment_pagarme.checkout', function (require) {
         /**
          * @override
          */
-        _processPayment: function () {
-            if (!this._isProviderPagarme()) {
+        _prepareInlineForm: function (providerId, paymentOptionId, paymentMethodCode, flow) {
+            if (paymentMethodCode !== 'pagarme') {
                 return this._super.apply(this, arguments);
             }
-            return this._processPagarmePayment();
+            
+            // For Pagar.me, we handle the inline form differently
+            // Don't return anything here to prevent default redirect processing
+            this._validatePagarmeForm();
+            return;
         },
 
         /**
-         * Process Pagar.me payment
-         * @private
+         * @override
          */
-        _processPagarmePayment: function () {
-            var self = this;
-            
-            if (!this._validatePagarmeForm()) {
-                return Promise.reject();
+        _createInlineForm: function (providerId, paymentOptionId, paymentMethodCode, flow) {
+            if (paymentMethodCode !== 'pagarme') {
+                return this._super.apply(this, arguments);
             }
             
-            // Show loading
-            this._showLoading();
-            
-            // Prepare payment data
-            var paymentData = this._preparePagarmePaymentData();
-            
-            // Send to backend for processing
-            return this._rpc({
-                route: '/payment/pagarme/process_payment',
-                params: paymentData,
-            }).then(function (result) {
-                self._hideLoading();
-                
-                if (result.status === 'success') {
-                    // Redirect to status page
-                    window.location.href = result.redirect_url;
-                } else {
-                    self._displayError(result.message || 'Erro ao processar pagamento');
-                    return Promise.reject();
+            // Return a promise that resolves to the formatted data needed for processing
+            var self = this;
+            return Promise.resolve().then(function () {
+                if (!self._validatePagarmeForm()) {
+                    return Promise.reject({message: _t('Por favor, preencha todos os campos obrigatórios.')});
                 }
-            }).catch(function (error) {
-                self._hideLoading();
-                self._displayError('Erro interno. Tente novamente.');
-                console.error('Payment processing error:', error);
-                return Promise.reject();
+                
+                // Return payment data in the format expected by Odoo
+                return self._preparePagarmePaymentData();
             });
         },
 
@@ -536,14 +521,40 @@ odoo.define('payment_pagarme.checkout', function (require) {
          * @returns {Object}
          */
         _preparePagarmePaymentData: function () {
-            return {
-                reference: this.$('input[name="reference"]').val(),
+            // Collect card data
+            var cardData = {
                 card_number: this.$('input[name="pagarme_card_number"]').val().replace(/\s/g, ''),
                 card_holder_name: this.$('input[name="pagarme_card_holder_name"]').val(),
                 card_exp_month: this.$('select[name="pagarme_card_exp_month"]').val(),
                 card_exp_year: this.$('select[name="pagarme_card_exp_year"]').val(),
                 card_cvv: this.$('input[name="pagarme_card_cvv"]').val(),
                 installments: parseInt(this.$('select[name="pagarme_installments"]').val()),
+            };
+
+            // Collect customer data
+            var customerData = {
+                customer_name: this.$('input[name="pagarme_customer_name"]').val(),
+                customer_email: this.$('input[name="pagarme_customer_email"]').val(),
+                customer_document: this.$('input[name="pagarme_customer_document"]').val(),
+                customer_phone: this.$('input[name="pagarme_customer_phone"]').val(),
+            };
+
+            // Collect billing address
+            var billingData = {
+                billing_street: this.$('input[name="pagarme_billing_street"]').val(),
+                billing_street_number: this.$('input[name="pagarme_billing_street_number"]').val(),
+                billing_neighborhood: this.$('input[name="pagarme_billing_neighborhood"]').val(),
+                billing_city: this.$('input[name="pagarme_billing_city"]').val(),
+                billing_state: this.$('input[name="pagarme_billing_state"]').val(),
+                billing_zipcode: this.$('input[name="pagarme_zipcode"]').val(),
+            };
+
+            return {
+                provider_code: 'pagarme',
+                payment_method_code: 'pagarme',
+                ...cardData,
+                ...customerData,
+                ...billingData
             };
         },
 

@@ -118,6 +118,105 @@ class PaymentTransaction(models.Model):
         # For now, we'll prepare the structure
         return self._pagarme_create_transaction_request()
 
+    def _process_notification_data(self, provider_code, notification_data):
+        """Process notification data from Pagar.me."""
+        if provider_code != "pagarme":
+            return super()._process_notification_data(provider_code, notification_data)
+            
+        _logger.info("Processing Pagar.me notification for transaction %s", self.reference)
+        
+        # Handle the notification based on transaction status
+        transaction_status = notification_data.get("status", "").lower()
+        
+        if transaction_status == "paid":
+            self._set_done()
+        elif transaction_status in ["refused", "failed"]:
+            self._set_canceled()
+        elif transaction_status == "pending":
+            self._set_pending()
+        elif transaction_status == "authorized":
+            self._set_authorized()
+        elif transaction_status in ["refunded", "partial_refunded"]:
+            self._set_canceled()
+        else:
+            _logger.warning("Unhandled Pagar.me transaction status: %s", transaction_status)
+
+    def _send_refund_request(self, amount_to_refund=None):
+        """Send refund request to Pagar.me."""
+        if self.provider_code != "pagarme":
+            return super()._send_refund_request(amount_to_refund)
+            
+        if not self.pagarme_transaction_id:
+            raise UserError(_("Cannot refund transaction without Pagar.me transaction ID"))
+            
+        # Prepare refund data
+        refund_amount = amount_to_refund or self.amount
+        refund_data = {
+            "amount": int(refund_amount * 100),  # Convert to cents
+            "metadata": {
+                "odoo_refund_reference": f"refund_{self.reference}",
+                "odoo_transaction_id": str(self.id),
+            }
+        }
+        
+        # Send refund request to Pagar.me
+        endpoint = f"transactions/{self.pagarme_transaction_id}/refunds"
+        response = self.provider_id._pagarme_make_request(endpoint, refund_data)
+        
+        # Process refund response
+        if response.get("status") == "success":
+            self._set_canceled()
+            return response
+        else:
+            raise UserError(_("Refund failed: %s") % response.get("message", "Unknown error"))
+
+    def _handle_notification_data(self, provider_code, notification_data):
+        """Handle notification data from webhooks or return URL."""
+        if provider_code != "pagarme":
+            return super()._handle_notification_data(provider_code, notification_data)
+            
+        # Update transaction with Pagar.me data
+        self._update_pagarme_transaction_data(notification_data)
+        
+        # Process the notification
+        self._process_notification_data(provider_code, notification_data)
+
+    def _update_pagarme_transaction_data(self, data):
+        """Update transaction with data from Pagar.me."""
+        if not data:
+            return
+            
+        # Update Pagar.me specific fields
+        vals = {}
+        
+        if "id" in data:
+            vals["pagarme_transaction_id"] = str(data["id"])
+            
+        if "status" in data:
+            vals["pagarme_status"] = data["status"]
+            
+        if "charges" in data and data["charges"]:
+            charge = data["charges"][0]  # Get first charge
+            if "id" in charge:
+                vals["pagarme_charge_id"] = str(charge["id"])
+                
+            # Extract payment method info
+            if "payment_method" in charge:
+                payment_method = charge["payment_method"]
+                vals["pagarme_payment_method"] = payment_method.get("type", "credit_card")
+                
+                # Extract card info if available
+                if "card" in payment_method:
+                    card_info = payment_method["card"]
+                    vals["pagarme_card_brand"] = card_info.get("brand", "")
+                    vals["pagarme_card_last_digits"] = card_info.get("last_four_digits", "")
+                    
+        if "order" in data and "id" in data["order"]:
+            vals["pagarme_order_id"] = str(data["order"]["id"])
+            
+        if vals:
+            self.write(vals)
+
     def _pagarme_create_transaction_request(self, card_data=None):
         """Create a transaction request to Pagar.me following API v5 structure."""
         # Prepare customer data following Pagar.me API v5
@@ -255,6 +354,32 @@ class PaymentTransaction(models.Model):
         self.pagarme_installments = card_data.get("installments", 1)
         
         return payment_data
+    
+    def _pagarme_process_transaction_response(self, response):
+        """Process the response from Pagar.me transaction creation."""
+        if not response:
+            raise UserError(_("Empty response from Pagar.me"))
+            
+        # Update transaction with response data
+        self._update_pagarme_transaction_data(response)
+        
+        # Set transaction state based on response status
+        status = response.get("status", "").lower()
+        
+        if status == "paid":
+            self._set_done()
+        elif status == "pending":
+            self._set_pending()
+        elif status == "authorized":
+            self._set_authorized()
+        elif status in ["refused", "failed"]:
+            self._set_canceled()
+        else:
+            # For any unhandled status, set as pending and log
+            _logger.warning("Unhandled Pagar.me transaction status: %s", status)
+            self._set_pending()
+            
+        return response
 
     def _pagarme_process_transaction_response(self, response_data):
         """Process the response from Pagar.me transaction API."""

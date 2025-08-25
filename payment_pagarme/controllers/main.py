@@ -164,15 +164,33 @@ class PagarmeController(http.Controller):
                 
             # Get card data from request (encrypted by frontend)
             card_data = {
-                "card_number": kwargs.get("card_number"),  # Encrypted
-                "card_holder_name": kwargs.get("card_holder_name"),  # Encrypted
-                "card_exp_month": kwargs.get("card_exp_month"),  # Encrypted
-                "card_exp_year": kwargs.get("card_exp_year"),  # Encrypted
-                "card_cvv": kwargs.get("card_cvv"),  # Encrypted
+                "card_number": kwargs.get("card_number"),  
+                "card_holder_name": kwargs.get("card_holder_name"),  
+                "card_exp_month": kwargs.get("card_exp_month"),  
+                "card_exp_year": kwargs.get("card_exp_year"),  
+                "card_cvv": kwargs.get("card_cvv"),  
                 "installments": kwargs.get("installments", 1),
             }
             
-            # Validate card data presence
+            # Get customer data from request
+            customer_data = {
+                "customer_name": kwargs.get("customer_name"),
+                "customer_email": kwargs.get("customer_email"),
+                "customer_document": kwargs.get("customer_document"),
+                "customer_phone": kwargs.get("customer_phone"),
+            }
+            
+            # Get billing data from request  
+            billing_data = {
+                "billing_street": kwargs.get("billing_street"),
+                "billing_street_number": kwargs.get("billing_street_number"),
+                "billing_neighborhood": kwargs.get("billing_neighborhood"),
+                "billing_city": kwargs.get("billing_city"),
+                "billing_state": kwargs.get("billing_state"),
+                "billing_zipcode": kwargs.get("billing_zipcode"),
+            }
+            
+            # Validate required card data
             if not all([
                 card_data["card_number"],
                 card_data["card_holder_name"], 
@@ -180,10 +198,11 @@ class PagarmeController(http.Controller):
                 card_data["card_exp_year"],
                 card_data["card_cvv"],
             ]):
-                return {"status": "error", "message": "Missing encrypted card information"}
+                return {"status": "error", "message": "Missing card information"}
                 
             # Prepare transaction data for Pagar.me API
-            transaction_data = tx_sudo._pagarme_create_transaction_request(card_data)
+            all_data = {**card_data, **customer_data, **billing_data}
+            transaction_data = tx_sudo._pagarme_create_transaction_request(all_data)
             
             # Make request to Pagar.me API
             response = tx_sudo.provider_id._pagarme_make_request("transactions", transaction_data)
