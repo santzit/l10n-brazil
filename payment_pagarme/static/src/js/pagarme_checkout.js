@@ -18,12 +18,40 @@ const pagarmeTransparentCheckoutMixin = {
     async _processPayment(provider, paymentOptionId, flow) {
         console.log('Pagar.me: _processPayment called with:', { provider, paymentOptionId, flow });
         
+        // First, let's see if our template is even rendered
+        console.log('Pagar.me: Checking if template was rendered...');
+        const debugElements = this.$('.debug-variables');
+        if (debugElements.length > 0) {
+            console.log('Pagar.me: DEBUG TEMPLATE FOUND! Content:', debugElements.text());
+        } else {
+            console.error('Pagar.me: NO DEBUG TEMPLATE FOUND - template is not being rendered!');
+        }
+        
+        // Check for any Pagar.me elements at all
+        const pagarmeElements = this.$('[id*="pagarme"], [class*="pagarme"]');
+        console.log('Pagar.me: Found', pagarmeElements.length, 'Pagar.me elements in DOM');
+        pagarmeElements.each(function() {
+            console.log(`  - ${this.tagName}#${this.id}.${this.className}: ${$(this).text().substring(0, 50)}`);
+        });
+        
         if (provider !== 'pagarme' || flow === 'token') {
             console.log('Pagar.me: delegating to super for provider:', provider, 'flow:', flow);
             return this._super(...arguments); // Tokens and other providers are handled by generic flow
         }
 
         console.log('Pagar.me: Starting payment processing for provider ID:', paymentOptionId);
+
+        // If no template was rendered, this is likely the problem
+        if (debugElements.length === 0) {
+            console.error('Pagar.me: Template not rendered - this indicates the inline form is not being built by Odoo');
+            console.error('Pagar.me: This could be due to:');
+            console.error('  1. _should_build_inline_form() returning false');
+            console.error('  2. Template not found or incorrectly named');
+            console.error('  3. Provider not properly configured for inline forms');
+            console.error('  4. Flow type not supporting inline forms');
+            this._displayError('Configuração Inválida', 'Formulário de pagamento não foi carregado. Verifique a configuração do provedor.');
+            return Promise.reject("Inline form not rendered");
+        }
 
         // Validate form before processing
         console.log('Pagar.me: Validating form...');

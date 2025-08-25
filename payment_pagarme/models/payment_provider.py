@@ -85,10 +85,15 @@ class PaymentProvider(models.Model):
         if self.code != 'pagarme':
             return super()._should_build_inline_form(is_validation)
         
-        _logger.info("Pagar.me: _should_build_inline_form called for provider %s (code=%s, is_validation=%s)", self.id, self.code, is_validation)
-        _logger.info("Pagar.me: Provider state: %s, name: %s", self.state, self.name)
+        _logger.warning("=========== PAGAR.ME DEBUG ===========")
+        _logger.warning("_should_build_inline_form called!")
+        _logger.warning("Provider ID: %s, Code: %s, Name: %s", self.id, self.code, self.name)
+        _logger.warning("Is validation: %s", is_validation)
+        _logger.warning("Provider state: %s", self.state)
+        _logger.warning("=====================================")
+        
         result = True
-        _logger.info("Pagar.me: _should_build_inline_form returning: %s", result)
+        _logger.warning("Returning: %s", result)
         return result
 
     def _get_inline_form_template(self, is_validation=False):
@@ -96,17 +101,21 @@ class PaymentProvider(models.Model):
         if self.code != 'pagarme':
             return super()._get_inline_form_template(is_validation)
         
+        _logger.warning("=========== PAGAR.ME DEBUG ===========")
+        _logger.warning("_get_inline_form_template called!")
+        _logger.warning("Provider ID: %s, Code: %s, Name: %s", self.id, self.code, self.name)
+        _logger.warning("Is validation: %s", is_validation)
+        _logger.warning("=====================================")
+        
         template_name = 'payment_pagarme.inline_form'
-        _logger.info("Pagar.me: _get_inline_form_template called for provider %s (code=%s, is_validation=%s)", self.id, self.code, is_validation)
-        _logger.info("Pagar.me: Provider state: %s, name: %s", self.state, self.name)
-        _logger.info("Pagar.me: Returning template: %s", template_name)
+        _logger.warning("Template name: %s", template_name)
         
         # Check if template exists
         try:
             template = self.env.ref(template_name)
-            _logger.info("Pagar.me: Template found: %s (ID: %s)", template.name, template.id)
+            _logger.warning("Template found: %s (ID: %s)", template.name, template.id)
         except Exception as e:
-            _logger.error("Pagar.me: Template not found: %s - Error: %s", template_name, e)
+            _logger.error("Template not found: %s - Error: %s", template_name, e)
             
         return template_name
 
