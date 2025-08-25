@@ -2,31 +2,55 @@
 <odoo>
 
     <template id="inline_form" name="Pagar.me Inline Form">
-        <div t-attf-id="o_pagarme_payment_container_{{payment_option_id or provider_id or id}}" class="o_pagarme_payment_form">
-            <!-- Prominent success indicator -->
+        <div t-attf-id="o_pagarme_payment_container_{{payment_option_id}}" class="o_pagarme_payment_form">
+            <!-- Prominent success indicator with enhanced debugging -->
             <div style="background: #28a745; color: white; padding: 20px; margin: 15px 0; font-weight: bold; border: 4px solid #155724; border-radius: 8px; text-align: center; font-size: 16px;">
                 ✅ PAGAR.ME TEMPLATE RENDERED SUCCESSFULLY!
                 <br/>🎉 Inline form integration is working correctly!
-                <br/>📋 Variables: payment_option_id=<span t-esc="payment_option_id"/>, provider_id=<span t-esc="provider_id"/>, id=<span t-esc="id"/>
-                <br/>🎯 Container ID: o_pagarme_payment_container_<span t-esc="payment_option_id or provider_id or id"/>
+                <br/>📋 Payment Option ID: <span t-esc="payment_option_id"/>
+                <br/>🎯 Container ID: o_pagarme_payment_container_<span t-esc="payment_option_id"/>
+                <br/>🔧 Template called at: <span t-esc="context_today()"/>
             </div>
-            <!-- Card input fields -->
-            <div class="form-group">
-                <label for="pagarme_card_number">Número do Cartão:</label>
-                <input type="text" id="pagarme_card_number" placeholder="0000 0000 0000 0000" class="form-control"/>
-            </div>
-            <div class="form-group">
-                <label for="pagarme_card_holder">Nome no Cartão:</label>
-                <input type="text" id="pagarme_card_holder" placeholder="Nome conforme impresso no cartão" class="form-control"/>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <label for="pagarme_card_expiry">Validade:</label>
-                    <input type="text" id="pagarme_card_expiry" placeholder="MM/AA" class="form-control"/>
+            
+            <!-- Card input form -->
+            <div class="card" style="margin: 15px 0; padding: 20px;">
+                <h5 class="card-title">💳 Dados do Cartão de Crédito</h5>
+                <div class="form-group">
+                    <label for="pagarme_card_number" class="required">Número do Cartão:</label>
+                    <input type="text" id="pagarme_card_number" name="pagarme_card_number" 
+                           placeholder="0000 0000 0000 0000" class="form-control" 
+                           maxlength="19" autocomplete="cc-number" required="true"/>
                 </div>
-                <div class="col-md-6">
-                    <label for="pagarme_card_cvv">CVV:</label>
-                    <input type="text" id="pagarme_card_cvv" placeholder="123" class="form-control"/>
+                
+                <div class="form-group">
+                    <label for="pagarme_card_holder" class="required">Nome no Cartão:</label>
+                    <input type="text" id="pagarme_card_holder" name="pagarme_card_holder"
+                           placeholder="Nome conforme impresso no cartão" class="form-control" 
+                           autocomplete="cc-name" required="true"/>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="pagarme_card_expiry" class="required">Validade:</label>
+                            <input type="text" id="pagarme_card_expiry" name="pagarme_card_expiry"
+                                   placeholder="MM/AA" class="form-control" 
+                                   maxlength="5" autocomplete="cc-exp" required="true"/>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="pagarme_card_cvv" class="required">CVV:</label>
+                            <input type="text" id="pagarme_card_cvv" name="pagarme_card_cvv"
+                                   placeholder="123" class="form-control" 
+                                   maxlength="4" autocomplete="cc-csc" required="true"/>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Debug info -->
+                <div style="background: #f8f9fa; padding: 10px; margin-top: 15px; border-radius: 5px; font-size: 12px;">
+                    🐛 <strong>Debug Info:</strong> Template loaded successfully. Provider: Pagar.me
                 </div>
             </div>
         </div>

@@ -304,12 +304,16 @@ class PaymentProvider(models.Model):
         if self.code != 'pagarme':
             return super()._should_build_inline_form(is_validation)
         
-        _logger.warning("========= PAGAR.ME INLINE FORM DEBUG =========")
-        _logger.warning("_should_build_inline_form called! is_validation=%s", is_validation)
+        _logger.warning("=========== PAGAR.ME DEBUG ===========")
+        _logger.warning("_should_build_inline_form called!")
         _logger.warning("Provider ID: %s, Name: %s", self.id, self.name)
+        _logger.warning("Is validation: %s", is_validation)
+        _logger.warning("Provider state: %s", self.state)
         _logger.warning("Inline form view ID: %s", self.inline_form_view_id)
-        _logger.warning("============================================")
+        _logger.warning("Code: %s", self.code)
+        _logger.warning("=====================================")
         
+        # Always return True for Pagar.me to enable inline forms
         return True
 
     def _get_inline_form_template(self):
@@ -317,10 +321,12 @@ class PaymentProvider(models.Model):
         if self.code != 'pagarme':
             return super()._get_inline_form_template()
         
-        _logger.warning("========= PAGAR.ME TEMPLATE DEBUG =========")
+        template_name = 'payment_pagarme.inline_form'
+        _logger.warning("=========== PAGAR.ME TEMPLATE DEBUG ===========")
         _logger.warning("_get_inline_form_template called!")
-        _logger.warning("Returning template: payment_pagarme.inline_form")
-        _logger.warning("==========================================")
+        _logger.warning("Returning template: %s", template_name)
+        _logger.warning("Provider: %s (ID: %s)", self.name, self.id)
+        _logger.warning("============================================")
         
-        return 'payment_pagarme.inline_form'
+        return template_name
 
