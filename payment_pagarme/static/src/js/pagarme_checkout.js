@@ -57,13 +57,20 @@ const pagarmeTransparentCheckoutMixin = {
             console.log('Container HTML:', container.outerHTML);
         }
         
-        // Look for debug template
-        const debugTemplate = document.querySelector('[style*="background: red"]');
+        // Look for debug template (updated to green background)
+        const debugTemplate = document.querySelector('[style*="background: green"]');
         console.log('Debug template found:', debugTemplate);
         
         if (debugTemplate) {
             console.log('✅ DEBUG TEMPLATE FOUND!');
             console.log('Template content:', debugTemplate.outerHTML);
+        } else {
+            console.log('❌ Green debug template NOT found');
+            // Also check for old red template
+            const oldDebugTemplate = document.querySelector('[style*="background: red"]');
+            if (oldDebugTemplate) {
+                console.log('Found old red debug template');
+            }
         }
         
         // Check for form fields
@@ -76,8 +83,8 @@ const pagarmeTransparentCheckoutMixin = {
         if (container || debugTemplate || cardNumberField) {
             console.log('🎉 SUCCESS: Pagar.me template was rendered!');
             
-            // Show success message
-            this._displaySuccess('✅ Template funcionando!', 'Pagar.me template foi renderizado com sucesso!');
+            // Show success message with green styling
+            this._displaySuccess('✅ Template Funcionando!', 'Pagar.me template foi renderizado com sucesso!');
             return Promise.resolve();
         } else {
             console.error('❌ FAILED: Pagar.me template was NOT rendered!');
@@ -87,13 +94,13 @@ const pagarmeTransparentCheckoutMixin = {
             const paymentElements = document.querySelectorAll('[class*="payment"], [id*="payment"], [class*="o_"], [id*="o_"]');
             console.log('All payment/odoo elements found:', paymentElements.length);
             paymentElements.forEach((el, i) => {
-                if (i < 10) { // Limit output
+                if (i < 15) { // Increase limit to see more elements
                     console.log(`Payment element ${i}:`, el.tagName, el.className, el.id);
                 }
             });
             
             // Show detailed error message
-            this._displayError('Erro de Template', 'Template de pagamento Pagar.me não foi renderizado. Verifique a configuração do provider.');
+            this._displayError('❌ Erro de Template', 'Template de pagamento Pagar.me não foi renderizado. Verifique os logs do servidor Odoo para verificar se os métodos inline form estão sendo chamados.');
             return Promise.reject("Pagar.me template not rendered");
         }
     },

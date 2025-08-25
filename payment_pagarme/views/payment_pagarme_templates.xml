@@ -4,9 +4,11 @@
     <template id="inline_form" name="Pagar.me Inline Form">
         <div t-attf-id="o_pagarme_payment_container_{{provider_id}}" class="o_pagarme_payment_form">
             <!-- Enhanced debug information to identify the issue -->
-            <div style="background: red; color: white; padding: 15px; margin: 10px; font-weight: bold; border: 3px solid yellow;">
-                🚨 PAGAR.ME DEBUG TEMPLATE - PROVIDER ID: <span t-esc="provider_id"/>
-                <br/>All available variables: <span t-esc="request.env.context.keys()"/>
+            <div style="background: green; color: white; padding: 15px; margin: 10px; font-weight: bold; border: 3px solid blue;">
+                ✅ PAGAR.ME TEMPLATE RENDERED SUCCESSFULLY!
+                <br/>🔧 Provider ID: <span t-esc="provider_id"/>
+                <br/>📋 Template called from: payment_pagarme.inline_form
+                <br/>🎯 Template container ID: o_pagarme_payment_container_<span t-esc="provider_id"/>
             </div>
             <!-- Card input fields -->
             <div class="form-group">
