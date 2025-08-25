@@ -69,13 +69,21 @@ class PaymentProvider(models.Model):
         """Override to enable inline form for Pagar.me."""
         if self.code != 'pagarme':
             return super()._should_build_inline_form(is_validation)
-        return True
+        
+        _logger.info("Pagar.me: _should_build_inline_form called for provider %s (is_validation=%s)", self.id, is_validation)
+        result = True
+        _logger.info("Pagar.me: _should_build_inline_form returning: %s", result)
+        return result
 
     def _get_inline_form_template(self, is_validation=False):
         """Return the inline form template for Pagar.me."""
         if self.code != 'pagarme':
             return super()._get_inline_form_template(is_validation)
-        return 'payment_pagarme.inline_form'
+        
+        template_name = 'payment_pagarme.inline_form'
+        _logger.info("Pagar.me: _get_inline_form_template called for provider %s (is_validation=%s), returning template: %s", 
+                    self.id, is_validation, template_name)
+        return template_name
 
     @api.depends("code")
     def _compute_pagarme_webhook_url(self):

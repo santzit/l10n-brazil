@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Pagar.me Inline Payment Form Template -->
+
     <template id="inline_form" name="Pagar.me Inline Form">
-        <div t-attf-id="o_pagarme_payment_container_{{provider.id}}" 
-             t-att-data-provider-id="provider.id" 
+        <div t-attf-id="o_pagarme_payment_container_{{provider_id}}" 
+             t-att-data-provider-id="provider_id" 
              class="o_pagarme_payment_form">
             
             <!-- Pagar.me Branding -->
