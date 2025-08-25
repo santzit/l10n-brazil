@@ -57,15 +57,10 @@ class PaymentProvider(models.Model):
         # Add debugging for provider compatibility
         pagarme_providers = providers.filtered(lambda p: p.code == 'pagarme')
         if pagarme_providers:
-            _logger.warning("========= PAGAR.ME PROVIDER DEBUG =========")
-            _logger.warning("Found %d Pagar.me providers", len(pagarme_providers))
+            _logger.info("Found %d Pagar.me providers", len(pagarme_providers))
             for provider in pagarme_providers:
-                _logger.warning("Provider - ID: %s, Name: %s, State: %s", provider.id, provider.name, provider.state)
-                _logger.warning("Inline form view ID: %s", provider.inline_form_view_id)
-                _logger.warning("Allow tokenization: %s", provider.allow_tokenization)
-            _logger.warning("==========================================")
-        else:
-            _logger.warning("PAGAR.ME: No compatible Pagar.me providers found")
+                _logger.info("Provider - ID: %s, Name: %s, State: %s", provider.id, provider.name, provider.state)
+                _logger.info("Inline form view ID: %s", provider.inline_form_view_id)
             
         return providers
 
@@ -304,15 +299,7 @@ class PaymentProvider(models.Model):
         if self.code != 'pagarme':
             return super()._should_build_inline_form(is_validation)
         
-        _logger.warning("=========== PAGAR.ME DEBUG ===========")
-        _logger.warning("_should_build_inline_form called!")
-        _logger.warning("Provider ID: %s, Name: %s", self.id, self.name)
-        _logger.warning("Is validation: %s", is_validation)
-        _logger.warning("Provider state: %s", self.state)
-        _logger.warning("Inline form view ID: %s", self.inline_form_view_id)
-        _logger.warning("Code: %s", self.code)
-        _logger.warning("=====================================")
-        
+        _logger.info("_should_build_inline_form called for Pagar.me provider %s", self.name)
         # Always return True for Pagar.me to enable inline forms
         return True
 
@@ -322,26 +309,9 @@ class PaymentProvider(models.Model):
             return super()._get_inline_form_template()
         
         template_name = 'payment_pagarme.inline_form'
-        _logger.warning("=========== PAGAR.ME TEMPLATE DEBUG ===========")
-        _logger.warning("_get_inline_form_template called!")
-        _logger.warning("Returning template: %s", template_name)
-        _logger.warning("Provider: %s (ID: %s)", self.name, self.id)
-        _logger.warning("============================================")
+        _logger.info("_get_inline_form_template called for Pagar.me - returning: %s", template_name)
         
         return template_name
 
-    @api.model
-    def _get_compatible_providers(self, *args, **kwargs):
-        """Override to force Pagar.me inline form detection."""
-        providers = super()._get_compatible_providers(*args, **kwargs)
-        
-        # Force inline form support for Pagar.me providers
-        pagarme_providers = providers.filtered(lambda p: p.code == 'pagarme')
-        for provider in pagarme_providers:
-            _logger.warning("FORCING INLINE FORM SUPPORT FOR PAGAR.ME PROVIDER %s", provider.name)
-            # Ensure the provider has inline form configuration
-            if not provider.inline_form_view_id:
-                _logger.error("PAGAR.ME PROVIDER %s MISSING INLINE_FORM_VIEW_ID!", provider.name)
-        
-        return providers
+
 
