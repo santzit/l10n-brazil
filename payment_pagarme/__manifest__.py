@@ -14,9 +14,9 @@
         "l10n_br_base",
     ],
     "data": [
-        "data/pagarme_provider.xml",
         "views/payment_provider_views.xml",
         "views/payment_pagarme_templates.xml",
+        "data/pagarme_provider.xml",
     ],
     "assets": {
         "web.assets_frontend": [
