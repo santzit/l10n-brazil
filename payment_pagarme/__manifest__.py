@@ -21,6 +21,7 @@
     "assets": {
         "web.assets_frontend": [
             "payment_pagarme/static/src/js/pagarme_checkout.js",
+            "payment_pagarme/static/src/img/pagarme-icon.png",
         ],
     },
     "post_init_hook": "post_init_hook",

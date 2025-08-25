@@ -3,6 +3,14 @@
     <!-- Pagar.me Inline Payment Form Template -->
     <template id="inline_form" name="Pagar.me Inline Form">
         
+        <!-- Pagar.me Branding -->
+        <div class="row mb-3">
+            <div class="col-12 text-center">
+                <img src="/payment_pagarme/static/src/img/pagarme-icon.png" alt="Pagar.me" class="payment-provider-logo" style="height: 40px; margin-bottom: 10px;"/>
+                <p class="text-muted small">Pagamento seguro processado pela Pagar.me</p>
+            </div>
+        </div>
+        
         <!-- Customer Information -->
         <div class="row mb-3">
             <div class="col-12">

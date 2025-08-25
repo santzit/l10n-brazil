@@ -188,6 +188,16 @@ This module is designed specifically for Brazilian businesses using Pagar.me pay
 
 AGPL-3.0 or later (http://www.gnu.org/licenses/agpl)
 
+## Icon and Branding
+
+The module includes Pagar.me branding elements:
+
+- **Module Icon**: `static/description/icon.png` (128x128 PNG) - Used in Odoo app list
+- **Payment Form Icon**: `static/src/img/pagarme-icon.png` (64x64 PNG) - Displayed in payment form
+- **SVG Version**: `static/src/img/pagarme-icon.svg` - Scalable vector version
+
+The icons feature a teal background (#20B2AA) with a white "P" letter, representing the Pagar.me brand colors. These can be replaced with official Pagar.me branded icons when available.
+
 ## Credits
 
 - **Developer**: KMEE INFORMATICA LTDA
