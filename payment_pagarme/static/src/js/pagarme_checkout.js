@@ -16,53 +16,116 @@ const pagarmeTransparentCheckoutMixin = {
      * @return {Promise}
      */
     async _processPayment(provider, paymentOptionId, flow) {
+        console.log('Pagar.me: _processPayment called with:', { provider, paymentOptionId, flow });
+        
         if (provider !== 'pagarme' || flow === 'token') {
+            console.log('Pagar.me: delegating to super for provider:', provider, 'flow:', flow);
             return this._super(...arguments); // Tokens and other providers are handled by generic flow
         }
 
+        console.log('Pagar.me: Starting payment processing for provider ID:', paymentOptionId);
+
         // Validate form before processing
+        console.log('Pagar.me: Validating form...');
         if (!this._validatePagarmeForm(paymentOptionId)) {
+            console.error('Pagar.me: Form validation failed');
+            this._displayError('Formulário Inválido', 'Por favor, verifique os dados do cartão e tente novamente.');
             return Promise.reject("Invalid form data");
         }
+        console.log('Pagar.me: Form validation successful');
 
         // Show loading state
+        console.log('Pagar.me: Showing loading state...');
         this._displayLoading();
 
         try {
-            // Create transaction and get processing values
-            const processingValues = await this._rpc({
-                route: this.txContext.transactionRoute,
-                params: this._prepareTransactionRouteParams('pagarme', paymentOptionId, 'direct'),
-            });
+            console.log('Pagar.me: Creating transaction with route:', this.txContext.transactionRoute);
+            console.log('Pagar.me: Transaction context:', this.txContext);
+            
+            // Create transaction and get processing values with timeout
+            const transactionParams = this._prepareTransactionRouteParams('pagarme', paymentOptionId, 'direct');
+            console.log('Pagar.me: Transaction route params:', transactionParams);
+            
+            const processingValues = await Promise.race([
+                this._rpc({
+                    route: this.txContext.transactionRoute,
+                    params: transactionParams,
+                }),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Transaction creation timeout after 30 seconds')), 30000)
+                )
+            ]);
+            console.log('Pagar.me: Transaction created successfully:', processingValues);
 
             // Prepare payment data from form
+            console.log('Pagar.me: Preparing payment data from form...');
             const paymentData = this._preparePagarmePaymentData(paymentOptionId);
-
-            // Process payment through Pagar.me API
-            const paymentResult = await this._rpc({
-                route: '/payment/pagarme/payment',
-                params: {
-                    'provider_id': paymentOptionId,
-                    'reference': processingValues.reference,
-                    'converted_amount': processingValues.converted_amount,
-                    'currency_id': processingValues.currency_id,
-                    'partner_id': processingValues.partner_id,
-                    'payment_data': paymentData,
-                    'access_token': processingValues.access_token,
-                },
+            console.log('Pagar.me: Payment data prepared:', {
+                ...paymentData,
+                card_number: paymentData.card_number ? '****' + paymentData.card_number.slice(-4) : 'missing',
+                card_cvv: paymentData.card_cvv ? '***' : 'missing'
             });
 
-            if (paymentResult.status === 'success') {
+            // Prepare request to Pagar.me payment endpoint
+            const paymentRequest = {
+                'provider_id': paymentOptionId,
+                'reference': processingValues.reference,
+                'converted_amount': processingValues.converted_amount,
+                'currency_id': processingValues.currency_id,
+                'partner_id': processingValues.partner_id,
+                'payment_data': paymentData,
+                'access_token': processingValues.access_token,
+            };
+            console.log('Pagar.me: Sending payment request to /payment/pagarme/payment:', {
+                ...paymentRequest,
+                payment_data: {
+                    ...paymentRequest.payment_data,
+                    card_number: paymentRequest.payment_data.card_number ? '****' + paymentRequest.payment_data.card_number.slice(-4) : 'missing',
+                    card_cvv: paymentRequest.payment_data.card_cvv ? '***' : 'missing'
+                }
+            });
+
+            // Process payment through Pagar.me API with timeout
+            const paymentResult = await Promise.race([
+                this._rpc({
+                    route: '/payment/pagarme/payment',
+                    params: paymentRequest,
+                }),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Payment processing timeout after 60 seconds')), 60000)
+                )
+            ]);
+            console.log('Pagar.me: Payment request completed with result:', paymentResult);
+
+            if (paymentResult && paymentResult.status === 'success') {
+                console.log('Pagar.me: Payment successful, redirecting to /payment/status');
                 // Redirect to payment status page
                 window.location = '/payment/status';
             } else {
-                this._displayError('Erro no Pagamento', paymentResult.message || 'Falha no processamento do pagamento');
+                const errorMessage = paymentResult?.message || 'Falha no processamento do pagamento';
+                console.error('Pagar.me: Payment failed with message:', errorMessage);
+                this._displayError('Erro no Pagamento', errorMessage);
             }
 
         } catch (error) {
-            this._displayError('Erro no Pagamento', 'Erro ao processar pagamento. Tente novamente.');
-            console.error('Pagar.me payment error:', error);
+            console.error('Pagar.me: Payment processing error:', error);
+            console.error('Pagar.me: Error details:', {
+                message: error.message,
+                type: error.type,
+                data: error.data,
+                stack: error.stack
+            });
+            
+            let errorMessage = 'Erro ao processar pagamento. Tente novamente.';
+            if (error.message && error.message.includes('timeout')) {
+                errorMessage = 'Timeout na comunicação. Verifique sua conexão e tente novamente.';
+            } else if (error.data && error.data.message) {
+                errorMessage = error.data.message;
+            }
+            
+            this._displayError('Erro no Pagamento', errorMessage);
         } finally {
+            console.log('Pagar.me: Hiding loading state...');
             this._hideLoading();
         }
     },
@@ -204,23 +267,31 @@ const pagarmeTransparentCheckoutMixin = {
      * @returns {boolean}
      */
     _validatePagarmeForm: function (paymentOptionId) {
+        console.log('Pagar.me: Starting form validation for provider ID:', paymentOptionId);
+        
         const container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
         if (container.length === 0) {
-            console.error('Pagar.me payment container not found:', paymentOptionId);
+            console.error('Pagar.me: payment container not found:', paymentOptionId);
             return false;
         }
+        console.log('Pagar.me: Found payment container');
 
         let isValid = true;
+        let invalidFields = [];
 
         // Validate required fields
         container.find('input[required], select[required]').each(function () {
             const field = $(this);
+            const fieldName = this.name || this.id || 'unknown';
             const value = this.value || '';
             if (!value.trim()) {
                 isValid = false;
+                invalidFields.push(fieldName);
                 field.addClass('is-invalid');
+                console.warn('Pagar.me: Required field is empty:', fieldName);
             } else {
                 field.removeClass('is-invalid');
+                console.log('Pagar.me: Required field validated:', fieldName);
             }
         });
 
@@ -228,24 +299,33 @@ const pagarmeTransparentCheckoutMixin = {
         const cardNumberElement = container.find('input[name="pagarme_card_number"]');
         const cardNumberValue = cardNumberElement.val() || '';
         const cardNumber = cardNumberValue.replace(/\s/g, '');
+        console.log('Pagar.me: Validating card number (length:', cardNumber.length, ')');
         if (!this._validateCardNumber(cardNumber)) {
             isValid = false;
+            invalidFields.push('card_number');
             cardNumberElement.addClass('is-invalid');
+            console.error('Pagar.me: Card number validation failed');
         } else {
             cardNumberElement.removeClass('is-invalid');
+            console.log('Pagar.me: Card number validation successful');
         }
 
         // Validate document
         const documentElement = container.find('input[name="pagarme_customer_document"]');
         const documentValue = documentElement.val() || '';
         const document = documentValue.replace(/\D/g, '');
+        console.log('Pagar.me: Validating document (length:', document.length, ')');
         if (!this._validateDocument(document)) {
             isValid = false;
+            invalidFields.push('customer_document');
             documentElement.addClass('is-invalid');
+            console.error('Pagar.me: Document validation failed');
         } else {
             documentElement.removeClass('is-invalid');
+            console.log('Pagar.me: Document validation successful');
         }
 
+        console.log('Pagar.me: Form validation completed. Valid:', isValid, 'Invalid fields:', invalidFields);
         return isValid;
     },
 
@@ -407,7 +487,10 @@ const pagarmeTransparentCheckoutMixin = {
      * @private
      */
     _displayLoading: function () {
+        console.log('Pagar.me: Setting loading state');
         this.$('.o_pagarme_payment_form').addClass('o_loading');
+        // Also disable the pay button to prevent multiple clicks
+        this.$('button[name="o_payment_submit_button"]').prop('disabled', true).text('Processando...');
     },
 
     /**
@@ -415,7 +498,10 @@ const pagarmeTransparentCheckoutMixin = {
      * @private
      */
     _hideLoading: function () {
+        console.log('Pagar.me: Removing loading state');
         this.$('.o_pagarme_payment_form').removeClass('o_loading');
+        // Re-enable the pay button
+        this.$('button[name="o_payment_submit_button"]').prop('disabled', false).text('Pagar');
     },
 
     /**
