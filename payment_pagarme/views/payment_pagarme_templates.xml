@@ -2,120 +2,19 @@
 <odoo>
 
     <template id="inline_form" name="Pagar.me Inline Form">
-        <!-- Simple inline form template for Pagar.me -->
-        <t t-set="provider_id" t-value="provider_id or payment_option_id or id"/>
-        <div t-attf-id="o_pagarme_payment_container_{{provider_id}}" 
-             t-att-data-provider-id="provider_id" 
-             class="o_pagarme_payment_form">
+        <!-- Minimal inline form template exactly like Adyen -->
+        <div t-attf-id="o_pagarme_payment_container_{{provider_id}}" class="o_pagarme_payment_form">
             
-            <!-- Debug: Show what variables are available -->
-            <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; font-size: 12px; border: 1px solid #ccc;" class="debug-variables">
-                <strong>Debug - Template Variables:</strong><br/>
-                provider_id: <span t-esc="provider_id or 'undefined'"/><br/>
-                payment_option_id: <span t-esc="payment_option_id or 'undefined'"/><br/>
-                id: <span t-esc="id or 'undefined'"/><br/>
-                Container ID: o_pagarme_payment_container_<span t-esc="provider_id or payment_option_id or id or 'undefined'"/>
+            <!-- Critical debug: Show if template is rendering -->
+            <div style="background: red; color: white; padding: 5px; margin: 5px; font-weight: bold;">
+                TEMPLATE RENDERED! Provider ID: <span t-esc="provider_id"/>
             </div>
             
-            <!-- Pagar.me Branding -->
-            <div class="text-center mb-3">
-                <img src="/payment_pagarme/static/src/img/pagarme-icon.png" alt="Pagar.me" class="payment-provider-logo" style="height: 40px; margin-bottom: 10px;"/>
-                <p class="text-muted small">Pagamento seguro processado pela Pagar.me</p>
-            </div>
+            <!-- Minimal payment form -->
+            <input type="text" id="pagarme_card_number" name="pagarme_card_number" placeholder="Número do cartão" class="form-control mb-2"/>
+            <input type="text" id="pagarme_card_holder_name" name="pagarme_card_holder_name" placeholder="Nome no cartão" class="form-control mb-2"/>
+            <input type="text" id="pagarme_card_cvv" name="pagarme_card_cvv" placeholder="CVV" class="form-control"/>
             
-            <!-- Payment Form Container -->
-            <div class="o_pagarme_form_container">
-                
-                <!-- Customer Information -->
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="pagarme_customer_name" class="form-label">Nome Completo *</label>
-                        <input type="text" class="form-control" id="pagarme_customer_name" 
-                               name="pagarme_customer_name" required="required"/>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="pagarme_customer_document" class="form-label">CPF/CNPJ *</label>
-                        <input type="text" class="form-control" id="pagarme_customer_document" 
-                               name="pagarme_customer_document" required="required"
-                               placeholder="000.000.000-00"/>
-                        <div class="invalid-feedback">CPF/CNPJ inválido</div>
-                    </div>
-                </div>
-                
-                <!-- Credit Card Information -->
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <label for="pagarme_card_number" class="form-label">Número do Cartão *</label>
-                        <input type="text" class="form-control" id="pagarme_card_number" 
-                               name="pagarme_card_number" required="required"
-                               placeholder="0000 0000 0000 0000"/>
-                    </div>
-                </div>
-                
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <label for="pagarme_card_holder_name" class="form-label">Nome no Cartão *</label>
-                        <input type="text" class="form-control" id="pagarme_card_holder_name" 
-                               name="pagarme_card_holder_name" required="required"
-                               placeholder="Nome como está no cartão"/>
-                    </div>
-                </div>
-                
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <label for="pagarme_card_exp_month" class="form-label">Mês *</label>
-                        <select class="form-control" id="pagarme_card_exp_month" 
-                                name="pagarme_card_exp_month" required="required">
-                            <option value="">Mês</option>
-                            <option value="01">01</option>
-                            <option value="02">02</option>
-                            <option value="03">03</option>
-                            <option value="04">04</option>
-                            <option value="05">05</option>
-                            <option value="06">06</option>
-                            <option value="07">07</option>
-                            <option value="08">08</option>
-                            <option value="09">09</option>
-                            <option value="10">10</option>
-                            <option value="11">11</option>
-                            <option value="12">12</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="pagarme_card_exp_year" class="form-label">Ano *</label>
-                        <select class="form-control" id="pagarme_card_exp_year" 
-                                name="pagarme_card_exp_year" required="required">
-                            <option value="">Ano</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="pagarme_card_cvv" class="form-label">CVV *</label>
-                        <input type="text" class="form-control" id="pagarme_card_cvv" 
-                               name="pagarme_card_cvv" required="required"
-                               placeholder="123" maxlength="4"/>
-                    </div>
-                </div>
-                
-                <!-- Installments -->
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="pagarme_installments" class="form-label">Parcelas *</label>
-                        <select class="form-control" id="pagarme_installments" 
-                                name="pagarme_installments" required="required">
-                            <option value="1">1x sem juros</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <!-- Security info -->
-                <div class="text-center mt-3">
-                    <small class="text-muted">
-                        <i class="fa fa-shield-alt me-1"></i>
-                        Seus dados estão protegidos com criptografia SSL
-                    </small>
-                </div>
-                
-            </div>
         </div>
     </template>
 

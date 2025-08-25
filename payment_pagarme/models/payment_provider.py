@@ -78,42 +78,17 @@ class PaymentProvider(models.Model):
 
     def _should_build_inline_form(self, is_validation=False):
         """Override to enable inline form for Pagar.me."""
+        _logger.warning("=== PAGAR.ME _should_build_inline_form called! Provider: %s ===", self.code)
         if self.code != 'pagarme':
             return super()._should_build_inline_form(is_validation)
-        
-        _logger.warning("=========== PAGAR.ME DEBUG ===========")
-        _logger.warning("_should_build_inline_form called!")
-        _logger.warning("Provider ID: %s, Code: %s, Name: %s", self.id, self.code, self.name)
-        _logger.warning("Is validation: %s", is_validation)
-        _logger.warning("Provider state: %s", self.state)
-        _logger.warning("=====================================")
-        
-        result = True
-        _logger.warning("Returning: %s", result)
-        return result
+        return True
 
     def _get_inline_form_template(self, is_validation=False):
-        """Return the inline form template for Pagar.me."""
+        """Return the inline form template for Pagar.me.""" 
+        _logger.warning("=== PAGAR.ME _get_inline_form_template called! Provider: %s ===", self.code)
         if self.code != 'pagarme':
             return super()._get_inline_form_template(is_validation)
-        
-        _logger.warning("=========== PAGAR.ME DEBUG ===========")
-        _logger.warning("_get_inline_form_template called!")
-        _logger.warning("Provider ID: %s, Code: %s, Name: %s", self.id, self.code, self.name)
-        _logger.warning("Is validation: %s", is_validation)
-        _logger.warning("=====================================")
-        
-        template_name = 'payment_pagarme.inline_form'
-        _logger.warning("Template name: %s", template_name)
-        
-        # Check if template exists
-        try:
-            template = self.env.ref(template_name)
-            _logger.warning("Template found: %s (ID: %s)", template.name, template.id)
-        except Exception as e:
-            _logger.error("Template not found: %s - Error: %s", template_name, e)
-            
-        return template_name
+        return 'payment_pagarme.inline_form'
 
     def _get_validation_amount(self):
         """Return the amount to use for validation transactions."""
