@@ -76,20 +76,6 @@ class PaymentProvider(models.Model):
             'support_express_checkout': False,
         })
 
-    def _should_build_inline_form(self, is_validation=False):
-        """Override to enable inline form for Pagar.me."""
-        _logger.warning("=== PAGAR.ME _should_build_inline_form called! Provider: %s ===", self.code)
-        if self.code != 'pagarme':
-            return super()._should_build_inline_form(is_validation)
-        return True
-
-    def _get_inline_form_template(self, is_validation=False):
-        """Return the inline form template for Pagar.me.""" 
-        _logger.warning("=== PAGAR.ME _get_inline_form_template called! Provider: %s ===", self.code)
-        if self.code != 'pagarme':
-            return super()._get_inline_form_template(is_validation)
-        return 'payment_pagarme.inline_form'
-
     def _get_validation_amount(self):
         """Return the amount to use for validation transactions."""
         if self.code != 'pagarme':
