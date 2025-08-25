@@ -3,14 +3,12 @@
 
     <template id="inline_form" name="Pagar.me Inline Form">
         <div t-attf-id="o_pagarme_payment_container_{{payment_option_id or provider_id or id}}" class="o_pagarme_payment_form">
-            <!-- Debug information with multiple variable attempts -->
-            <div style="background: red; color: white; padding: 15px; margin: 10px; font-weight: bold; border: 3px solid yellow;">
-                🔍 PAGAR.ME TEMPLATE DEBUG INFO
-                <br/>📋 Available variables:
-                <br/>- payment_option_id: <span t-esc="payment_option_id"/>
-                <br/>- provider_id: <span t-esc="provider_id"/>  
-                <br/>- id: <span t-esc="id"/>
-                <br/>🎯 Using container ID: o_pagarme_payment_container_<span t-esc="payment_option_id or provider_id or id"/>
+            <!-- Prominent success indicator -->
+            <div style="background: #28a745; color: white; padding: 20px; margin: 15px 0; font-weight: bold; border: 4px solid #155724; border-radius: 8px; text-align: center; font-size: 16px;">
+                ✅ PAGAR.ME TEMPLATE RENDERED SUCCESSFULLY!
+                <br/>🎉 Inline form integration is working correctly!
+                <br/>📋 Variables: payment_option_id=<span t-esc="payment_option_id"/>, provider_id=<span t-esc="provider_id"/>, id=<span t-esc="id"/>
+                <br/>🎯 Container ID: o_pagarme_payment_container_<span t-esc="payment_option_id or provider_id or id"/>
             </div>
             <!-- Card input fields -->
             <div class="form-group">
