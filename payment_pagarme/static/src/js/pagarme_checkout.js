@@ -20,6 +20,7 @@ odoo.define('payment_pagarme.checkout', function (require) {
             'input input[name="pagarme_customer_document"]': '_onDocumentInput', 
             'input input[name="pagarme_zipcode"]': '_onZipcodeInput',
             'change select[name="pagarme_installments"]': '_onInstallmentsChange',
+            'submit .o_payment_form': '_onSubmit',
         }),
 
         /**
@@ -47,36 +48,53 @@ odoo.define('payment_pagarme.checkout', function (require) {
         },
 
         /**
-         * @override
+         * Handle form submission for Pagar.me payments
+         * @private
+         * @param {Event} ev
          */
-        _prepareInlineForm: function (providerId, paymentOptionId, paymentMethodCode, flow) {
-            if (paymentMethodCode !== 'pagarme') {
-                return this._super.apply(this, arguments);
+        _onSubmit: function (ev) {
+            if (!this._isProviderPagarme()) {
+                return;
             }
             
-            // For Pagar.me, we handle the inline form differently
-            // Don't return anything here to prevent default redirect processing
-            this._validatePagarmeForm();
-            return;
+            ev.preventDefault();
+            
+            if (!this._validatePagarmeForm()) {
+                return;
+            }
+            
+            this._processPagarmePayment();
         },
 
         /**
-         * @override
+         * Process Pagar.me payment
+         * @private
          */
-        _createInlineForm: function (providerId, paymentOptionId, paymentMethodCode, flow) {
-            if (paymentMethodCode !== 'pagarme') {
-                return this._super.apply(this, arguments);
-            }
-            
-            // Return a promise that resolves to the formatted data needed for processing
+        _processPagarmePayment: function () {
             var self = this;
-            return Promise.resolve().then(function () {
-                if (!self._validatePagarmeForm()) {
-                    return Promise.reject({message: _t('Por favor, preencha todos os campos obrigatórios.')});
-                }
+            var paymentData = this._preparePagarmePaymentData();
+            
+            this._showLoading();
+            
+            this._rpc({
+                route: '/payment/pagarme/process_payment',
+                params: paymentData
+            }).then(function (result) {
+                self._hideLoading();
                 
-                // Return payment data in the format expected by Odoo
-                return self._preparePagarmePaymentData();
+                if (result.status === 'success') {
+                    if (result.redirect_url) {
+                        window.location.href = result.redirect_url;
+                    } else {
+                        window.location.reload();
+                    }
+                } else {
+                    self._displayError(result.message || _t('Erro no processamento do pagamento'));
+                }
+            }).catch(function (error) {
+                self._hideLoading();
+                self._displayError(_t('Erro de comunicação com o servidor'));
+                console.error('Pagar.me payment error:', error);
             });
         },
 
@@ -521,6 +539,9 @@ odoo.define('payment_pagarme.checkout', function (require) {
          * @returns {Object}
          */
         _preparePagarmePaymentData: function () {
+            // Get reference from form
+            var reference = this.$('input[name="reference"]').val();
+            
             // Collect card data
             var cardData = {
                 card_number: this.$('input[name="pagarme_card_number"]').val().replace(/\s/g, ''),
@@ -550,6 +571,7 @@ odoo.define('payment_pagarme.checkout', function (require) {
             };
 
             return {
+                reference: reference,
                 provider_code: 'pagarme',
                 payment_method_code: 'pagarme',
                 ...cardData,
@@ -567,7 +589,7 @@ odoo.define('payment_pagarme.checkout', function (require) {
          * @private
          */
         _showLoading: function () {
-            this._toggleLoadingButton(true);
+            this.$('.o_payment_submit_button').prop('disabled', true).text(_t('Processando...'));
         },
 
         /**
@@ -575,7 +597,7 @@ odoo.define('payment_pagarme.checkout', function (require) {
          * @private
          */
         _hideLoading: function () {
-            this._toggleLoadingButton(false);
+            this.$('.o_payment_submit_button').prop('disabled', false).text(_t('Pagar Agora'));
         },
 
         /**
@@ -584,7 +606,12 @@ odoo.define('payment_pagarme.checkout', function (require) {
          * @param {String} message
          */
         _displayError: function (message) {
-            this._displayNotification(_t('Payment Error'), message, 'warning');
+            this.displayNotification({
+                type: 'warning',
+                title: _t('Erro no Pagamento'),
+                message: message,
+                sticky: false,
+            });
         },
 
         /**

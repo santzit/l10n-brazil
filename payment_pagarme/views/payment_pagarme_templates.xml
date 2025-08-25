@@ -2,7 +2,10 @@
 <odoo>
     <!-- Pagar.me Inline Payment Form Template -->
     <template id="inline_form" name="Pagar.me Inline Form">
-        <div id="o_pagarme_inline_form" class="d-none">
+        <div id="o_pagarme_inline_form">
+            
+            <!-- Hidden fields for payment processing -->
+            <input type="hidden" name="reference" t-att-value="reference"/>
             
             <!-- Pagar.me Branding -->
             <div class="row mb-3">
