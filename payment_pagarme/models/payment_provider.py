@@ -49,6 +49,15 @@ class PaymentProvider(models.Model):
         help="Minimum amount per installment in BRL",
     )
 
+    def _compute_feature_support_fields(self):
+        """Override to enable additional features for Pagar.me."""
+        super()._compute_feature_support_fields()
+        self.filtered(lambda p: p.code == 'pagarme').update({
+            'support_manual_capture': False,
+            'support_refund': 'partial',
+            'support_tokenization': False,
+        })
+
     @api.depends("code")
     def _compute_pagarme_webhook_url(self):
         """Compute the webhook URL for Pagar.me."""

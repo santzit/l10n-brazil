@@ -16,6 +16,128 @@ class PagarmeController(http.Controller):
 
     @http.route(
         "/payment/pagarme/payment",
+        type="json",
+        auth="public",
+        methods=["POST"],
+        csrf=False,
+        save_session=False,
+    )
+    def pagarme_payment_json(self, **post):
+        """Handle Pagar.me payment processing via JSON/AJAX."""
+        _logger.info("Pagar.me: processing payment JSON request")
+        
+        try:
+            # Get required parameters
+            provider_id = post.get("provider_id")
+            reference = post.get("reference")
+            payment_data = post.get("payment_data", {})
+            access_token = post.get("access_token")
+            
+            if not all([provider_id, reference, payment_data, access_token]):
+                return {"status": "error", "message": "Missing required parameters"}
+                
+            # Find the transaction
+            tx_sudo = request.env["payment.transaction"].sudo().search([
+                ("reference", "=", reference),
+                ("provider_code", "=", "pagarme"),
+                ("provider_id", "=", provider_id),
+            ])
+            
+            if not tx_sudo:
+                return {"status": "error", "message": "Transaction not found"}
+                
+            # Validate access token
+            if not tx_sudo._validate_notification_data("pagarme", {"access_token": access_token}):
+                return {"status": "error", "message": "Invalid access token"}
+                
+            # Validate required payment data
+            required_fields = ["card_number", "card_holder_name", "card_exp_month", "card_exp_year", "card_cvv"]
+            if not all(payment_data.get(field) for field in required_fields):
+                return {"status": "error", "message": "Missing required payment information"}
+                
+            # Process the payment
+            transaction_data = tx_sudo._pagarme_create_transaction_request(payment_data)
+            response = tx_sudo.provider_id._pagarme_make_request("transactions", transaction_data)
+            
+            # Process the response
+            tx_sudo._pagarme_process_transaction_response(response)
+            
+            return {"status": "success", "message": "Payment processed successfully"}
+            
+        except ValidationError as e:
+            _logger.error("Pagar.me validation error: %s", e)
+            return {"status": "error", "message": str(e)}
+        except Exception as e:
+            _logger.error("Pagar.me: error processing payment: %s", e)
+            return {"status": "error", "message": "Payment processing failed"}
+
+    @http.route(
+        "/payment/pagarme/get_installments",
+        type="json",
+        auth="public",
+        methods=["POST"],
+        csrf=False,
+        save_session=False,
+    )
+    def pagarme_get_installments(self, **post):
+        """Get available installment options for the given amount."""
+        try:
+            amount = float(post.get("amount", 0))
+            if amount <= 0:
+                return {"status": "error", "message": "Invalid amount"}
+            
+            # Get Pagar.me provider
+            provider = request.env["payment.provider"].sudo().search([
+                ("code", "=", "pagarme"),
+                ("state", "in", ["enabled", "test"]),
+            ], limit=1)
+            
+            if not provider:
+                return {"status": "error", "message": "Pagar.me provider not found"}
+            
+            # Calculate installments
+            installments = []
+            max_installments = min(provider.pagarme_max_installments, 12)
+            min_amount = provider.pagarme_min_installment_amount
+            
+            for i in range(1, max_installments + 1):
+                installment_amount = amount / i
+                
+                # Skip if installment amount is below minimum
+                if installment_amount < min_amount:
+                    continue
+                    
+                # No interest for first installment
+                if i == 1:
+                    label = f"1x de R$ {installment_amount:.2f} sem juros"
+                    total_amount = amount
+                else:
+                    # Simple interest calculation (can be improved based on business rules)
+                    interest_rate = 0.025  # 2.5% per month
+                    total_with_interest = amount * (1 + (interest_rate * (i - 1)))
+                    installment_with_interest = total_with_interest / i
+                    
+                    label = f"{i}x de R$ {installment_with_interest:.2f}"
+                    total_amount = total_with_interest
+                
+                installments.append({
+                    "installments": i,
+                    "label": label,
+                    "installment_amount": installment_amount,
+                    "total_amount": total_amount,
+                })
+            
+            return {
+                "status": "success",
+                "installments": installments
+            }
+            
+        except Exception as e:
+            _logger.error("Error calculating installments: %s", e)
+            return {"status": "error", "message": "Error calculating installments"}
+
+    @http.route(
+        "/payment/pagarme/payment",
         type="http",
         auth="public",
         methods=["POST"],

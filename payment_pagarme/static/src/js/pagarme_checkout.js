@@ -1,571 +1,408 @@
-/* Copyright 2024 KMEE INFORMATICA LTDA
- * License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
- */
+/** @odoo-module */
 
-odoo.define('payment_pagarme.checkout', function (require) {
-    'use strict';
+import checkoutForm from 'payment.checkout_form';
+import manageForm from 'payment.manage_form';
 
-    var core = require('web.core');
-    var PaymentFormMixin = require('payment.payment_form_mixin');
-
-    var _t = core._t;
+const pagarmeTransparentCheckoutMixin = {
 
     /**
-     * Pagar.me Payment Form Enhancement
-     * Handles form validation and UI enhancements for Pagar.me payments
+     * Override payment processing to handle Pagar.me transparent checkout
+     * 
+     * @override method from payment.payment_form_mixin
+     * @private
+     * @param {string} provider - The provider of the payment option's provider
+     * @param {number} paymentOptionId - The id of the payment option handling the transaction
+     * @param {string} flow - The online payment flow of the transaction
+     * @return {Promise}
      */
-    var PagarmePaymentForm = PaymentFormMixin.extend({
-        events: _.extend({}, PaymentFormMixin.prototype.events, {
-            'input input[name="pagarme_card_number"]': '_onCardNumberInput',
-            'input input[name="pagarme_customer_document"]': '_onDocumentInput', 
-            'input input[name="pagarme_zipcode"]': '_onZipcodeInput',
-            'change select[name="pagarme_installments"]': '_onInstallmentsChange',
-        }),
+    async _processPayment(provider, paymentOptionId, flow) {
+        if (provider !== 'pagarme' || flow === 'token') {
+            return this._super(...arguments); // Tokens and other providers are handled by generic flow
+        }
 
-        /**
-         * @override
-         */
-        start: function () {
-            var def = this._super.apply(this, arguments);
-            if (this._isProviderPagarme()) {
-                this._initializeForm();
-            }
-            return def;
-        },
+        // Validate form before processing
+        if (!this._validatePagarmeForm(paymentOptionId)) {
+            return Promise.reject("Invalid form data");
+        }
 
-        //--------------------------------------------------------------------------
-        // Private
-        //--------------------------------------------------------------------------
+        // Show loading state
+        this._displayLoading();
 
-        /**
-         * Check if provider is Pagar.me
-         * @private
-         * @returns {Boolean}
-         */
-        _isProviderPagarme: function () {
-            return this.$('input[name="provider_code"]').val() === 'pagarme';
-        },
+        try {
+            // Create transaction and get processing values
+            const processingValues = await this._rpc({
+                route: this.txContext.transactionRoute,
+                params: this._prepareTransactionRouteParams('pagarme', paymentOptionId, 'direct'),
+            });
 
-        /**
-         * Initialize the payment form
-         * @private
-         */
-        _initializeForm: function () {
-            // Populate year options for card expiry
-            this._populateYearOptions();
-            
-            // Load available installments
-            this._loadInstallments();
-            
-            // Initialize input masks
-            this._initializeInputMasks();
-            
-            // Initialize card brand detection
-            this._initializeCardBrandDetection();
-        },
+            // Prepare payment data from form
+            const paymentData = this._preparePagarmePaymentData(paymentOptionId);
 
-        /**
-         * Populate year options for card expiry
-         * @private
-         */
-        _populateYearOptions: function () {
-            var $yearSelect = this.$('select[name="pagarme_card_exp_year"]');
-            if ($yearSelect.length === 0) return;
-            
-            var currentYear = new Date().getFullYear();
-            
-            for (var i = 0; i <= 10; i++) {
-                var year = currentYear + i;
-                $yearSelect.append($('<option>', {
-                    value: year.toString().slice(-2),
-                    text: year
-                }));
-            }
-        },
-
-        /**
-         * Load available installments for the current amount
-         * @private
-         */
-        _loadInstallments: function () {
-            var self = this;
-            var amount = this.$('input[name="amount"]').val();
-            
-            if (!amount) {
-                return;
-            }
-
-            this._rpc({
-                route: '/payment/pagarme/get_installments',
+            // Process payment through Pagar.me API
+            const paymentResult = await this._rpc({
+                route: '/payment/pagarme/payment',
                 params: {
-                    amount: parseFloat(amount),
-                }
-            }).then(function (result) {
-                if (result.status === 'success') {
-                    self._updateInstallmentOptions(result.installments);
-                }
-            }).catch(function (error) {
-                console.error('Error loading installments:', error);
+                    'provider_id': paymentOptionId,
+                    'reference': processingValues.reference,
+                    'converted_amount': processingValues.converted_amount,
+                    'currency_id': processingValues.currency_id,
+                    'partner_id': processingValues.partner_id,
+                    'payment_data': paymentData,
+                    'access_token': processingValues.access_token,
+                },
             });
-        },
 
-        /**
-         * Update installment options in the select
-         * @private
-         * @param {Array} installments - Available installment options
-         */
-        _updateInstallmentOptions: function (installments) {
-            var $installmentsSelect = this.$('select[name="pagarme_installments"]');
-            $installmentsSelect.empty();
-            
-            installments.forEach(function (option) {
-                $installmentsSelect.append($('<option>', {
-                    value: option.installments,
-                    text: option.label,
-                    'data-amount': option.installment_amount,
-                    'data-total': option.total_amount,
-                }));
-            });
-        },
-
-        /**
-         * Initialize input masks for better UX
-         * @private
-         */
-        _initializeInputMasks: function () {
-            // Card number mask
-            this._applyMask('input[name="pagarme_card_number"]', '0000 0000 0000 0000');
-            
-            // Document mask (CPF/CNPJ)
-            this._applyDocumentMask('input[name="pagarme_customer_document"]');
-            
-            // Phone mask
-            this._applyMask('input[name="pagarme_customer_phone"]', '(00) 00000-0000');
-            
-            // Zipcode mask
-            this._applyMask('input[name="pagarme_zipcode"]', '00000-000');
-            
-            // CVV mask
-            this._applyMask('input[name="pagarme_card_cvv"]', '0000');
-        },
-
-        /**
-         * Apply input mask to element
-         * @private
-         * @param {String} selector - Element selector
-         * @param {String} mask - Mask pattern
-         */
-        _applyMask: function (selector, mask) {
-            // Simple mask implementation
-            var $input = this.$(selector);
-            if ($input.length === 0) return;
-            
-            $input.on('input', function () {
-                var value = this.value.replace(/\D/g, '');
-                var maskedValue = '';
-                var maskIndex = 0;
-                
-                for (var i = 0; i < value.length && maskIndex < mask.length; i++) {
-                    while (maskIndex < mask.length && mask[maskIndex] !== '0') {
-                        maskedValue += mask[maskIndex];
-                        maskIndex++;
-                    }
-                    if (maskIndex < mask.length) {
-                        maskedValue += value[i];
-                        maskIndex++;
-                    }
-                }
-                
-                this.value = maskedValue;
-            });
-        },
-
-        /**
-         * Apply document mask (CPF/CNPJ)
-         * @private
-         * @param {String} selector - Element selector
-         */
-        _applyDocumentMask: function (selector) {
-            var $input = this.$(selector);
-            if ($input.length === 0) return;
-            
-            $input.on('input', function () {
-                var value = this.value.replace(/\D/g, '');
-                var maskedValue = '';
-                
-                if (value.length <= 11) {
-                    // CPF mask: 000.000.000-00
-                    maskedValue = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-                } else {
-                    // CNPJ mask: 00.000.000/0000-00
-                    maskedValue = value.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
-                }
-                
-                this.value = maskedValue;
-            });
-        },
-
-        /**
-         * Initialize card brand detection
-         * @private
-         */
-        _initializeCardBrandDetection: function () {
-            var self = this;
-            var cardBrands = {
-                visa: /^4[0-9]{0,15}$/,
-                mastercard: /^5[1-5][0-9]{0,14}$/,
-                amex: /^3[47][0-9]{0,13}$/,
-                elo: /^((((636368)|(438935)|(504175)|(451416)|(636297))\d{0,10})|((5067)|(4576)|(4011))\d{0,12})$/,
-            };
-            
-            this.$('input[name="pagarme_card_number"]').on('input', function () {
-                var cardNumber = this.value.replace(/\s/g, '');
-                var detectedBrand = null;
-                
-                for (var brand in cardBrands) {
-                    if (cardBrands[brand].test(cardNumber)) {
-                        detectedBrand = brand;
-                        break;
-                    }
-                }
-                
-                self._updateCardBrandDisplay(detectedBrand);
-            });
-        },
-
-        /**
-         * Update card brand display
-         * @private
-         * @param {String} brand - Detected card brand
-         */
-        _updateCardBrandDisplay: function (brand) {
-            this.$('.card-icon').removeClass('active');
-            if (brand) {
-                this.$('.card-icon[alt*="' + brand + '"]').addClass('active');
+            if (paymentResult.status === 'success') {
+                // Redirect to payment status page
+                window.location = '/payment/status';
+            } else {
+                this._displayError('Erro no Pagamento', paymentResult.message || 'Falha no processamento do pagamento');
             }
-        },
 
-        //--------------------------------------------------------------------------
-        // Handlers
-        //--------------------------------------------------------------------------
+        } catch (error) {
+            this._displayError('Erro no Pagamento', 'Erro ao processar pagamento. Tente novamente.');
+            console.error('Pagar.me payment error:', error);
+        } finally {
+            this._hideLoading();
+        }
+    },
 
-        /**
-         * Handle card number input
-         * @private
-         * @param {Event} ev
-         */
-        _onCardNumberInput: function (ev) {
-            // Card brand detection is handled by _initializeCardBrandDetection
-        },
+    /**
+     * Initialize Pagar.me form when mounted
+     * 
+     * @override method from payment.payment_form_mixin
+     * @private
+     * @param {number} paymentOptionId - The id of the payment option handling the transaction
+     * @return {Promise}
+     */
+    async _prepareInlineForm(paymentOptionId) {
+        if (this.$(`input[name="provider_code"][value="pagarme"]`).length === 0) {
+            return this._super(...arguments);
+        }
 
-        /**
-         * Handle document input and validation
-         * @private
-         * @param {Event} ev
-         */
-        _onDocumentInput: function (ev) {
-            var self = this;
-            var document = ev.target.value.replace(/\D/g, '');
+        const container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
+        if (container.length === 0) {
+            return;
+        }
+
+        // Initialize form features
+        this._initializePagarmeForm(paymentOptionId);
+
+        return Promise.resolve();
+    },
+
+    //--------------------------------------------------------------------------
+    // Private
+    //--------------------------------------------------------------------------
+
+    /**
+     * Initialize Pagar.me form features
+     * @private
+     * @param {number} paymentOptionId
+     */
+    _initializePagarmeForm: function (paymentOptionId) {
+        const container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
+        
+        // Populate year options
+        this._populateYearOptions(container);
+        
+        // Initialize input masks
+        this._initializeInputMasks(container);
+        
+        // Load installments
+        this._loadInstallments(container);
+    },
+
+    /**
+     * Populate year options for card expiry
+     * @private
+     * @param {jQuery} container
+     */
+    _populateYearOptions: function (container) {
+        const yearSelect = container.find('select[name="pagarme_card_exp_year"]');
+        if (yearSelect.length === 0) return;
+        
+        const currentYear = new Date().getFullYear();
+        yearSelect.empty().append('<option value="">Ano</option>');
+        
+        for (let i = 0; i <= 10; i++) {
+            const year = currentYear + i;
+            yearSelect.append($('<option>', {
+                value: year.toString().slice(-2),
+                text: year
+            }));
+        }
+    },
+
+    /**
+     * Initialize input masks
+     * @private
+     * @param {jQuery} container
+     */
+    _initializeInputMasks: function (container) {
+        // Card number mask
+        container.find('input[name="pagarme_card_number"]').on('input', function () {
+            let value = this.value.replace(/\D/g, '');
+            value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+            this.value = value.substr(0, 19);
+        });
+
+        // Document mask (CPF/CNPJ)
+        container.find('input[name="pagarme_customer_document"]').on('input', function () {
+            let value = this.value.replace(/\D/g, '');
             
-            if (document.length >= 11) {
-                this._rpc({
-                    route: '/payment/pagarme/validate_document',
-                    params: {
-                        document: document,
-                    }
-                }).then(function (result) {
-                    if (result.status === 'success') {
-                        self._markFieldValid(ev.target);
-                    } else {
-                        self._markFieldInvalid(ev.target, result.message);
-                    }
+            if (value.length <= 11) {
+                // CPF format
+                value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            } else {
+                // CNPJ format
+                value = value.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+            }
+            this.value = value;
+        });
+
+        // CVV mask
+        container.find('input[name="pagarme_card_cvv"]').on('input', function () {
+            this.value = this.value.replace(/\D/g, '').substr(0, 4);
+        });
+    },
+
+    /**
+     * Load available installments
+     * @private
+     * @param {jQuery} container
+     */
+    _loadInstallments: function (container) {
+        const amount = parseFloat(this.txContext.amount);
+        if (!amount) return;
+
+        this._rpc({
+            route: '/payment/pagarme/get_installments',
+            params: { amount: amount }
+        }).then((result) => {
+            if (result.status === 'success') {
+                const installmentsSelect = container.find('select[name="pagarme_installments"]');
+                installmentsSelect.empty();
+                
+                result.installments.forEach((option) => {
+                    installmentsSelect.append($('<option>', {
+                        value: option.installments,
+                        text: option.label
+                    }));
                 });
             }
-        },
+        }).catch((error) => {
+            console.error('Error loading installments:', error);
+        });
+    },
 
-        /**
-         * Handle zipcode input and address lookup
-         * @private
-         * @param {Event} ev
-         */
-        _onZipcodeInput: function (ev) {
-            var zipcode = ev.target.value.replace(/\D/g, '');
-            
-            if (zipcode.length === 8) {
-                this._lookupAddress(zipcode);
-            }
-        },
+    /**
+     * Validate Pagar.me form data
+     * @private
+     * @param {number} paymentOptionId
+     * @returns {boolean}
+     */
+    _validatePagarmeForm: function (paymentOptionId) {
+        const container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
+        let isValid = true;
 
-        /**
-         * Handle installments change
-         * @private
-         * @param {Event} ev
-         */
-        _onInstallmentsChange: function (ev) {
-            var $option = this.$(ev.target).find('option:selected');
-            var installmentAmount = $option.data('amount');
-            var totalAmount = $option.data('total');
-            
-            // Update display if needed
-            this._updateInstallmentDisplay(installmentAmount, totalAmount);
-        },
-
-        //--------------------------------------------------------------------------
-        // Validation
-        //--------------------------------------------------------------------------
-
-        /**
-         * Validate the Pagar.me form before submission
-         * @private
-         * @returns {Boolean}
-         */
-        _validatePagarmeForm: function () {
-            if (!this._isProviderPagarme()) {
-                return true;
-            }
-            
-            var isValid = true;
-            
-            // Validate required fields
-            this.$('input[required], select[required]').each(function () {
-                if (!this.value.trim()) {
-                    isValid = false;
-                    $(this).addClass('is-invalid');
-                } else {
-                    $(this).removeClass('is-invalid');
-                }
-            });
-            
-            // Validate card number
-            if (!this._validateCardNumber()) {
+        // Validate required fields
+        container.find('input[required], select[required]').each(function () {
+            const field = $(this);
+            if (!this.value.trim()) {
                 isValid = false;
-            }
-            
-            // Validate document
-            if (!this._validateDocument()) {
-                isValid = false;
-            }
-            
-            return isValid;
-        },
-
-        /**
-         * Validate card number
-         * @private
-         * @returns {Boolean}
-         */
-        _validateCardNumber: function () {
-            var cardNumber = this.$('input[name="pagarme_card_number"]').val().replace(/\s/g, '');
-            
-            // Luhn algorithm validation
-            var sum = 0;
-            var alternate = false;
-            
-            for (var i = cardNumber.length - 1; i >= 0; i--) {
-                var n = parseInt(cardNumber.charAt(i), 10);
-                
-                if (alternate) {
-                    n *= 2;
-                    if (n > 9) {
-                        n = (n % 10) + 1;
-                    }
-                }
-                
-                sum += n;
-                alternate = !alternate;
-            }
-            
-            var isValid = (sum % 10) === 0 && cardNumber.length >= 13;
-            
-            if (!isValid) {
-                this._markFieldInvalid('input[name="pagarme_card_number"]', 'Número do cartão inválido');
+                field.addClass('is-invalid');
             } else {
-                this._markFieldValid('input[name="pagarme_card_number"]');
+                field.removeClass('is-invalid');
             }
-            
-            return isValid;
-        },
+        });
 
-        /**
-         * Validate document (CPF/CNPJ)
-         * @private
-         * @returns {Boolean}
-         */
-        _validateDocument: function () {
-            var document = this.$('input[name="pagarme_customer_document"]').val().replace(/\D/g, '');
-            var isValid = false;
-            
-            if (document.length === 11) {
-                isValid = this._validateCPF(document);
-            } else if (document.length === 14) {
-                isValid = this._validateCNPJ(document);
-            }
-            
-            if (!isValid) {
-                this._markFieldInvalid('input[name="pagarme_customer_document"]', 'CPF/CNPJ inválido');
-            } else {
-                this._markFieldValid('input[name="pagarme_customer_document"]');
-            }
-            
-            return isValid;
-        },
+        // Validate card number
+        const cardNumber = container.find('input[name="pagarme_card_number"]').val().replace(/\s/g, '');
+        if (!this._validateCardNumber(cardNumber)) {
+            isValid = false;
+            container.find('input[name="pagarme_card_number"]').addClass('is-invalid');
+        }
 
-        /**
-         * Validate CPF
-         * @private
-         * @param {String} cpf
-         * @returns {Boolean}
-         */
-        _validateCPF: function (cpf) {
-            if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
-                return false;
-            }
-            
-            var sum = 0;
-            for (var i = 0; i < 9; i++) {
-                sum += parseInt(cpf.charAt(i)) * (10 - i);
-            }
-            var remainder = (sum * 10) % 11;
-            if (remainder === 10 || remainder === 11) remainder = 0;
-            if (remainder !== parseInt(cpf.charAt(9))) return false;
-            
-            sum = 0;
-            for (var i = 0; i < 10; i++) {
-                sum += parseInt(cpf.charAt(i)) * (11 - i);
-            }
-            remainder = (sum * 10) % 11;
-            if (remainder === 10 || remainder === 11) remainder = 0;
-            if (remainder !== parseInt(cpf.charAt(10))) return false;
-            
-            return true;
-        },
+        // Validate document
+        const document = container.find('input[name="pagarme_customer_document"]').val().replace(/\D/g, '');
+        if (!this._validateDocument(document)) {
+            isValid = false;
+            container.find('input[name="pagarme_customer_document"]').addClass('is-invalid');
+        }
 
-        /**
-         * Validate CNPJ
-         * @private
-         * @param {String} cnpj
-         * @returns {Boolean}
-         */
-        _validateCNPJ: function (cnpj) {
-            if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) {
-                return false;
-            }
-            
-            var length = cnpj.length - 2;
-            var numbers = cnpj.substring(0, length);
-            var digits = cnpj.substring(length);
-            var sum = 0;
-            var pos = length - 7;
-            
-            for (var i = length; i >= 1; i--) {
-                sum += numbers.charAt(length - i) * pos--;
-                if (pos < 2) pos = 9;
-            }
-            
-            var result = sum % 11 < 2 ? 0 : 11 - sum % 11;
-            if (result !== parseInt(digits.charAt(0))) return false;
-            
-            length = length + 1;
-            numbers = cnpj.substring(0, length);
-            sum = 0;
-            pos = length - 7;
-            
-            for (var i = length; i >= 1; i--) {
-                sum += numbers.charAt(length - i) * pos--;
-                if (pos < 2) pos = 9;
-            }
-            
-            result = sum % 11 < 2 ? 0 : 11 - sum % 11;
-            if (result !== parseInt(digits.charAt(1))) return false;
-            
-            return true;
-        },
+        return isValid;
+    },
 
-        //--------------------------------------------------------------------------
-        // UI Helpers
-        //--------------------------------------------------------------------------
-
-        /**
-         * Display error message
-         * @private
-         * @param {String} message
-         */
-        _displayError: function (message) {
-            this.displayNotification({
-                type: 'warning',
-                title: _t('Erro no Pagamento'),
-                message: message,
-                sticky: false,
-            });
-        },
-
-        /**
-         * Mark field as valid
-         * @private
-         * @param {String|Element} field
-         */
-        _markFieldValid: function (field) {
-            this.$(field).removeClass('is-invalid').addClass('is-valid');
-        },
-
-        /**
-         * Mark field as invalid
-         * @private
-         * @param {String|Element} field
-         * @param {String} message
-         */
-        _markFieldInvalid: function (field, message) {
-            var $field = this.$(field);
-            $field.removeClass('is-valid').addClass('is-invalid');
-            
-            var $feedback = $field.siblings('.invalid-feedback');
-            if ($feedback.length && message) {
-                $feedback.text(message);
-            }
-        },
-
-        /**
-         * Lookup address by zipcode
-         * @private
-         * @param {String} zipcode
-         */
-        _lookupAddress: function (zipcode) {
-            // This could integrate with a CEP lookup service
-            // For now, it's a placeholder for future implementation
-            console.log('Looking up address for zipcode:', zipcode);
-        },
-
-        /**
-         * Update installment display
-         * @private
-         * @param {Number} installmentAmount
-         * @param {Number} totalAmount
-         */
-        _updateInstallmentDisplay: function (installmentAmount, totalAmount) {
-            // Update any display elements showing installment information
-            // This is a placeholder for future enhancements
-        },
-    });
-
-    // Register the form validation enhancement without overriding core payment flow
-    PaymentFormMixin.include({
+    /**
+     * Validate card number using Luhn algorithm
+     * @private
+     * @param {string} cardNumber
+     * @returns {boolean}
+     */
+    _validateCardNumber: function (cardNumber) {
+        if (!cardNumber || cardNumber.length < 13) return false;
         
-        /**
-         * @override
-         * Add Pagar.me form validation to the standard validation flow
-         */
-        _validateForm: function () {
-            var validation = this._super.apply(this, arguments);
+        let sum = 0;
+        let alternate = false;
+        
+        for (let i = cardNumber.length - 1; i >= 0; i--) {
+            let n = parseInt(cardNumber.charAt(i), 10);
             
-            // Add Pagar.me specific validation if this is a Pagar.me payment
-            if (this.$('input[name="provider_code"]').val() === 'pagarme') {
-                var pagarmeValidation = this._validatePagarmeForm ? this._validatePagarmeForm() : true;
-                return validation && pagarmeValidation;
+            if (alternate) {
+                n *= 2;
+                if (n > 9) {
+                    n = (n % 10) + 1;
+                }
             }
             
-            return validation;
-        },
-    });
+            sum += n;
+            alternate = !alternate;
+        }
+        
+        return (sum % 10) === 0;
+    },
 
-    return PagarmePaymentForm;
-});
+    /**
+     * Validate Brazilian document (CPF/CNPJ)
+     * @private
+     * @param {string} document
+     * @returns {boolean}
+     */
+    _validateDocument: function (document) {
+        if (!document) return false;
+        
+        if (document.length === 11) {
+            return this._validateCPF(document);
+        } else if (document.length === 14) {
+            return this._validateCNPJ(document);
+        }
+        
+        return false;
+    },
+
+    /**
+     * Validate CPF
+     * @private
+     * @param {string} cpf
+     * @returns {boolean}
+     */
+    _validateCPF: function (cpf) {
+        if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
+            return false;
+        }
+        
+        let sum = 0;
+        for (let i = 0; i < 9; i++) {
+            sum += parseInt(cpf.charAt(i)) * (10 - i);
+        }
+        let remainder = (sum * 10) % 11;
+        if (remainder === 10 || remainder === 11) remainder = 0;
+        if (remainder !== parseInt(cpf.charAt(9))) return false;
+        
+        sum = 0;
+        for (let i = 0; i < 10; i++) {
+            sum += parseInt(cpf.charAt(i)) * (11 - i);
+        }
+        remainder = (sum * 10) % 11;
+        if (remainder === 10 || remainder === 11) remainder = 0;
+        if (remainder !== parseInt(cpf.charAt(10))) return false;
+        
+        return true;
+    },
+
+    /**
+     * Validate CNPJ
+     * @private
+     * @param {string} cnpj
+     * @returns {boolean}
+     */
+    _validateCNPJ: function (cnpj) {
+        if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) {
+            return false;
+        }
+        
+        let length = cnpj.length - 2;
+        let numbers = cnpj.substring(0, length);
+        let digits = cnpj.substring(length);
+        let sum = 0;
+        let pos = length - 7;
+        
+        for (let i = length; i >= 1; i--) {
+            sum += numbers.charAt(length - i) * pos--;
+            if (pos < 2) pos = 9;
+        }
+        
+        let result = sum % 11 < 2 ? 0 : 11 - sum % 11;
+        if (result !== parseInt(digits.charAt(0))) return false;
+        
+        length = length + 1;
+        numbers = cnpj.substring(0, length);
+        sum = 0;
+        pos = length - 7;
+        
+        for (let i = length; i >= 1; i--) {
+            sum += numbers.charAt(length - i) * pos--;
+            if (pos < 2) pos = 9;
+        }
+        
+        result = sum % 11 < 2 ? 0 : 11 - sum % 11;
+        if (result !== parseInt(digits.charAt(1))) return false;
+        
+        return true;
+    },
+
+    /**
+     * Prepare payment data from form
+     * @private
+     * @param {number} paymentOptionId
+     * @returns {object}
+     */
+    _preparePagarmePaymentData: function (paymentOptionId) {
+        const container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
+        
+        return {
+            customer_name: container.find('input[name="pagarme_customer_name"]').val(),
+            customer_document: container.find('input[name="pagarme_customer_document"]').val().replace(/\D/g, ''),
+            card_number: container.find('input[name="pagarme_card_number"]').val().replace(/\s/g, ''),
+            card_holder_name: container.find('input[name="pagarme_card_holder_name"]').val(),
+            card_exp_month: container.find('select[name="pagarme_card_exp_month"]').val(),
+            card_exp_year: container.find('select[name="pagarme_card_exp_year"]').val(),
+            card_cvv: container.find('input[name="pagarme_card_cvv"]').val(),
+            installments: container.find('select[name="pagarme_installments"]').val(),
+        };
+    },
+
+    /**
+     * Display loading state
+     * @private
+     */
+    _displayLoading: function () {
+        this.$('.o_pagarme_payment_form').addClass('o_loading');
+    },
+
+    /**
+     * Hide loading state  
+     * @private
+     */
+    _hideLoading: function () {
+        this.$('.o_pagarme_payment_form').removeClass('o_loading');
+    },
+
+    /**
+     * Display error message
+     * @private
+     * @param {string} title
+     * @param {string} message
+     */
+    _displayError: function (title, message) {
+        this.displayNotification({
+            type: 'danger',
+            title: title,
+            message: message,
+        });
+    },
+};
+
+checkoutForm.include(pagarmeTransparentCheckoutMixin);
+manageForm.include(pagarmeTransparentCheckoutMixin);
