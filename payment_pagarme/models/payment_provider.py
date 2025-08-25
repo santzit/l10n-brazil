@@ -58,6 +58,25 @@ class PaymentProvider(models.Model):
             'support_tokenization': False,
         })
 
+    def _get_supported_currencies(self):
+        """Override to return supported currencies for Pagar.me."""
+        supported_currencies = super()._get_supported_currencies()
+        if self.code == 'pagarme':
+            return supported_currencies.filtered(lambda c: c.name == 'BRL')
+        return supported_currencies
+
+    def _should_build_inline_form(self, is_validation=False):
+        """Override to enable inline form for Pagar.me."""
+        if self.code != 'pagarme':
+            return super()._should_build_inline_form(is_validation)
+        return True
+
+    def _get_inline_form_template(self, is_validation=False):
+        """Return the inline form template for Pagar.me."""
+        if self.code != 'pagarme':
+            return super()._get_inline_form_template(is_validation)
+        return 'payment_pagarme.inline_form'
+
     @api.depends("code")
     def _compute_pagarme_webhook_url(self):
         """Compute the webhook URL for Pagar.me."""

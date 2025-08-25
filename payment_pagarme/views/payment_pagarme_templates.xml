@@ -2,8 +2,8 @@
 <odoo>
     <!-- Pagar.me Inline Payment Form Template -->
     <template id="inline_form" name="Pagar.me Inline Form">
-        <div t-attf-id="o_pagarme_payment_container_{{provider_id}}" 
-             t-att-data-provider-id="provider_id" 
+        <div t-attf-id="o_pagarme_payment_container_{{provider.id}}" 
+             t-att-data-provider-id="provider.id" 
              class="o_pagarme_payment_form">
             
             <!-- Pagar.me Branding -->

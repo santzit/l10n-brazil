@@ -139,16 +139,45 @@ const pagarmeTransparentCheckoutMixin = {
      * @return {Promise}
      */
     async _prepareInlineForm(paymentOptionId) {
-        if (this.$(`input[name="provider_code"][value="pagarme"]`).length === 0) {
+        console.log('Pagar.me: _prepareInlineForm called with paymentOptionId:', paymentOptionId);
+        
+        // Check if this is a Pagar.me provider
+        const providerInput = this.$(`input[name="provider_code"][value="pagarme"]`);
+        console.log('Pagar.me: Provider input found:', providerInput.length > 0);
+        console.log('Pagar.me: Looking for provider radio with ID:', paymentOptionId);
+        
+        // Check if the current payment option is Pagar.me
+        const paymentOptionInput = this.$(`input[name="payment_option_id"][value="${paymentOptionId}"]`);
+        console.log('Pagar.me: Payment option input found:', paymentOptionInput.length > 0);
+        
+        if (paymentOptionInput.length > 0) {
+            const providerCode = paymentOptionInput.data('provider-code');
+            console.log('Pagar.me: Provider code from payment option:', providerCode);
+            
+            if (providerCode !== 'pagarme') {
+                console.log('Pagar.me: Not a Pagar.me provider, delegating to super');
+                return this._super(...arguments);
+            }
+        } else if (providerInput.length === 0) {
+            console.log('Pagar.me: No Pagar.me provider input found, delegating to super');
             return this._super(...arguments);
         }
 
+        console.log('Pagar.me: This is a Pagar.me provider, proceeding with initialization');
+        
+        // Look for the payment container
         const container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
+        console.log('Pagar.me: Looking for container with ID:', `#o_pagarme_payment_container_${paymentOptionId}`);
+        console.log('Pagar.me: Container found:', container.length > 0);
+        
         if (container.length === 0) {
-            console.warn('Pagar.me payment container not found for provider ID:', paymentOptionId);
+            console.warn('Pagar.me: Payment container not found for provider ID:', paymentOptionId);
+            console.warn('Pagar.me: Available containers in DOM:', this.$('[id*="pagarme"]').map(function() { return this.id; }).get());
+            console.warn('Pagar.me: All payment containers:', this.$('[id*="payment_container"]').map(function() { return this.id; }).get());
             return Promise.resolve();
         }
 
+        console.log('Pagar.me: Container found, initializing form features...');
         // Initialize form features
         this._initializePagarmeForm(paymentOptionId);
 
@@ -269,21 +298,43 @@ const pagarmeTransparentCheckoutMixin = {
     _validatePagarmeForm: function (paymentOptionId) {
         console.log('Pagar.me: Starting form validation for provider ID:', paymentOptionId);
         
+        // First, let's debug what's in the DOM
+        console.log('Pagar.me: All Pagar.me containers in DOM:', this.$('[id*="pagarme"]').map(function() { 
+            return { id: this.id, visible: $(this).is(':visible'), hasClass: this.className }; 
+        }).get());
+        console.log('Pagar.me: All payment containers in DOM:', this.$('[id*="payment_container"]').map(function() { 
+            return { id: this.id, visible: $(this).is(':visible'), hasClass: this.className }; 
+        }).get());
+        
         const container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
+        console.log('Pagar.me: Looking for container with selector:', `#o_pagarme_payment_container_${paymentOptionId}`);
+        console.log('Pagar.me: Container found:', container.length > 0);
+        
         if (container.length === 0) {
             console.error('Pagar.me: payment container not found:', paymentOptionId);
+            console.error('Pagar.me: Available payment forms in DOM:');
+            this.$('[class*="payment"]').each(function(index) {
+                console.error(`  - ${index}: ID="${this.id}", Class="${this.className}"`);
+            });
             return false;
         }
-        console.log('Pagar.me: Found payment container');
+        console.log('Pagar.me: Found payment container, proceeding with validation');
+        console.log('Pagar.me: Container is visible:', container.is(':visible'));
+        console.log('Pagar.me: Container has inputs:', container.find('input').length);
 
         let isValid = true;
         let invalidFields = [];
 
         // Validate required fields
-        container.find('input[required], select[required]').each(function () {
+        const requiredFields = container.find('input[required], select[required]');
+        console.log('Pagar.me: Found', requiredFields.length, 'required fields');
+        
+        requiredFields.each(function () {
             const field = $(this);
             const fieldName = this.name || this.id || 'unknown';
             const value = this.value || '';
+            console.log('Pagar.me: Checking required field:', fieldName, 'value:', value.length > 0 ? '[HAS_VALUE]' : '[EMPTY]');
+            
             if (!value.trim()) {
                 isValid = false;
                 invalidFields.push(fieldName);
@@ -297,6 +348,7 @@ const pagarmeTransparentCheckoutMixin = {
 
         // Validate card number
         const cardNumberElement = container.find('input[name="pagarme_card_number"]');
+        console.log('Pagar.me: Card number input found:', cardNumberElement.length > 0);
         const cardNumberValue = cardNumberElement.val() || '';
         const cardNumber = cardNumberValue.replace(/\s/g, '');
         console.log('Pagar.me: Validating card number (length:', cardNumber.length, ')');
@@ -312,6 +364,7 @@ const pagarmeTransparentCheckoutMixin = {
 
         // Validate document
         const documentElement = container.find('input[name="pagarme_customer_document"]');
+        console.log('Pagar.me: Document input found:', documentElement.length > 0);
         const documentValue = documentElement.val() || '';
         const document = documentValue.replace(/\D/g, '');
         console.log('Pagar.me: Validating document (length:', document.length, ')');
