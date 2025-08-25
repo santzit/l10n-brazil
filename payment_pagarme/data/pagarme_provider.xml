@@ -7,6 +7,8 @@
         <field name="state">disabled</field>
         <field name="allow_tokenization">True</field>
         <field name="image_128" type="base64" file="payment_pagarme/static/description/icon.png"/>
+        <field name="display_as">Pagar.me</field>
+        <field name="pre_msg">Pay securely with your credit card through Pagar.me.</field>
     </record>
 
 </odoo>

@@ -49,13 +49,28 @@ class PaymentProvider(models.Model):
         help="Minimum amount per installment in BRL",
     )
 
-    def _compute_feature_support_fields(self):
+    @api.model
+    def _get_compatible_providers(self, *args, **kwargs):
+        """Override to ensure Pagar.me is always considered compatible for BRL transactions."""
+        providers = super()._get_compatible_providers(*args, **kwargs)
+        
+        # Add debugging for provider compatibility
+        pagarme_providers = providers.filtered(lambda p: p.code == 'pagarme')
+        if pagarme_providers:
+            _logger.info("Pagar.me: Provider is compatible, found %d Pagar.me providers", len(pagarme_providers))
+            for provider in pagarme_providers:
+                _logger.info("Pagar.me: Compatible provider - ID: %s, Name: %s, State: %s", provider.id, provider.name, provider.state)
+        else:
+            _logger.warning("Pagar.me: No compatible Pagar.me providers found")
+            
+        return providers
         """Override to enable additional features for Pagar.me."""
         super()._compute_feature_support_fields()
         self.filtered(lambda p: p.code == 'pagarme').update({
             'support_manual_capture': False,
             'support_refund': 'partial',
-            'support_tokenization': False,
+            'support_tokenization': True,  # Enable tokenization to match provider data
+            'support_express_checkout': False,
         })
 
     def _get_supported_currencies(self):
@@ -94,6 +109,18 @@ class PaymentProvider(models.Model):
             _logger.error("Pagar.me: Template not found: %s - Error: %s", template_name, e)
             
         return template_name
+
+    def _get_validation_amount(self):
+        """Return the amount to use for validation transactions."""
+        if self.code != 'pagarme':
+            return super()._get_validation_amount()
+        return 1.0  # Use 1 real for validation
+
+    def _get_default_payment_method_codes(self):
+        """Return the default payment method codes for Pagar.me."""
+        if self.code != 'pagarme':
+            return super()._get_default_payment_method_codes()
+        return ['card']  # Only credit card payments
 
     @api.depends("code")
     def _compute_pagarme_webhook_url(self):

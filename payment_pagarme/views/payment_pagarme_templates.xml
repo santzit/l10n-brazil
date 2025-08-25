@@ -2,19 +2,19 @@
 <odoo>
 
     <template id="inline_form" name="Pagar.me Inline Form">
-        <!-- Try different variable names that Odoo might use -->
-        <t t-set="container_id" t-value="payment_option_id or provider_id or id"/>
-        <div t-attf-id="o_pagarme_payment_container_{{container_id}}" 
-             t-att-data-provider-id="container_id" 
-             t-att-data-payment-option-id="payment_option_id or provider_id or id"
+        <!-- Simple inline form template for Pagar.me -->
+        <t t-set="provider_id" t-value="provider_id or payment_option_id or id"/>
+        <div t-attf-id="o_pagarme_payment_container_{{provider_id}}" 
+             t-att-data-provider-id="provider_id" 
              class="o_pagarme_payment_form">
             
-            <!-- Debug info to help identify the correct variable -->
-            <div style="display: none;" class="debug-info">
-                <span t-esc="'payment_option_id: ' + str(payment_option_id or 'None')"/>
-                <span t-esc="'provider_id: ' + str(provider_id or 'None')"/>  
-                <span t-esc="'id: ' + str(id or 'None')"/>
-                <span t-esc="'container_id: ' + str(container_id or 'None')"/>
+            <!-- Debug: Show what variables are available -->
+            <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; font-size: 12px; border: 1px solid #ccc;" class="debug-variables">
+                <strong>Debug - Template Variables:</strong><br/>
+                provider_id: <span t-esc="provider_id or 'undefined'"/><br/>
+                payment_option_id: <span t-esc="payment_option_id or 'undefined'"/><br/>
+                id: <span t-esc="id or 'undefined'"/><br/>
+                Container ID: o_pagarme_payment_container_<span t-esc="provider_id or payment_option_id or id or 'undefined'"/>
             </div>
             
             <!-- Pagar.me Branding -->

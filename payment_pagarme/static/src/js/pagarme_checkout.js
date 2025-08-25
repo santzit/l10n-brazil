@@ -339,14 +339,18 @@ const pagarmeTransparentCheckoutMixin = {
         
         // First, let's debug what's in the DOM
         console.log('Pagar.me: All elements with "pagarme" in DOM:', this.$('[id*="pagarme"], [class*="pagarme"]').map(function() { 
-            return { id: this.id, class: this.className, visible: $(this).is(':visible'), tag: this.tagName }; 
+            return { id: this.id, class: this.className, visible: $(this).is(':visible'), tag: this.tagName, text: $(this).text().substring(0, 100) }; 
         }).get());
         console.log('Pagar.me: All payment-related elements in DOM:', this.$('[id*="payment"], [class*="payment"]').map(function() { 
             return { id: this.id, class: this.className, visible: $(this).is(':visible'), tag: this.tagName }; 
         }).get());
-        console.log('Pagar.me: All inline form containers in DOM:', this.$('[id*="inline"], [class*="inline"]').map(function() { 
-            return { id: this.id, class: this.className, visible: $(this).is(':visible'), tag: this.tagName }; 
+        console.log('Pagar.me: All debug elements in DOM:', this.$('.debug-variables, .debug-info').map(function() { 
+            return { id: this.id, class: this.className, visible: $(this).is(':visible'), text: $(this).text() }; 
         }).get());
+        console.log('Pagar.me: Complete DOM content related to payments:');
+        this.$('[id*="payment"], [class*="payment"], [id*="pagarme"], [class*="pagarme"]').each(function() {
+            console.log(`  ${this.tagName}#${this.id}.${this.className}: ${$(this).text().substring(0, 50)}...`);
+        });
         
         // Try to find the container with flexible ID matching
         let container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
