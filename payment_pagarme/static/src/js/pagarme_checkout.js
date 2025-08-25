@@ -82,7 +82,8 @@ const pagarmeTransparentCheckoutMixin = {
 
         const container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
         if (container.length === 0) {
-            return;
+            console.warn('Pagar.me payment container not found for provider ID:', paymentOptionId);
+            return Promise.resolve();
         }
 
         // Initialize form features
@@ -204,12 +205,18 @@ const pagarmeTransparentCheckoutMixin = {
      */
     _validatePagarmeForm: function (paymentOptionId) {
         const container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
+        if (container.length === 0) {
+            console.error('Pagar.me payment container not found:', paymentOptionId);
+            return false;
+        }
+
         let isValid = true;
 
         // Validate required fields
         container.find('input[required], select[required]').each(function () {
             const field = $(this);
-            if (!this.value.trim()) {
+            const value = this.value || '';
+            if (!value.trim()) {
                 isValid = false;
                 field.addClass('is-invalid');
             } else {
@@ -218,17 +225,25 @@ const pagarmeTransparentCheckoutMixin = {
         });
 
         // Validate card number
-        const cardNumber = container.find('input[name="pagarme_card_number"]').val().replace(/\s/g, '');
+        const cardNumberElement = container.find('input[name="pagarme_card_number"]');
+        const cardNumberValue = cardNumberElement.val() || '';
+        const cardNumber = cardNumberValue.replace(/\s/g, '');
         if (!this._validateCardNumber(cardNumber)) {
             isValid = false;
-            container.find('input[name="pagarme_card_number"]').addClass('is-invalid');
+            cardNumberElement.addClass('is-invalid');
+        } else {
+            cardNumberElement.removeClass('is-invalid');
         }
 
         // Validate document
-        const document = container.find('input[name="pagarme_customer_document"]').val().replace(/\D/g, '');
+        const documentElement = container.find('input[name="pagarme_customer_document"]');
+        const documentValue = documentElement.val() || '';
+        const document = documentValue.replace(/\D/g, '');
         if (!this._validateDocument(document)) {
             isValid = false;
-            container.find('input[name="pagarme_customer_document"]').addClass('is-invalid');
+            documentElement.addClass('is-invalid');
+        } else {
+            documentElement.removeClass('is-invalid');
         }
 
         return isValid;
@@ -241,13 +256,19 @@ const pagarmeTransparentCheckoutMixin = {
      * @returns {boolean}
      */
     _validateCardNumber: function (cardNumber) {
-        if (!cardNumber || cardNumber.length < 13) return false;
+        if (!cardNumber || typeof cardNumber !== 'string' || cardNumber.length < 13) {
+            return false;
+        }
         
         let sum = 0;
         let alternate = false;
         
         for (let i = cardNumber.length - 1; i >= 0; i--) {
             let n = parseInt(cardNumber.charAt(i), 10);
+            
+            if (isNaN(n)) {
+                return false;
+            }
             
             if (alternate) {
                 n *= 2;
@@ -270,7 +291,9 @@ const pagarmeTransparentCheckoutMixin = {
      * @returns {boolean}
      */
     _validateDocument: function (document) {
-        if (!document) return false;
+        if (!document || typeof document !== 'string') {
+            return false;
+        }
         
         if (document.length === 11) {
             return this._validateCPF(document);
@@ -361,15 +384,21 @@ const pagarmeTransparentCheckoutMixin = {
     _preparePagarmePaymentData: function (paymentOptionId) {
         const container = this.$(`#o_pagarme_payment_container_${paymentOptionId}`);
         
+        // Helper function to safely get field values
+        const getFieldValue = (selector) => {
+            const element = container.find(selector);
+            return element.length > 0 ? (element.val() || '') : '';
+        };
+        
         return {
-            customer_name: container.find('input[name="pagarme_customer_name"]').val(),
-            customer_document: container.find('input[name="pagarme_customer_document"]').val().replace(/\D/g, ''),
-            card_number: container.find('input[name="pagarme_card_number"]').val().replace(/\s/g, ''),
-            card_holder_name: container.find('input[name="pagarme_card_holder_name"]').val(),
-            card_exp_month: container.find('select[name="pagarme_card_exp_month"]').val(),
-            card_exp_year: container.find('select[name="pagarme_card_exp_year"]').val(),
-            card_cvv: container.find('input[name="pagarme_card_cvv"]').val(),
-            installments: container.find('select[name="pagarme_installments"]').val(),
+            customer_name: getFieldValue('input[name="pagarme_customer_name"]'),
+            customer_document: getFieldValue('input[name="pagarme_customer_document"]').replace(/\D/g, ''),
+            card_number: getFieldValue('input[name="pagarme_card_number"]').replace(/\s/g, ''),
+            card_holder_name: getFieldValue('input[name="pagarme_card_holder_name"]'),
+            card_exp_month: getFieldValue('select[name="pagarme_card_exp_month"]'),
+            card_exp_year: getFieldValue('select[name="pagarme_card_exp_year"]'),
+            card_cvv: getFieldValue('input[name="pagarme_card_cvv"]'),
+            installments: getFieldValue('select[name="pagarme_installments"]') || '1',
         };
     },
 
