@@ -73,27 +73,35 @@ class PaymentTransaction(models.Model):
         if self.provider_code != "pagarme":
             return res
 
-        _logger.info("_get_specific_rendering_values called for Pagar.me transaction: %s", self.reference)
-        _logger.info("Transaction details - ID: %s, Reference: %s, Provider ID: %s", self.id, self.reference, self.provider_id.id if self.provider_id else 'None')
+        _logger.info("=== PAGAR.ME RENDERING VALUES DEBUG ===")
+        _logger.info("Transaction ID: %s", self.id)
+        _logger.info("Transaction Reference: %s", self.reference)
+        _logger.info("Provider ID: %s", self.provider_id.id if self.provider_id else 'None')
         _logger.info("Processing values received: %s", processing_values)
-
-        # Extract access_token from processing_values or fallback to transaction access_token
+        _logger.info("Transaction state: %s", self.state)
+        
+        # CRITICAL FIX: Ensure transaction always has a reference
+        if not self.reference:
+            _logger.error("CRITICAL: Transaction %s has no reference! This must be fixed before rendering.", self.id)
+            # For debugging purposes, we can continue but this should be addressed
+            
+        # Extract access_token with proper fallback
         access_token = ''
         if processing_values and 'access_token' in processing_values:
             access_token = processing_values['access_token']
+            _logger.info("Access token found in processing_values")
         elif hasattr(self, 'access_token') and self.access_token:
             access_token = self.access_token
+            _logger.info("Access token found in transaction object")
         else:
             # Generate a temporary access token if none exists
             access_token = self._generate_access_token()
+            _logger.info("Generated new access token: %s", access_token[:10] + "...")
             
-        # CRITICAL: The issue is that processing_values might contain the reference
-        # Let's check if the reference is in processing_values first
-        transaction_reference = self.reference
-        if processing_values and 'reference' in processing_values:
-            transaction_reference = processing_values['reference']
-        elif not transaction_reference:
-            _logger.warning("Transaction %s has no reference - this will cause payment form submission to fail", self.id)
+        # Use transaction reference directly - it should always be available
+        transaction_reference = self.reference or ""
+        if not transaction_reference:
+            _logger.error("CRITICAL: No transaction reference available!")
 
         # Add Pagar.me specific values for transparent checkout
         base_url = self.provider_id.get_base_url()
@@ -140,11 +148,17 @@ class PaymentTransaction(models.Model):
                 }
             })
             
-        _logger.info("Pagar.me rendering values (critical fields): reference=%s, provider_id=%s, access_token=%s", 
-                    transaction_reference, pagarme_values["provider_id"], 
-                    pagarme_values["access_token"][:10] + "..." if pagarme_values["access_token"] else "empty")
+        _logger.info("=== FINAL RENDERING VALUES FOR TEMPLATE ===")
+        _logger.info("Template will receive - reference: %s", pagarme_values.get("reference"))
+        _logger.info("Template will receive - provider_id: %s", pagarme_values.get("provider_id"))
+        _logger.info("Template will receive - access_token: %s", pagarme_values.get("access_token")[:10] + "..." if pagarme_values.get("access_token") else "NONE")
+        _logger.info("Template will receive - transaction_id: %s", pagarme_values.get("transaction_id"))
+        _logger.info("Template will receive - form_action: %s", pagarme_values.get("form_action"))
+        _logger.info("Template will receive - tx object: %s", "YES" if pagarme_values.get("tx") else "NO")
+        _logger.info("=======================================")
         
-        return {**res, **pagarme_values}
+        final_values = {**res, **pagarme_values}
+        return final_values
 
     def _generate_access_token(self):
         """Generate an access token for the transaction if none exists."""
