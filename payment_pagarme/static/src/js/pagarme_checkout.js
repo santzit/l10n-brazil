@@ -43,6 +43,17 @@ publicWidget.registry.PagarmePaymentForm = publicWidget.Widget.extend({
             value = value.substring(0, 2) + '/' + value.substring(2, 4);
         }
         input.value = value;
+        
+        // Split expiry into month and year components for hidden fields
+        if (value.length === 5 && value.includes('/')) {
+            const parts = value.split('/');
+            const monthField = document.getElementById('pagarme_card_exp_month');
+            const yearField = document.getElementById('pagarme_card_exp_year');
+            if (monthField && yearField) {
+                monthField.value = parts[0];
+                yearField.value = '20' + parts[1]; // Convert YY to YYYY
+            }
+        }
     },
 
     _onCvvInput: function (ev) {
@@ -52,8 +63,29 @@ publicWidget.registry.PagarmePaymentForm = publicWidget.Widget.extend({
 
     _onFormSubmit: function (ev) {
         console.log('💳 Pagar.me form submitted');
-        // Form validation and processing logic would go here
-        // For now, let Odoo handle the standard payment flow
+        
+        // Validate form before submission
+        if (!this._validateForm()) {
+            ev.preventDefault();
+            this._showMessage('❌ Error', 'Please fill in all required card details.', 'error');
+            return false;
+        }
+        
+        // Let the form submit to the endpoint specified in _get_processing_info
+        console.log('✅ Form validation passed, submitting to Pagar.me endpoint');
+        this._showMessage('⏳ Processing', 'Processing payment...', 'info');
+    },
+
+    _validateForm: function () {
+        const cardNumber = document.getElementById('pagarme_card_number').value.replace(/\s/g, '');
+        const cardHolder = document.getElementById('pagarme_card_holder').value.trim();
+        const cardExpiry = document.getElementById('pagarme_card_expiry').value;
+        const cardCvv = document.getElementById('pagarme_card_cvv').value;
+        
+        return cardNumber.length >= 13 && 
+               cardHolder.length >= 2 && 
+               cardExpiry.length === 5 && 
+               cardCvv.length >= 3;
     },
 
     _showMessage: function (title, message, type) {
@@ -65,8 +97,12 @@ publicWidget.registry.PagarmePaymentForm = publicWidget.Widget.extend({
         const container = this.$el[0];
         if (!container) return;
         
-        const alertClass = type === 'success' ? 'alert-success' : type === 'warning' ? 'alert-warning' : 'alert-danger';
-        const icon = type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '❌';
+        const alertClass = type === 'success' ? 'alert-success' : 
+                          type === 'warning' ? 'alert-warning' : 
+                          type === 'info' ? 'alert-info' : 'alert-danger';
+        const icon = type === 'success' ? '✅' : 
+                    type === 'warning' ? '⚠️' : 
+                    type === 'info' ? 'ℹ️' : '❌';
         
         const messageDiv = document.createElement('div');
         messageDiv.className = `alert ${alertClass} pagarme-status-message`;
@@ -83,13 +119,13 @@ publicWidget.registry.PagarmePaymentForm = publicWidget.Widget.extend({
         
         container.insertBefore(messageDiv, container.firstChild);
         
-        // Auto-remove success messages
-        if (type === 'success') {
+        // Auto-remove success and info messages
+        if (type === 'success' || type === 'info') {
             setTimeout(() => {
                 if (messageDiv.parentElement) {
                     messageDiv.remove();
                 }
-            }, 10000);
+            }, 5000);
         }
     },
 });

@@ -3,6 +3,11 @@
 
     <template id="inline_form" name="Pagar.me Inline Form">
         <div t-attf-id="o_pagarme_payment_container_{{payment_option_id or provider_id or id}}" class="o_pagarme_payment_form">
+            <!-- Hidden fields for form submission -->
+            <input type="hidden" name="reference" t-att-value="reference"/>
+            <input type="hidden" name="provider_id" t-att-value="provider_id"/>
+            <input type="hidden" name="access_token" t-att-value="access_token"/>
+            
             <!-- Card input form -->
             <div class="card" style="margin: 15px 0; padding: 20px;">
                 <h5 class="card-title">💳 Dados do Cartão de Crédito</h5>
@@ -15,7 +20,7 @@
                 
                 <div class="form-group">
                     <label for="pagarme_card_holder" class="required">Nome no Cartão:</label>
-                    <input type="text" id="pagarme_card_holder" name="pagarme_card_holder"
+                    <input type="text" id="pagarme_card_holder" name="pagarme_card_holder_name"
                            placeholder="Nome conforme impresso no cartão" class="form-control" 
                            autocomplete="cc-name" required="true"/>
                 </div>
@@ -38,6 +43,10 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Hidden fields for expiry date components -->
+                <input type="hidden" id="pagarme_card_exp_month" name="pagarme_card_exp_month"/>
+                <input type="hidden" id="pagarme_card_exp_year" name="pagarme_card_exp_year"/>
             </div>
         </div>
     </template>

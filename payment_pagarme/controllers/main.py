@@ -199,13 +199,16 @@ class PagarmeController(http.Controller):
     def pagarme_payment(self, **post):
         """Handle Pagar.me payment form submission."""
         _logger.info("Pagar.me: processing payment form submission")
+        _logger.info("Pagar.me: received form data: %s", {k: ('***' if 'card' in k.lower() or 'cvv' in k.lower() else v) for k, v in post.items()})
         
         try:
             # Get transaction reference
             reference = post.get("reference")
             if not reference:
                 _logger.error("Pagar.me: missing reference in payment form")
-                return request.redirect("/payment/process")
+                return request.redirect("/payment/process?error=missing_reference")
+                
+            _logger.info("Pagar.me: processing payment for reference: %s", reference)
                 
             # Find the transaction
             tx_sudo = request.env["payment.transaction"].sudo().search([
@@ -215,7 +218,9 @@ class PagarmeController(http.Controller):
             
             if not tx_sudo:
                 _logger.error("Pagar.me: no transaction found for reference %s", reference)
-                return request.redirect("/payment/process")
+                return request.redirect("/payment/process?error=transaction_not_found")
+                
+            _logger.info("Pagar.me: found transaction %s (ID: %s, state: %s)", tx_sudo.reference, tx_sudo.id, tx_sudo.state)
                 
             # Extract payment data from form
             card_data = {
@@ -227,24 +232,13 @@ class PagarmeController(http.Controller):
                 "installments": int(post.get("pagarme_installments", 1)),
             }
             
-            # Extract customer data from form
-            customer_data = {
-                "customer_name": post.get("pagarme_customer_name"),
-                "customer_email": post.get("pagarme_customer_email"),
-                "customer_document": post.get("pagarme_customer_document"),
-                "customer_phone": post.get("pagarme_customer_phone"),
-            }
-            
-            # Extract billing data from form  
-            billing_data = {
-                "billing_street": post.get("pagarme_billing_street"),
-                "billing_street_number": post.get("pagarme_billing_street_number"),
-                "billing_neighborhood": post.get("pagarme_billing_neighborhood"),
-                "billing_city": post.get("pagarme_billing_city"),
-                "billing_state": post.get("pagarme_billing_state"),
-                "billing_zipcode": post.get("pagarme_zipcode"),
-            }
-            
+            _logger.info("Pagar.me: extracted card data - card_number: ****%s, holder: %s, exp: %s/%s, installments: %s", 
+                        card_data["card_number"][-4:] if card_data["card_number"] else "none",
+                        card_data["card_holder_name"], 
+                        card_data["card_exp_month"], 
+                        card_data["card_exp_year"],
+                        card_data["installments"])
+                        
             # Validate required fields
             if not all([
                 card_data["card_number"],
@@ -253,25 +247,60 @@ class PagarmeController(http.Controller):
                 card_data["card_exp_year"],
                 card_data["card_cvv"],
             ]):
-                _logger.error("Pagar.me: missing required card information")
-                return request.redirect("/payment/process")
+                missing_fields = []
+                if not card_data["card_number"]: missing_fields.append("card_number")
+                if not card_data["card_holder_name"]: missing_fields.append("card_holder_name")
+                if not card_data["card_exp_month"]: missing_fields.append("card_exp_month")
+                if not card_data["card_exp_year"]: missing_fields.append("card_exp_year")
+                if not card_data["card_cvv"]: missing_fields.append("card_cvv")
                 
+                _logger.error("Pagar.me: missing required card information: %s", missing_fields)
+                return request.redirect(f"/payment/process?error=missing_card_data&fields={','.join(missing_fields)}")
+                
+            _logger.info("Pagar.me: card data validation successful")
+                
+            # Extract customer data from form (using transaction partner data as fallback)
+            customer_data = {
+                "customer_name": post.get("pagarme_customer_name") or tx_sudo.partner_id.name,
+                "customer_email": post.get("pagarme_customer_email") or tx_sudo.partner_id.email,
+                "customer_document": post.get("pagarme_customer_document") or tx_sudo.partner_id.cnpj_cpf,
+                "customer_phone": post.get("pagarme_customer_phone") or tx_sudo.partner_id.phone or tx_sudo.partner_id.mobile,
+            }
+            
+            # Extract billing data from form (using transaction partner data as fallback)
+            billing_data = {
+                "billing_street": post.get("pagarme_billing_street") or tx_sudo.partner_id.street,
+                "billing_street_number": post.get("pagarme_billing_street_number") or tx_sudo.partner_id.l10n_br_number,
+                "billing_neighborhood": post.get("pagarme_billing_neighborhood") or tx_sudo.partner_id.l10n_br_district,
+                "billing_city": post.get("pagarme_billing_city") or tx_sudo.partner_id.city,
+                "billing_state": post.get("pagarme_billing_state") or (tx_sudo.partner_id.state_id.code if tx_sudo.partner_id.state_id else ""),
+                "billing_zipcode": post.get("pagarme_zipcode") or tx_sudo.partner_id.zip,
+            }
+            
+            _logger.info("Pagar.me: creating transaction request...")
+            
             # Process the payment
             all_data = {**card_data, **customer_data, **billing_data}
             transaction_data = tx_sudo._pagarme_create_transaction_request(all_data)
             
+            _logger.info("Pagar.me: sending request to Pagar.me API...")
+            
             # Make request to Pagar.me API
             response = tx_sudo.provider_id._pagarme_make_request("transactions", transaction_data)
             
+            _logger.info("Pagar.me: processing response...")
+            
             # Process the response
             tx_sudo._pagarme_process_transaction_response(response)
+            
+            _logger.info("Pagar.me: payment processed successfully, redirecting to status page")
             
             # Redirect to payment status page
             return request.redirect("/payment/status")
             
         except Exception as e:
-            _logger.error("Pagar.me: error processing payment: %s", e)
-            return request.redirect("/payment/process")
+            _logger.error("Pagar.me: error processing payment: %s", e, exc_info=True)
+            return request.redirect("/payment/process?error=payment_failed")
 
     @http.route(
         "/payment/pagarme/return",

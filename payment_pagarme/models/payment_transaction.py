@@ -484,10 +484,14 @@ class PaymentTransaction(models.Model):
         # Get the standard processing info first
         processing_info = super()._get_processing_info()
         
-        # Add Pagar.me specific processing information
+        # For Pagar.me, override to specify inline processing with proper endpoint
+        base_url = self.provider_id.get_base_url()
         processing_info.update({
             'provider_code': 'pagarme',
             'reference': self.reference,
+            'flow': 'inline',  # Explicitly specify inline flow
+            'action': f'{base_url}/payment/pagarme/payment',  # Custom processing endpoint
+            'method': 'POST',
         })
         
         _logger.info("Pagar.me processing info: %s", processing_info)
