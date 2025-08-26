@@ -475,13 +475,13 @@ class PaymentTransaction(models.Model):
         # CRITICAL: Get the base processing info first to ensure all required fields are set
         processing_info = super()._get_processing_info()
         
-        # For Pagar.me, ensure inline processing flow is set correctly
-        # We must NOT override 'action' to let Odoo handle inline forms properly
+        # For Pagar.me, force inline processing and provide inline form view
         processing_info.update({
-            'flow': 'inline',  # This is the key - forces Odoo to use inline processing
+            'flow': 'inline',  # Force inline processing to prevent redirect errors
+            'inline_form_view_id': self.env.ref('payment_pagarme.inline_form').id,
         })
         
-        _logger.info("Pagar.me processing info (inline flow): %s", processing_info)
+        _logger.info("Pagar.me processing info (forced inline): %s", processing_info)
         return processing_info
 
     def _get_tx_from_notification_data(self, provider_code, notification_data):
