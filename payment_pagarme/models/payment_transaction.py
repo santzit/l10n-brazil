@@ -479,6 +479,10 @@ class PaymentTransaction(models.Model):
         processing_info.update({
             'flow': 'inline',  # Force inline processing to prevent redirect errors
             'inline_form_view_id': self.env.ref('payment_pagarme.inline_form').id,
+            # CRITICAL: Add transaction context data to ensure template has access to it
+            'reference': self.reference,
+            'provider_id': self.provider_id.id,
+            'access_token': getattr(self, 'access_token', '') or processing_info.get('access_token', ''),
         })
         
         _logger.info("Pagar.me processing info (forced inline): %s", processing_info)
