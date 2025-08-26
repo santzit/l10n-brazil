@@ -16,7 +16,34 @@ class PaymentTransaction(models.Model):
 
     #=== BUSINESS METHODS ===#
 
-    # Removed _get_specific_processing_values - moved to payment_provider.py
+    def _get_specific_processing_values(self, processing_values):
+        """Return Pagar.me-specific processing values for inline form."""
+        if self.provider_code != "pagarme":
+            return super()._get_specific_processing_values(processing_values)
+        
+        _logger.info("=== PAGAR.ME TRANSACTION PROCESSING VALUES DEBUG ===")
+        _logger.info("Transaction: %s (ID: %s)", self.reference, self.id)
+        _logger.info("Input processing_values: %s", processing_values)
+        
+        # Ensure access token exists
+        if not self.access_token:
+            self.access_token = self._generate_access_token()
+            
+        # Provide essential transaction context to template
+        pagarme_values = {
+            'reference': self.reference,
+            'provider_id': self.provider_id.id,
+            'access_token': self.access_token,
+            'amount': self.amount,
+            'currency': self.currency_id.name,
+            'api_key': self.provider_id.pagarme_api_key,
+            'encryption_key': self.provider_id.pagarme_encryption_key,
+        }
+        
+        _logger.info("Pagarme processing values being returned: %s", {k: ('***' if 'key' in k.lower() else v) for k, v in pagarme_values.items()})
+        _logger.info("=== END PAGAR.ME TRANSACTION PROCESSING VALUES DEBUG ===")
+        
+        return pagarme_values
 
     def _generate_access_token(self):
         """Generate access token for transaction if not present."""
@@ -40,15 +67,85 @@ class PaymentTransaction(models.Model):
             
         _logger.info("Pagar.me: Sending payment request for transaction %s", self.reference)
         
-        # Prepare customer data
-        customer_data = self.provider_id._prepare_pagarme_customer_data(self.partner_id)
+        # Prepare customer data inline
+        partner = self.partner_id
+        document = partner.cnpj_cpf or ""
+        clean_document = document.replace(".", "").replace("-", "").replace("/", "")
         
-        # Prepare order data  
-        order_data = self.provider_id._prepare_pagarme_order_data({
-            'amount': self.amount,
-            'reference': self.reference,
-            'sale_order_ids': self.sale_order_ids.ids if hasattr(self, 'sale_order_ids') else []
-        })
+        if len(clean_document) == 11:
+            document_type = "cpf"
+            customer_type = "individual"
+        elif len(clean_document) == 14:
+            document_type = "cnpj"
+            customer_type = "company"
+        else:
+            raise UserError(_("Invalid document format for partner %s") % partner.name)
+
+        # Prepare phone number
+        phone = partner.phone or partner.mobile or ""
+        clean_phone = "".join(filter(str.isdigit, phone))
+        
+        if len(clean_phone) >= 10:
+            area_code = clean_phone[-10:-8] if len(clean_phone) >= 10 else "11"
+            number = clean_phone[-8:] if len(clean_phone) >= 8 else "99999999"
+        else:
+            area_code = "11"
+            number = "99999999"
+
+        customer_data = {
+            "name": partner.name or "",
+            "email": partner.email or "",
+            "document": clean_document,
+            "document_type": document_type,
+            "type": customer_type,
+            "phones": {
+                "home_phone": {
+                    "country_code": "55",
+                    "area_code": area_code,
+                    "number": number,
+                }
+            },
+            "address": {
+                "street": partner.street or "",
+                "street_number": partner.l10n_br_number or "S/N",
+                "neighborhood": partner.l10n_br_district or "",
+                "city": partner.city or "",
+                "state": partner.state_id.code if partner.state_id else "",
+                "zip_code": partner.zip.replace("-", "") if partner.zip else "",
+                "country": partner.country_id.code if partner.country_id else "BR",
+                "complement": partner.street2 or "",
+            }
+        }
+        
+        # Prepare order data inline  
+        items = []
+        
+        # If we have sale order, use order lines
+        if hasattr(self, 'sale_order_ids') and self.sale_order_ids:
+            for order in self.sale_order_ids:
+                for line in order.order_line:
+                    items.append({
+                        "id": str(line.id),
+                        "title": line.name or line.product_id.name,
+                        "unit_price": int(line.price_unit * 100),  # Convert to cents
+                        "quantity": int(line.product_uom_qty),
+                        "tangible": True,
+                    })
+        else:
+            # Fallback to generic item
+            items.append({
+                "id": "1",
+                "title": f"Payment - {self.reference}",
+                "unit_price": int(self.amount * 100),  # Convert to cents
+                "quantity": 1,
+                "tangible": False,
+            })
+
+        order_data = {
+            "amount": int(self.amount * 100),  # Amount in cents
+            "currency": "BRL",
+            "items": items,
+        }
         
         # Create transaction payload
         transaction_data = {
