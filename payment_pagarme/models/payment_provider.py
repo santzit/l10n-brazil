@@ -310,49 +310,9 @@ class PaymentProvider(models.Model):
             return super()._get_inline_form_template()
         
         template_name = 'payment_pagarme.inline_form'
-        _logger.info("🎨 _get_inline_form_template called for Pagar.me - returning: %s", template_name)
-        
-        # Verify template exists
-        try:
-            template_ref = self.env.ref(template_name)
-            _logger.info("✅ Template verified - ID: %s, Name: %s", template_ref.id, template_ref.name)
-        except Exception as e:
-            _logger.error("❌ Template not found: %s", e)
+        _logger.info("_get_inline_form_template called for Pagar.me - returning: %s", template_name)
         
         return template_name
-
-    def _get_specific_rendering_values(self, processing_values):
-        """Return Pagar.me-specific rendering values from provider level."""
-        res = super()._get_specific_rendering_values(processing_values) if hasattr(super(), '_get_specific_rendering_values') else {}
-        if self.code != 'pagarme':
-            return res
-        
-        _logger.info("🔧 Provider _get_specific_rendering_values called for Pagar.me")
-        _logger.info("📦 Provider processing values: %s", processing_values)
-        
-        # Add provider-level context
-        base_url = self.get_base_url()
-        provider_values = {
-            "pagarme_provider": self,
-            "api_key": self.pagarme_api_key,
-            "encryption_key": self.pagarme_encryption_key,
-            "form_action": f"{base_url}/payment/pagarme/payment",
-            "max_installments": self.pagarme_max_installments,
-            "min_installment_amount": self.pagarme_min_installment_amount,
-        }
-        
-        # If processing_values contains transaction data, add it
-        if processing_values:
-            if 'reference' in processing_values:
-                provider_values['reference'] = processing_values['reference']
-            if 'provider_id' in processing_values:
-                provider_values['provider_id'] = processing_values['provider_id']
-            if 'access_token' in processing_values:
-                provider_values['access_token'] = processing_values['access_token']
-        
-        _logger.info("🚀 Provider rendering values: %s", list(provider_values.keys()))
-        
-        return {**res, **provider_values}
 
 
 

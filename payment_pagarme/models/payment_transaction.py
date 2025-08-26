@@ -73,22 +73,27 @@ class PaymentTransaction(models.Model):
         if self.provider_code != "pagarme":
             return res
 
-        _logger.info("🔧 _get_specific_rendering_values called for Pagar.me transaction: %s (ID: %s)", self.reference, self.id)
-        _logger.info("📦 Processing values received: %s", processing_values)
-        _logger.info("🎯 Transaction data - reference: %s, provider_id: %s, state: %s", self.reference, self.provider_id.id, self.state)
+        _logger.info("_get_specific_rendering_values called for Pagar.me transaction: %s", self.reference)
+        _logger.info("Transaction details - ID: %s, Reference: %s, Provider ID: %s", self.id, self.reference, self.provider_id.id if self.provider_id else 'None')
+        _logger.info("Processing values received: %s", processing_values)
 
-        # Extract access_token from processing_values or generate one
+        # Extract access_token from processing_values or fallback to transaction access_token
         access_token = ''
         if processing_values and 'access_token' in processing_values:
             access_token = processing_values['access_token']
-            _logger.info("✅ Using access_token from processing_values")
         elif hasattr(self, 'access_token') and self.access_token:
             access_token = self.access_token
-            _logger.info("✅ Using access_token from transaction")
         else:
             # Generate a temporary access token if none exists
             access_token = self._generate_access_token()
-            _logger.info("🔄 Generated new access_token")
+            
+        # CRITICAL: The issue is that processing_values might contain the reference
+        # Let's check if the reference is in processing_values first
+        transaction_reference = self.reference
+        if processing_values and 'reference' in processing_values:
+            transaction_reference = processing_values['reference']
+        elif not transaction_reference:
+            _logger.warning("Transaction %s has no reference - this will cause payment form submission to fail", self.id)
 
         # Add Pagar.me specific values for transparent checkout
         base_url = self.provider_id.get_base_url()
@@ -107,13 +112,13 @@ class PaymentTransaction(models.Model):
             # Set the form action to submit to our payment endpoint
             "form_action": f"{base_url}/payment/pagarme/payment",
             
-            # CRITICAL: Ensure transaction context is ALWAYS available to template regardless of processing_values
-            "reference": self.reference,
+            # CRITICAL: Ensure transaction context is ALWAYS available to template
+            "reference": transaction_reference,
             "provider_id": self.provider_id.id,
             "access_token": access_token,
             "transaction_id": self.id,
             
-            # Add the transaction object itself to the template context for direct access
+            # Add the transaction object itself to the template context
             "tx": self,
             
             # Add processing_values to template context so template can access them
@@ -135,24 +140,16 @@ class PaymentTransaction(models.Model):
                 }
             })
             
-        _logger.info("🚀 Pagar.me rendering values (critical fields): reference=%s, provider_id=%s, access_token=%s", 
-                    pagarme_values["reference"], pagarme_values["provider_id"], 
+        _logger.info("Pagar.me rendering values (critical fields): reference=%s, provider_id=%s, access_token=%s", 
+                    transaction_reference, pagarme_values["provider_id"], 
                     pagarme_values["access_token"][:10] + "..." if pagarme_values["access_token"] else "empty")
         
-        # Merge with base values and return
-        final_values = {**res, **pagarme_values}
-        _logger.info("📋 Final rendering values keys: %s", list(final_values.keys()))
-        _logger.info("✅ _get_specific_rendering_values completed successfully")
-        
-        return final_values
+        return {**res, **pagarme_values}
 
     def _generate_access_token(self):
         """Generate an access token for the transaction if none exists."""
         import uuid
-        access_token = str(uuid.uuid4())
-        # Store the generated token
-        self.write({'access_token': access_token})
-        return access_token
+        return str(uuid.uuid4())
 
     def _send_payment_request(self):
         """Send the payment request to Pagar.me."""
@@ -515,7 +512,7 @@ class PaymentTransaction(models.Model):
         if self.provider_code != 'pagarme':
             return super()._get_processing_info()
         
-        _logger.info("🔧 _get_processing_info called for Pagar.me transaction: %s (ID: %s)", self.reference, self.id)
+        _logger.info("_get_processing_info called for Pagar.me transaction: %s", self.reference)
         
         # CRITICAL: Get the base processing info first to ensure all required fields are set
         processing_info = super()._get_processing_info()
@@ -526,24 +523,7 @@ class PaymentTransaction(models.Model):
             'inline_form_view_id': self.env.ref('payment_pagarme.inline_form').id,
         })
         
-        # CRITICAL: Add transaction context directly to processing_info 
-        # This ensures the template gets the transaction data even if _get_specific_rendering_values is not called
-        # Generate access token if not exists
-        if not self.access_token:
-            access_token = self._generate_access_token()
-        else:
-            access_token = self.access_token
-            
-        processing_info.update({
-            'reference': self.reference,
-            'provider_id': self.provider_id.id,
-            'access_token': access_token,
-            'transaction_id': self.id,
-            'tx': self,  # Add transaction object for template access
-            'form_action': f"{self.provider_id.get_base_url()}/payment/pagarme/payment",
-        })
-        
-        _logger.info("🚀 Pagar.me processing info: %s", {k: v for k, v in processing_info.items() if k not in ['tx']})
+        _logger.info("Pagar.me processing info (forced inline): %s", processing_info)
         return processing_info
 
     def _get_tx_from_notification_data(self, provider_code, notification_data):
