@@ -27,6 +27,7 @@ class PaymentTransaction(models.Model):
         _logger.info("Provider: %s (ID: %s)", self.provider_id.name, self.provider_id.id)
         _logger.info("State: %s", self.state)
         _logger.info("Amount: %s %s", self.amount, self.currency_id.name)
+        _logger.info("Input processing_values: %s", processing_values)
 
         # Ensure access token is available
         if not self.access_token:
@@ -45,9 +46,17 @@ class PaymentTransaction(models.Model):
             "api_key": self.provider_id.pagarme_api_key,
             "encryption_key": self.provider_id.pagarme_encryption_key,
             "currency": self.currency_id.name,
+            
+            # Transaction object for template fallback
+            "tx": self,
         }
         
-        _logger.info("Pagarme values being returned: %s", {k: ('***' if 'key' in k.lower() else v) for k, v in pagarme_values.items()})
+        # Update processing_values with transaction data to ensure it reaches template
+        if isinstance(processing_values, dict):
+            processing_values.update(pagarme_values)
+            _logger.info("Updated processing_values with transaction context")
+        
+        _logger.info("Pagarme values being returned: %s", {k: ('***' if 'key' in k.lower() else str(v)[:50] + '...' if len(str(v)) > 50 else v) for k, v in pagarme_values.items()})
         _logger.info("=== END PAGAR.ME PROCESSING VALUES DEBUG ===")
         
         return {**res, **pagarme_values}
