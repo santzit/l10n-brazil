@@ -49,21 +49,7 @@ class PaymentProvider(models.Model):
         help="Minimum amount per installment in BRL",
     )
 
-    @api.model
-    def _get_compatible_providers(self, *args, **kwargs):
-        """Override to ensure Pagar.me is always considered compatible for BRL transactions."""
-        providers = super()._get_compatible_providers(*args, **kwargs)
-        
-        # Add debugging for provider compatibility
-        pagarme_providers = providers.filtered(lambda p: p.code == 'pagarme')
-        if pagarme_providers:
-            _logger.info("Found %d Pagar.me providers", len(pagarme_providers))
-            for provider in pagarme_providers:
-                _logger.info("Provider - ID: %s, Name: %s, State: %s", provider.id, provider.name, provider.state)
-                _logger.info("Should build inline form: %s", provider._should_build_inline_form())
-                _logger.info("Inline form template: %s", provider._get_inline_form_template())
-                
-        return providers
+    #=== COMPUTE METHODS ===#
 
     @api.depends('code')
     def _compute_feature_support_fields(self):
@@ -72,28 +58,9 @@ class PaymentProvider(models.Model):
         self.filtered(lambda p: p.code == 'pagarme').update({
             'support_manual_capture': False,
             'support_refund': 'partial',
-            'support_tokenization': True,  # Enable tokenization to match provider data
+            'support_tokenization': False,
             'support_express_checkout': False,
         })
-
-    def _get_validation_amount(self):
-        """Return the amount to use for validation transactions."""
-        if self.code != 'pagarme':
-            return super()._get_validation_amount()
-        return 1.0  # Use 1 real for validation
-
-    def _get_default_payment_method_codes(self):
-        """Return the default payment method codes for Pagar.me."""
-        if self.code != 'pagarme':
-            return super()._get_default_payment_method_codes()
-        return ['card']  # Only credit card payments
-
-    def _get_supported_currencies(self):
-        """Override to return supported currencies for Pagar.me."""
-        supported_currencies = super()._get_supported_currencies()
-        if self.code == 'pagarme':
-            return supported_currencies.filtered(lambda c: c.name == 'BRL')
-        return supported_currencies
 
     @api.depends("code")
     def _compute_pagarme_webhook_url(self):
@@ -105,6 +72,8 @@ class PaymentProvider(models.Model):
             else:
                 provider.pagarme_webhook_url = False
 
+    #=== CONSTRAINT METHODS ===#
+
     @api.constrains("pagarme_api_key")
     def _check_pagarme_api_key(self):
         """Validate Pagar.me API key format."""
@@ -112,6 +81,8 @@ class PaymentProvider(models.Model):
             if provider.code == "pagarme" and provider.pagarme_api_key:
                 if not provider.pagarme_api_key.startswith("sk_"):
                     raise ValidationError(_("Pagar.me API key must start with 'sk_'"))
+
+    #=== BUSINESS METHODS ===#
 
     def _pagarme_make_request(self, endpoint, data=None, method="POST"):
         """Make a request to Pagar.me API."""
@@ -122,10 +93,7 @@ class PaymentProvider(models.Model):
             raise UserError(_("Pagar.me API key is not configured"))
 
         # Determine base URL based on environment
-        if self.state == "test":
-            base_url = "https://api.pagar.me/core/v5/"
-        else:
-            base_url = "https://api.pagar.me/core/v5/"
+        base_url = "https://api.pagar.me/core/v5/"
 
         url = urljoin(base_url, endpoint)
         
@@ -266,54 +234,6 @@ class PaymentProvider(models.Model):
 
         return order_data
 
-    def _prepare_pagarme_payment_data(self, tx_values, card_data):
-        """Prepare payment data for Pagar.me API."""
-        if self.code != "pagarme":
-            return super()._prepare_pagarme_payment_data(tx_values, card_data)
-
-        payment_data = {
-            "payment_method": "credit_card",
-            "credit_card": {
-                "installments": card_data.get("installments", 1),
-                "statement_descriptor": "PAGARME",
-                "card": {
-                    "number": card_data.get("card_number"),
-                    "holder_name": card_data.get("card_holder_name"),
-                    "exp_month": int(card_data.get("card_exp_month")),
-                    "exp_year": int(card_data.get("card_exp_year")),
-                    "cvv": card_data.get("card_cvv"),
-                }
-            }
-        }
-
-        return payment_data
-
-    def _get_supported_countries(self):
-        """Return supported countries for Pagar.me (Brazil only)."""
-        supported_countries = super()._get_supported_countries()
-        if self.code == "pagarme":
-            supported_countries = supported_countries.filtered(lambda c: c.code == "BR")
-        return supported_countries
-
-    def _should_build_inline_form(self, is_validation=False):
-        """Return whether an inline form should be built for the provider."""
-        if self.code != 'pagarme':
-            return super()._should_build_inline_form(is_validation)
-        
-        _logger.info("_should_build_inline_form called for Pagar.me provider %s", self.name)
-        # Always return True for Pagar.me to enable inline forms
-        return True
-
-    def _get_inline_form_template(self):
-        """Return the inline form template with proper context setup."""
-        if self.code != 'pagarme':
-            return super()._get_inline_form_template()
-        
-        template_name = 'payment_pagarme.inline_form'
-        _logger.info("Pagar.me: _get_inline_form_template called - returning: %s", template_name)
-        
-        return template_name
-    
     def _get_specific_processing_values(self, processing_values):
         """Return Pagar.me-specific processing values for inline form."""
         res = super()._get_specific_processing_values(processing_values)
@@ -324,76 +244,34 @@ class PaymentProvider(models.Model):
         _logger.info("Provider: %s (ID: %s)", self.name, self.id)
         _logger.info("Input processing_values: %s", processing_values)
         
-        # Prepare basic Pagar.me values for inline form
-        pagarme_values = {
-            # Pagar.me specific configuration
-            "api_key": self.pagarme_api_key,
-            "encryption_key": self.pagarme_encryption_key,
-        }
+        # Extract transaction context
+        tx_sudo = processing_values.get('tx_sudo')
+        if tx_sudo:
+            # Ensure access token exists
+            if not tx_sudo.access_token:
+                tx_sudo.access_token = tx_sudo._generate_access_token()
+                
+            # Provide essential transaction context to template
+            pagarme_values = {
+                'reference': tx_sudo.reference,
+                'provider_id': self.id,
+                'access_token': tx_sudo.access_token,
+                'amount': tx_sudo.amount,
+                'currency': tx_sudo.currency_id.name,
+                'api_key': self.pagarme_api_key,
+                'encryption_key': self.pagarme_encryption_key,
+            }
+        else:
+            # Fallback values
+            pagarme_values = {
+                'api_key': self.pagarme_api_key,
+                'encryption_key': self.pagarme_encryption_key,
+            }
         
         _logger.info("Pagarme processing values being returned: %s", {k: ('***' if 'key' in k.lower() else v) for k, v in pagarme_values.items()})
         _logger.info("=== END PAGAR.ME PROCESSING VALUES DEBUG (PROVIDER) ===")
         
         return {**res, **pagarme_values}
-
-    def _get_specific_rendering_values(self, tx_sudo, processing_values):
-        """Return Pagar.me-specific rendering values to provide context to inline form template."""
-        if self.code != 'pagarme':
-            return super()._get_specific_rendering_values(tx_sudo, processing_values)
-        
-        _logger.info("=== PAGAR.ME SPECIFIC RENDERING VALUES ===")
-        _logger.info("Transaction: %s (ID: %s)", tx_sudo.reference, tx_sudo.id)
-        _logger.info("Provider: %s (ID: %s)", self.name, self.id)
-        _logger.info("Processing values passed: %s", processing_values)
-        
-        # Ensure access token is available
-        if not tx_sudo.access_token:
-            tx_sudo.access_token = tx_sudo._generate_access_token()
-            _logger.info("Generated access token for transaction %s", tx_sudo.reference)
-        
-        # Prepare context for template
-        rendering_values = {
-            # Core transaction context for template
-            'reference': tx_sudo.reference,
-            'provider_id': self.id,
-            'access_token': tx_sudo.access_token,
-            'amount': tx_sudo.amount,
-            'currency': tx_sudo.currency_id.name,
-            
-            # Pagar.me configuration for frontend
-            'api_key': self.pagarme_api_key,
-            'encryption_key': self.pagarme_encryption_key,
-            
-            # Transaction object for template
-            'tx': tx_sudo,
-        }
-        
-        _logger.info("Rendering values being returned: %s", {k: ('***' if 'key' in k.lower() else v) for k, v in rendering_values.items()})
-        _logger.info("=== END PAGAR.ME SPECIFIC RENDERING VALUES ===")
-        
-        return rendering_values
-
-    def _pagarme_get_form_context(self, tx_sudo):
-        """Prepare context for Pagar.me inline form rendering."""
-        base_url = self.get_base_url()
-        
-        # Ensure transaction has reference
-        if not tx_sudo.reference:
-            _logger.error("Pagar.me: Transaction %s has no reference!", tx_sudo.id)
-            
-        # Basic context for template
-        context = {
-            'reference': tx_sudo.reference,
-            'provider_id': self.id,
-            'access_token': tx_sudo.access_token if hasattr(tx_sudo, 'access_token') and tx_sudo.access_token else '',
-            'amount': int(tx_sudo.amount * 100),  # In cents
-            'currency': tx_sudo.currency_id.name,
-        }
-        
-        _logger.info("Pagar.me: prepared form context - reference: %s, provider_id: %s, access_token: %s", 
-                    context['reference'], context['provider_id'], 'present' if context['access_token'] else 'missing')
-        
-        return context
 
 
 
