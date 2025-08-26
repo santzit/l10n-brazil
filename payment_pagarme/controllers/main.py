@@ -87,7 +87,26 @@ class PagarmeController(http.Controller):
             # Process the payment
             _logger.info("Pagar.me: creating transaction request...")
             try:
-                transaction_data = tx_sudo._pagarme_create_transaction_request(payment_data)
+                transaction_data = tx_sudo._send_payment_request()
+                
+                # Add payment method data
+                transaction_data.update({
+                    "payment": {
+                        "payment_method": "credit_card",
+                        "credit_card": {
+                            "installments": payment_data.get("installments", 1),
+                            "statement_descriptor": "PAGARME",
+                            "card": {
+                                "number": payment_data["card_number"],
+                                "holder_name": payment_data["card_holder_name"],
+                                "exp_month": int(payment_data["card_exp_month"]),
+                                "exp_year": int(payment_data["card_exp_year"]),
+                                "cvv": payment_data["card_cvv"],
+                            }
+                        }
+                    }
+                })
+                
                 _logger.info("Pagar.me: transaction request created successfully")
                 _logger.debug("Pagar.me: transaction request data: %s", {k: ('***' if 'card' in k.lower() else v) for k, v in transaction_data.items()})
             except Exception as e:
@@ -106,7 +125,10 @@ class PagarmeController(http.Controller):
             # Process the response
             _logger.info("Pagar.me: processing transaction response...")
             try:
-                tx_sudo._pagarme_process_transaction_response(response)
+                if response.get("id"):
+                    tx_sudo.provider_reference = str(response["id"])
+                
+                tx_sudo._process_notification_data(response)
                 _logger.info("Pagar.me: transaction response processed successfully")
                 _logger.info("Pagar.me: final transaction state: %s", tx_sudo.state)
             except Exception as e:
@@ -270,7 +292,25 @@ class PagarmeController(http.Controller):
             _logger.info("Pagar.me: creating transaction request...")
             
             # Process the payment
-            transaction_data = tx_sudo._pagarme_create_transaction_request(card_data)
+            transaction_data = tx_sudo._send_payment_request()
+            
+            # Add card data to the transaction
+            transaction_data.update({
+                "payment": {
+                    "payment_method": "credit_card",
+                    "credit_card": {
+                        "installments": card_data.get("installments", 1),
+                        "statement_descriptor": "PAGARME",
+                        "card": {
+                            "number": card_data["card_number"],
+                            "holder_name": card_data["card_holder_name"],
+                            "exp_month": int(card_data["card_exp_month"]),
+                            "exp_year": int(card_data["card_exp_year"]),
+                            "cvv": card_data["card_cvv"],
+                        }
+                    }
+                }
+            })
             
             _logger.info("Pagar.me: sending request to Pagar.me API...")
             
@@ -279,8 +319,11 @@ class PagarmeController(http.Controller):
             
             _logger.info("Pagar.me: processing response...")
             
-            # Process the response
-            tx_sudo._pagarme_process_transaction_response(response)
+            # Process the response and update transaction state
+            if response.get("id"):
+                tx_sudo.provider_reference = str(response["id"])
+            
+            tx_sudo._process_notification_data(response)
             
             _logger.info("Pagar.me: payment processed successfully")
             
@@ -489,17 +532,38 @@ class PagarmeController(http.Controller):
                 
             # Prepare transaction data for Pagar.me API
             all_data = {**card_data, **customer_data, **billing_data}
-            transaction_data = tx_sudo._pagarme_create_transaction_request(all_data)
+            transaction_data = tx_sudo._send_payment_request()
+            
+            # Add card and customer data
+            transaction_data.update({
+                "payment": {
+                    "payment_method": "credit_card", 
+                    "credit_card": {
+                        "installments": all_data.get("installments", 1),
+                        "statement_descriptor": "PAGARME",
+                        "card": {
+                            "number": all_data["card_number"],
+                            "holder_name": all_data["card_holder_name"],
+                            "exp_month": int(all_data["card_exp_month"]),
+                            "exp_year": int(all_data["card_exp_year"]),
+                            "cvv": all_data["card_cvv"],
+                        }
+                    }
+                }
+            })
             
             # Make request to Pagar.me API
             response = tx_sudo.provider_id._pagarme_make_request("transactions", transaction_data)
             
             # Process the response
-            tx_sudo._pagarme_process_transaction_response(response)
+            if response.get("id"):
+                tx_sudo.provider_reference = str(response["id"])
+            
+            tx_sudo._process_notification_data(response)
             
             return {
                 "status": "success",
-                "transaction_id": tx_sudo.pagarme_transaction_id,
+                "transaction_id": tx_sudo.provider_reference,
                 "redirect_url": "/payment/status",
             }
             
