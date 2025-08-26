@@ -26,7 +26,35 @@ publicWidget.registry.PagarmePaymentForm = publicWidget.Widget.extend({
         // Show success message
         this._showMessage('✅ Pagar.me Ready', 'Payment form loaded successfully. Enter your card details to proceed.', 'success');
         
+        // CRITICAL: Intercept all pay button clicks to prevent redirect processing
+        this._interceptPayButtonClicks();
+        
         return this._super.apply(this, arguments);
+    },
+
+    _interceptPayButtonClicks: function () {
+        console.log('🔒 Setting up pay button interception to prevent redirect processing');
+        
+        // Find and intercept the main "Pay" button clicks
+        const self = this;
+        
+        // Use document event delegation to catch pay button clicks
+        $(document).on('click', 'button[name="o_payment_submit_button"], .btn[name="o_payment_submit_button"], input[name="o_payment_submit_button"]', function (ev) {
+            // Check if this is for Pagar.me provider
+            const pagarmeForm = $(this).closest('form').find('.o_pagarme_payment_form');
+            if (pagarmeForm.length > 0) {
+                console.log('🛑 Intercepted pay button click for Pagar.me - preventing redirect processing');
+                ev.preventDefault();
+                ev.stopPropagation();
+                ev.stopImmediatePropagation();
+                
+                // Process payment via our inline method
+                self._processInlinePayment();
+                return false;
+            }
+        });
+        
+        console.log('✅ Pay button interception setup complete');
     },
 
     _onCardNumberInput: function (ev) {
@@ -64,6 +92,13 @@ publicWidget.registry.PagarmePaymentForm = publicWidget.Widget.extend({
     _onFormSubmit: function (ev) {
         console.log('💳 Pagar.me form submitted');
         ev.preventDefault(); // Always prevent default form submission
+        ev.stopPropagation();
+        
+        this._processInlinePayment();
+    },
+
+    _processInlinePayment: function () {
+        console.log('💳 Processing Pagar.me inline payment');
         
         // Validate form before submission
         if (!this._validateForm()) {
@@ -81,10 +116,33 @@ publicWidget.registry.PagarmePaymentForm = publicWidget.Widget.extend({
     _processPayment: function () {
         console.log('📤 Processing payment via AJAX to avoid redirect form processing');
         
+        // Gather form data
+        const formData = {
+            reference: $('input[name="reference"]').val(),
+            provider_id: $('input[name="provider_id"]').val(),
+            access_token: $('input[name="access_token"]').val(),
+            pagarme_card_number: $('#pagarme_card_number').val().replace(/\s/g, ''),
+            pagarme_card_holder_name: $('#pagarme_card_holder').val(),
+            pagarme_card_exp_month: $('#pagarme_card_exp_month').val(),
+            pagarme_card_exp_year: $('#pagarme_card_exp_year').val(),
+            pagarme_card_cvv: $('#pagarme_card_cvv').val(),
+            pagarme_installments: 1,
+        };
+        
+        console.log('📋 Form data prepared:', {
+            reference: formData.reference,
+            provider_id: formData.provider_id,
+            has_access_token: !!formData.access_token,
+            card_ending: formData.pagarme_card_number.slice(-4),
+            holder_name: formData.pagarme_card_holder_name,
+            exp_date: formData.pagarme_card_exp_month + '/' + formData.pagarme_card_exp_year,
+        });
+        
         // Use AJAX to submit payment data to avoid Odoo's redirect processing
-        this.$el.ajaxSubmit({
+        $.ajax({
             url: '/payment/pagarme/payment',
             type: 'POST',
+            data: formData,
             timeout: 30000,
             success: (response) => {
                 console.log('✅ Payment processed successfully');

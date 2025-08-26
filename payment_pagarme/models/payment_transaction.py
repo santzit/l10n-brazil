@@ -365,6 +365,31 @@ class PaymentTransaction(models.Model):
         # Update transaction with response data
         self._update_pagarme_transaction_data(response)
         
+        # Extract transaction information following Pagar.me API v5 structure
+        self.pagarme_transaction_id = response.get("id")
+        self.pagarme_status = response.get("status")
+        
+        # Extract charge information if available
+        charges = response.get("charges", [])
+        if charges:
+            charge = charges[0]  # Usually one charge per transaction
+            self.pagarme_charge_id = charge.get("id")
+            
+            # Extract payment method details
+            payment_method = charge.get("payment_method")
+            if payment_method == "credit_card":
+                card_info = charge.get("last_transaction", {}).get("card", {})
+                self.pagarme_card_brand = card_info.get("brand")
+                self.pagarme_card_last_digits = card_info.get("last_four_digits")
+        
+        # Store order ID if available
+        if "order" in response:
+            self.pagarme_order_id = response["order"].get("id")
+
+        # Store additional metadata
+        if hasattr(self, "provider_reference"):
+            self.provider_reference = self.pagarme_transaction_id
+        
         # Set transaction state based on response status
         status = response.get("status", "").lower()
         
@@ -382,40 +407,6 @@ class PaymentTransaction(models.Model):
             self._set_pending()
             
         return response
-
-    def _pagarme_process_transaction_response(self, response_data):
-        """Process the response from Pagar.me transaction API."""
-        if not response_data:
-            raise UserError(_("Empty response from Pagar.me"))
-            
-        # Extract transaction information following Pagar.me API v5 structure
-        self.pagarme_transaction_id = response_data.get("id")
-        self.pagarme_status = response_data.get("status")
-        
-        # Extract charge information if available
-        charges = response_data.get("charges", [])
-        if charges:
-            charge = charges[0]  # Usually one charge per transaction
-            self.pagarme_charge_id = charge.get("id")
-            
-            # Extract payment method details
-            payment_method = charge.get("payment_method")
-            if payment_method == "credit_card":
-                card_info = charge.get("last_transaction", {}).get("card", {})
-                self.pagarme_card_brand = card_info.get("brand")
-                self.pagarme_card_last_digits = card_info.get("last_four_digits")
-            
-            # Update transaction status based on charge status
-            charge_status = charge.get("status")
-            self._update_status_from_pagarme_charge(charge_status)
-                
-        # Store order ID if available
-        if "order" in response_data:
-            self.pagarme_order_id = response_data["order"].get("id")
-
-        # Store additional metadata
-        if hasattr(self, "provider_reference"):
-            self.provider_reference = self.pagarme_transaction_id
 
     def _update_status_from_pagarme_charge(self, charge_status):
         """Update transaction status based on Pagar.me charge status."""
@@ -481,16 +472,14 @@ class PaymentTransaction(models.Model):
         
         _logger.info("_get_processing_info called for Pagar.me transaction: %s", self.reference)
         
-        # For Pagar.me, return inline processing configuration 
-        # This is critical - the flow MUST be 'inline' and we must NOT override 'action'
-        # to let Odoo's payment system handle inline forms properly
-        processing_info = {
-            'provider_code': 'pagarme',
-            'reference': self.reference, 
-            'flow': 'inline',  # This forces Odoo to use inline processing
-            'provider_id': self.provider_id.id,
-            'access_token': self.access_token,
-        }
+        # CRITICAL: Get the base processing info first to ensure all required fields are set
+        processing_info = super()._get_processing_info()
+        
+        # For Pagar.me, ensure inline processing flow is set correctly
+        # We must NOT override 'action' to let Odoo handle inline forms properly
+        processing_info.update({
+            'flow': 'inline',  # This is the key - forces Odoo to use inline processing
+        })
         
         _logger.info("Pagar.me processing info (inline flow): %s", processing_info)
         return processing_info

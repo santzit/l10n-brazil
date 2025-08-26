@@ -60,8 +60,9 @@ class PaymentProvider(models.Model):
             _logger.info("Found %d Pagar.me providers", len(pagarme_providers))
             for provider in pagarme_providers:
                 _logger.info("Provider - ID: %s, Name: %s, State: %s", provider.id, provider.name, provider.state)
-                _logger.info("Inline form view ID: %s", provider.inline_form_view_id)
-            
+                _logger.info("Should build inline form: %s", provider._should_build_inline_form())
+                _logger.info("Inline form template: %s", provider._get_inline_form_template())
+                
         return providers
 
     @api.depends('code')
