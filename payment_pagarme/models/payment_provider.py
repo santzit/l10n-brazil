@@ -314,6 +314,28 @@ class PaymentProvider(models.Model):
         
         return template_name
     
+    def _get_specific_processing_values(self, processing_values):
+        """Return Pagar.me-specific processing values for inline form."""
+        res = super()._get_specific_processing_values(processing_values)
+        if self.code != "pagarme":
+            return res
+
+        _logger.info("=== PAGAR.ME PROCESSING VALUES DEBUG (PROVIDER) ===")
+        _logger.info("Provider: %s (ID: %s)", self.name, self.id)
+        _logger.info("Input processing_values: %s", processing_values)
+        
+        # Prepare basic Pagar.me values for inline form
+        pagarme_values = {
+            # Pagar.me specific configuration
+            "api_key": self.pagarme_api_key,
+            "encryption_key": self.pagarme_encryption_key,
+        }
+        
+        _logger.info("Pagarme processing values being returned: %s", {k: ('***' if 'key' in k.lower() else v) for k, v in pagarme_values.items()})
+        _logger.info("=== END PAGAR.ME PROCESSING VALUES DEBUG (PROVIDER) ===")
+        
+        return {**res, **pagarme_values}
+
     def _get_specific_rendering_values(self, tx_sudo, processing_values):
         """Return Pagar.me-specific rendering values to provide context to inline form template."""
         if self.code != 'pagarme':
@@ -341,6 +363,9 @@ class PaymentProvider(models.Model):
             # Pagar.me configuration for frontend
             'api_key': self.pagarme_api_key,
             'encryption_key': self.pagarme_encryption_key,
+            
+            # Transaction object for template
+            'tx': tx_sudo,
         }
         
         _logger.info("Rendering values being returned: %s", {k: ('***' if 'key' in k.lower() else v) for k, v in rendering_values.items()})
