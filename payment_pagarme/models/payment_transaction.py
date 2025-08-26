@@ -73,92 +73,19 @@ class PaymentTransaction(models.Model):
         if self.provider_code != "pagarme":
             return res
 
-        _logger.info("=== PAGAR.ME RENDERING VALUES DEBUG ===")
-        _logger.info("Transaction ID: %s", self.id)
-        _logger.info("Transaction Reference: %s", self.reference)
-        _logger.info("Provider ID: %s", self.provider_id.id if self.provider_id else 'None')
-        _logger.info("Processing values received: %s", processing_values)
-        _logger.info("Transaction state: %s", self.state)
-        
-        # CRITICAL FIX: Ensure transaction always has a reference
-        if not self.reference:
-            _logger.error("CRITICAL: Transaction %s has no reference! This must be fixed before rendering.", self.id)
-            # For debugging purposes, we can continue but this should be addressed
-            
-        # Extract access_token with proper fallback
-        access_token = ''
-        if processing_values and 'access_token' in processing_values:
-            access_token = processing_values['access_token']
-            _logger.info("Access token found in processing_values")
-        elif hasattr(self, 'access_token') and self.access_token:
-            access_token = self.access_token
-            _logger.info("Access token found in transaction object")
-        else:
-            # Generate a temporary access token if none exists
-            access_token = self._generate_access_token()
-            _logger.info("Generated new access token: %s", access_token[:10] + "...")
-            
-        # Use transaction reference directly - it should always be available
-        transaction_reference = self.reference or ""
-        if not transaction_reference:
-            _logger.error("CRITICAL: No transaction reference available!")
+        # Simple logging to verify this method is called
+        _logger.info("Pagar.me: _get_specific_rendering_values called for transaction %s (ref: %s)", self.id, self.reference)
 
-        # Add Pagar.me specific values for transparent checkout
+        # Standard Pagar.me values for inline form
         base_url = self.provider_id.get_base_url()
         pagarme_values = {
             "api_key": self.provider_id.pagarme_api_key,
             "encryption_key": self.provider_id.pagarme_encryption_key,
-            "return_url": f"{base_url}/payment/pagarme/return",
-            "webhook_url": f"{base_url}/payment/pagarme/webhook",
             "amount": int(self.amount * 100),  # Convert to cents
             "currency": self.currency_id.name,
-            "partner_name": self.partner_id.name,
-            "partner_email": self.partner_id.email,
-            "partner_phone": self.partner_id.phone or self.partner_id.mobile,
-            "partner_document": self.partner_id.cnpj_cpf,
-            "customer_type": "company" if self.partner_id.is_company else "individual",
-            # Set the form action to submit to our payment endpoint
-            "form_action": f"{base_url}/payment/pagarme/payment",
-            
-            # CRITICAL: Ensure transaction context is ALWAYS available to template
-            "reference": transaction_reference,
-            "provider_id": self.provider_id.id,
-            "access_token": access_token,
-            "transaction_id": self.id,
-            
-            # Add the transaction object itself to the template context
-            "tx": self,
-            
-            # Add processing_values to template context so template can access them
-            "processing_values": processing_values or {},
         }
         
-        # Add address information
-        if self.partner_id:
-            pagarme_values.update({
-                "billing_address": {
-                    "street": self.partner_id.street or "",
-                    "street_number": self.partner_id.l10n_br_number or "",
-                    "neighborhood": self.partner_id.l10n_br_district or "",
-                    "city": self.partner_id.city or "",
-                    "state": self.partner_id.state_id.code if self.partner_id.state_id else "",
-                    "zipcode": self.partner_id.zip or "",
-                    "country": self.partner_id.country_id.code if self.partner_id.country_id else "BR",
-                    "complement": self.partner_id.street2 or "",
-                }
-            })
-            
-        _logger.info("=== FINAL RENDERING VALUES FOR TEMPLATE ===")
-        _logger.info("Template will receive - reference: %s", pagarme_values.get("reference"))
-        _logger.info("Template will receive - provider_id: %s", pagarme_values.get("provider_id"))
-        _logger.info("Template will receive - access_token: %s", pagarme_values.get("access_token")[:10] + "..." if pagarme_values.get("access_token") else "NONE")
-        _logger.info("Template will receive - transaction_id: %s", pagarme_values.get("transaction_id"))
-        _logger.info("Template will receive - form_action: %s", pagarme_values.get("form_action"))
-        _logger.info("Template will receive - tx object: %s", "YES" if pagarme_values.get("tx") else "NO")
-        _logger.info("=======================================")
-        
-        final_values = {**res, **pagarme_values}
-        return final_values
+        return {**res, **pagarme_values}
 
     def _generate_access_token(self):
         """Generate an access token for the transaction if none exists."""
@@ -526,18 +453,22 @@ class PaymentTransaction(models.Model):
         if self.provider_code != 'pagarme':
             return super()._get_processing_info()
         
-        _logger.info("_get_processing_info called for Pagar.me transaction: %s", self.reference)
+        _logger.info("Pagar.me: _get_processing_info called for transaction %s (ref: %s)", self.id, self.reference)
         
-        # CRITICAL: Get the base processing info first to ensure all required fields are set
+        # Get the base processing info from Odoo core
         processing_info = super()._get_processing_info()
         
-        # For Pagar.me, force inline processing and provide inline form view
+        # Ensure reference is available - this is critical for payment processing
+        if not self.reference:
+            _logger.error("Pagar.me: Transaction %s has no reference! This must be fixed.", self.id)
+        
+        # For Pagar.me, ensure inline processing
         processing_info.update({
-            'flow': 'inline',  # Force inline processing to prevent redirect errors
+            'flow': 'inline',  # Force inline processing
             'inline_form_view_id': self.env.ref('payment_pagarme.inline_form').id,
         })
         
-        _logger.info("Pagar.me processing info (forced inline): %s", processing_info)
+        _logger.info("Pagar.me: processing_info = %s", processing_info)
         return processing_info
 
     def _get_tx_from_notification_data(self, provider_code, notification_data):

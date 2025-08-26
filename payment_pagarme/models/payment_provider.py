@@ -305,14 +305,36 @@ class PaymentProvider(models.Model):
         return True
 
     def _get_inline_form_template(self):
-        """Return the inline form template."""
+        """Return the inline form template with proper context setup."""
         if self.code != 'pagarme':
             return super()._get_inline_form_template()
         
         template_name = 'payment_pagarme.inline_form'
-        _logger.info("_get_inline_form_template called for Pagar.me - returning: %s", template_name)
+        _logger.info("Pagar.me: _get_inline_form_template called - returning: %s", template_name)
         
         return template_name
+
+    def _pagarme_get_form_context(self, tx_sudo):
+        """Prepare context for Pagar.me inline form rendering."""
+        base_url = self.get_base_url()
+        
+        # Ensure transaction has reference
+        if not tx_sudo.reference:
+            _logger.error("Pagar.me: Transaction %s has no reference!", tx_sudo.id)
+            
+        # Basic context for template
+        context = {
+            'reference': tx_sudo.reference,
+            'provider_id': self.id,
+            'access_token': tx_sudo.access_token if hasattr(tx_sudo, 'access_token') and tx_sudo.access_token else '',
+            'amount': int(tx_sudo.amount * 100),  # In cents
+            'currency': tx_sudo.currency_id.name,
+        }
+        
+        _logger.info("Pagar.me: prepared form context - reference: %s, provider_id: %s, access_token: %s", 
+                    context['reference'], context['provider_id'], 'present' if context['access_token'] else 'missing')
+        
+        return context
 
 
 
