@@ -22,15 +22,15 @@ publicWidget.registry.PagarmePaymentForm = publicWidget.Widget.extend({
         console.log('🎯 PAGAR.ME PAYMENT FORM STARTED!');
         console.log('✅ Template rendered successfully - form is ready for payment processing');
         
-        // Show debug information  
+        // Show debug information if available
         const debugInfo = document.getElementById('pagarme_debug_info');
         if (debugInfo) {
             debugInfo.style.display = 'block';
             console.log('🔍 Debug info visible - check form for template context details');
         }
         
-        // CRITICAL: Try to populate missing form fields from page context
-        this._ensureHiddenFieldsPopulated();
+        // CRITICAL: Verify hidden fields are properly populated
+        this._verifyHiddenFields();
         
         // Show success message
         this._showMessage('✅ Pagar.me Ready', 'Payment form loaded successfully. Enter your card details to proceed.', 'success');
@@ -41,54 +41,27 @@ publicWidget.registry.PagarmePaymentForm = publicWidget.Widget.extend({
         return this._super.apply(this, arguments);
     },
 
-    _ensureHiddenFieldsPopulated: function () {
-        console.log('🔧 Checking and ensuring hidden fields are populated...');
-        
-        // Try to get reference from various possible sources
+    _verifyHiddenFields: function () {
         const referenceField = $('input[name="reference"]');
         const providerIdField = $('input[name="provider_id"]');
         const accessTokenField = $('input[name="access_token"]');
         
-        console.log('📋 Current field values:');
-        console.log('  - Reference:', referenceField.val());
-        console.log('  - Provider ID:', providerIdField.val());
-        console.log('  - Access Token:', accessTokenField.val());
+        console.log('📋 Verifying form field values:');
+        console.log('  - Reference:', referenceField.val() || 'MISSING');
+        console.log('  - Provider ID:', providerIdField.val() || 'MISSING');
+        console.log('  - Access Token:', accessTokenField.val() ? 'Present' : 'MISSING');
         
-        // Try to populate reference from URL parameters if empty
+        // Alert if critical fields are missing
         if (!referenceField.val()) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const refFromUrl = urlParams.get('reference') || urlParams.get('ref');
-            if (refFromUrl) {
-                console.log('🔧 Setting reference from URL:', refFromUrl);
-                referenceField.val(refFromUrl);
-            }
+            console.error('❌ CRITICAL: Reference field is empty! This will cause payment to fail.');
+            this._showMessage('⚠️ Warning', 'Transaction reference is missing. Payment may fail.', 'warning');
         }
-        
-        // Try to populate provider ID from container ID if empty
         if (!providerIdField.val()) {
-            const containerId = this.$el.attr('id');
-            if (containerId) {
-                const providerIdMatch = containerId.match(/o_pagarme_payment_container_(\d+)/);
-                if (providerIdMatch) {
-                    console.log('🔧 Setting provider ID from container:', providerIdMatch[1]);
-                    providerIdField.val(providerIdMatch[1]);
-                }
-            }
+            console.error('❌ CRITICAL: Provider ID field is empty!');
         }
-        
-        // Try to get access token from form context or other payment forms
         if (!accessTokenField.val()) {
-            const otherTokenField = $('input[name="access_token"]').not(accessTokenField).first();
-            if (otherTokenField.length && otherTokenField.val()) {
-                console.log('🔧 Setting access token from other form field');
-                accessTokenField.val(otherTokenField.val());
-            }
+            console.error('❌ CRITICAL: Access token field is empty!');
         }
-        
-        console.log('📋 Final field values after population attempt:');
-        console.log('  - Reference:', referenceField.val());
-        console.log('  - Provider ID:', providerIdField.val());
-        console.log('  - Access Token:', accessTokenField.val());
     },
 
     _overridePaymentProcessing: function () {
@@ -177,10 +150,10 @@ publicWidget.registry.PagarmePaymentForm = publicWidget.Widget.extend({
         const providerIdField = $('input[name="provider_id"]');
         const accessTokenField = $('input[name="access_token"]');
         
-        console.log('🔍 Form field debug:');
-        console.log('  - Reference field found:', referenceField.length, 'value:', referenceField.val());
-        console.log('  - Provider ID field found:', providerIdField.length, 'value:', providerIdField.val());
-        console.log('  - Access token field found:', accessTokenField.length, 'value:', accessTokenField.val());
+        console.log('🔍 Gathering form data:');
+        console.log('  - Reference:', referenceField.val() || 'MISSING');
+        console.log('  - Provider ID:', providerIdField.val() || 'MISSING');
+        console.log('  - Access token:', accessTokenField.val() ? 'Present' : 'MISSING');
         
         const formData = {
             reference: referenceField.val() || '',
@@ -193,15 +166,6 @@ publicWidget.registry.PagarmePaymentForm = publicWidget.Widget.extend({
             pagarme_card_cvv: $('#pagarme_card_cvv').val(),
             pagarme_installments: 1,
         };
-        
-        console.log('📋 Form data gathered:', {
-            reference: formData.reference,
-            provider_id: formData.provider_id,
-            has_access_token: !!formData.access_token,
-            card_ending: formData.pagarme_card_number.slice(-4),
-            holder_name: formData.pagarme_card_holder_name,
-            exp_date: formData.pagarme_card_exp_month + '/' + formData.pagarme_card_exp_year,
-        });
         
         // Check if critical fields are missing
         if (!formData.reference) {

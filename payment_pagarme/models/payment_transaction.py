@@ -73,6 +73,9 @@ class PaymentTransaction(models.Model):
         if self.provider_code != "pagarme":
             return res
 
+        _logger.info("_get_specific_rendering_values called for Pagar.me transaction: %s", self.reference)
+        _logger.info("Processing values received: %s", processing_values)
+
         # Add Pagar.me specific values for transparent checkout
         base_url = self.provider_id.get_base_url()
         pagarme_values = {
@@ -80,7 +83,6 @@ class PaymentTransaction(models.Model):
             "encryption_key": self.provider_id.pagarme_encryption_key,
             "return_url": f"{base_url}/payment/pagarme/return",
             "webhook_url": f"{base_url}/payment/pagarme/webhook",
-            "reference": self.reference,
             "amount": int(self.amount * 100),  # Convert to cents
             "currency": self.currency_id.name,
             "partner_name": self.partner_id.name,
@@ -90,6 +92,15 @@ class PaymentTransaction(models.Model):
             "customer_type": "company" if self.partner_id.is_company else "individual",
             # Set the form action to submit to our payment endpoint
             "form_action": f"{base_url}/payment/pagarme/payment",
+            
+            # CRITICAL: Ensure transaction context is available to template
+            "reference": self.reference,
+            "provider_id": self.provider_id.id,
+            "access_token": processing_values.get('access_token', '') if processing_values else '',
+            "transaction_id": self.id,
+            
+            # Add processing_values to template context so template can access them
+            "processing_values": processing_values or {},
         }
         
         # Add address information
@@ -106,6 +117,8 @@ class PaymentTransaction(models.Model):
                     "complement": self.partner_id.street2 or "",
                 }
             })
+            
+        _logger.info("Pagar.me rendering values: %s", {k: v for k, v in pagarme_values.items() if k not in ['api_key', 'encryption_key']})
         
         return {**res, **pagarme_values}
 
