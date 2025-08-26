@@ -109,6 +109,9 @@ class PaymentTransaction(models.Model):
             "access_token": access_token,
             "transaction_id": self.id,
             
+            # Add the transaction object itself to the template context
+            "tx": self,
+            
             # Add processing_values to template context so template can access them
             "processing_values": processing_values or {},
         }

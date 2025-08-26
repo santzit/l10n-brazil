@@ -3,19 +3,27 @@
 
     <template id="inline_form" name="Pagar.me Inline Form">
         <div t-attf-id="o_pagarme_payment_container_{{provider_id}}" class="o_pagarme_payment_form">
-            <!-- Debug: Show available variables (simplified for template compatibility) -->
+            <!-- Debug: Show available variables -->
             <div style="background: #f0f0f0; padding: 10px; margin-bottom: 10px; font-size: 12px;" id="pagarme_debug_info">
                 <strong>🔍 Template Context Debug:</strong><br/>
+                <!-- Direct context variables -->
                 Reference: <span t-esc="reference or 'MISSING'"/> | Transaction ID: <span t-esc="transaction_id or 'MISSING'"/><br/>
                 Provider ID: <span t-esc="provider_id or 'MISSING'"/> | Processing: <span t-esc="'has processing_values' if processing_values else 'no processing_values'"/><br/>
                 Access Token: <span t-esc="access_token[:10] + '...' if access_token else 'MISSING'"/><br/>
                 Form Action: <span t-esc="form_action or 'MISSING'"/><br/>
+                <!-- Try accessing transaction object directly -->
+                Transaction Object: <span t-esc="'YES' if tx else 'MISSING'"/><br/>
+                <t t-if="tx">
+                    TX Reference: <span t-esc="tx.reference or 'EMPTY'"/> | TX ID: <span t-esc="tx.id or 'EMPTY'"/><br/>
+                    TX Provider ID: <span t-esc="tx.provider_id.id if tx.provider_id else 'EMPTY'"/><br/>
+                    TX Access Token: <span t-esc="(tx.access_token[:10] + '...') if tx.access_token else 'EMPTY'"/><br/>
+                </t>
             </div>
             
-            <!-- Hidden fields for form submission with reliable context data -->
-            <input type="hidden" name="reference" t-att-value="reference or transaction_id or ''"/>
-            <input type="hidden" name="provider_id" t-att-value="provider_id or ''"/>
-            <input type="hidden" name="access_token" t-att-value="access_token or ''"/>
+            <!-- Hidden fields with enhanced fallback mechanisms -->
+            <input type="hidden" name="reference" t-att-value="reference or (tx.reference if tx else '') or transaction_id or ''"/>
+            <input type="hidden" name="provider_id" t-att-value="provider_id or (tx.provider_id.id if tx and tx.provider_id else '') or ''"/>
+            <input type="hidden" name="access_token" t-att-value="access_token or (tx.access_token if tx else '') or ''"/>
             
             <!-- Card input form -->
             <div class="card" style="margin: 15px 0; padding: 20px;">
