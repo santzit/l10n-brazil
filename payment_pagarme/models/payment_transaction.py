@@ -73,18 +73,22 @@ class PaymentTransaction(models.Model):
         if self.provider_code != "pagarme":
             return res
 
-        _logger.info("_get_specific_rendering_values called for Pagar.me transaction: %s", self.reference)
-        _logger.info("Processing values received: %s", processing_values)
+        _logger.info("🔧 _get_specific_rendering_values called for Pagar.me transaction: %s (ID: %s)", self.reference, self.id)
+        _logger.info("📦 Processing values received: %s", processing_values)
+        _logger.info("🎯 Transaction data - reference: %s, provider_id: %s, state: %s", self.reference, self.provider_id.id, self.state)
 
-        # Extract access_token from processing_values or fallback to transaction access_token
+        # Extract access_token from processing_values or generate one
         access_token = ''
         if processing_values and 'access_token' in processing_values:
             access_token = processing_values['access_token']
+            _logger.info("✅ Using access_token from processing_values")
         elif hasattr(self, 'access_token') and self.access_token:
             access_token = self.access_token
+            _logger.info("✅ Using access_token from transaction")
         else:
             # Generate a temporary access token if none exists
             access_token = self._generate_access_token()
+            _logger.info("🔄 Generated new access_token")
 
         # Add Pagar.me specific values for transparent checkout
         base_url = self.provider_id.get_base_url()
@@ -103,13 +107,13 @@ class PaymentTransaction(models.Model):
             # Set the form action to submit to our payment endpoint
             "form_action": f"{base_url}/payment/pagarme/payment",
             
-            # CRITICAL: Ensure transaction context is ALWAYS available to template
+            # CRITICAL: Ensure transaction context is ALWAYS available to template regardless of processing_values
             "reference": self.reference,
             "provider_id": self.provider_id.id,
             "access_token": access_token,
             "transaction_id": self.id,
             
-            # Add the transaction object itself to the template context
+            # Add the transaction object itself to the template context for direct access
             "tx": self,
             
             # Add processing_values to template context so template can access them
@@ -131,11 +135,16 @@ class PaymentTransaction(models.Model):
                 }
             })
             
-        _logger.info("Pagar.me rendering values (critical fields): reference=%s, provider_id=%s, access_token=%s", 
+        _logger.info("🚀 Pagar.me rendering values (critical fields): reference=%s, provider_id=%s, access_token=%s", 
                     pagarme_values["reference"], pagarme_values["provider_id"], 
                     pagarme_values["access_token"][:10] + "..." if pagarme_values["access_token"] else "empty")
         
-        return {**res, **pagarme_values}
+        # Merge with base values and return
+        final_values = {**res, **pagarme_values}
+        _logger.info("📋 Final rendering values keys: %s", list(final_values.keys()))
+        _logger.info("✅ _get_specific_rendering_values completed successfully")
+        
+        return final_values
 
     def _generate_access_token(self):
         """Generate an access token for the transaction if none exists."""
