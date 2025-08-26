@@ -76,6 +76,16 @@ class PaymentTransaction(models.Model):
         _logger.info("_get_specific_rendering_values called for Pagar.me transaction: %s", self.reference)
         _logger.info("Processing values received: %s", processing_values)
 
+        # Extract access_token from processing_values or fallback to transaction access_token
+        access_token = ''
+        if processing_values and 'access_token' in processing_values:
+            access_token = processing_values['access_token']
+        elif hasattr(self, 'access_token') and self.access_token:
+            access_token = self.access_token
+        else:
+            # Generate a temporary access token if none exists
+            access_token = self._generate_access_token()
+
         # Add Pagar.me specific values for transparent checkout
         base_url = self.provider_id.get_base_url()
         pagarme_values = {
@@ -93,10 +103,10 @@ class PaymentTransaction(models.Model):
             # Set the form action to submit to our payment endpoint
             "form_action": f"{base_url}/payment/pagarme/payment",
             
-            # CRITICAL: Ensure transaction context is available to template
+            # CRITICAL: Ensure transaction context is ALWAYS available to template
             "reference": self.reference,
             "provider_id": self.provider_id.id,
-            "access_token": processing_values.get('access_token', '') if processing_values else '',
+            "access_token": access_token,
             "transaction_id": self.id,
             
             # Add processing_values to template context so template can access them
@@ -118,9 +128,16 @@ class PaymentTransaction(models.Model):
                 }
             })
             
-        _logger.info("Pagar.me rendering values: %s", {k: v for k, v in pagarme_values.items() if k not in ['api_key', 'encryption_key']})
+        _logger.info("Pagar.me rendering values (critical fields): reference=%s, provider_id=%s, access_token=%s", 
+                    pagarme_values["reference"], pagarme_values["provider_id"], 
+                    pagarme_values["access_token"][:10] + "..." if pagarme_values["access_token"] else "empty")
         
         return {**res, **pagarme_values}
+
+    def _generate_access_token(self):
+        """Generate an access token for the transaction if none exists."""
+        import uuid
+        return str(uuid.uuid4())
 
     def _send_payment_request(self):
         """Send the payment request to Pagar.me."""
@@ -492,10 +509,6 @@ class PaymentTransaction(models.Model):
         processing_info.update({
             'flow': 'inline',  # Force inline processing to prevent redirect errors
             'inline_form_view_id': self.env.ref('payment_pagarme.inline_form').id,
-            # CRITICAL: Add transaction context data to ensure template has access to it
-            'reference': self.reference,
-            'provider_id': self.provider_id.id,
-            'access_token': getattr(self, 'access_token', '') or processing_info.get('access_token', ''),
         })
         
         _logger.info("Pagar.me processing info (forced inline): %s", processing_info)
