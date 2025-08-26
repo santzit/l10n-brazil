@@ -63,17 +63,43 @@ publicWidget.registry.PagarmePaymentForm = publicWidget.Widget.extend({
 
     _onFormSubmit: function (ev) {
         console.log('💳 Pagar.me form submitted');
+        ev.preventDefault(); // Always prevent default form submission
         
         // Validate form before submission
         if (!this._validateForm()) {
-            ev.preventDefault();
             this._showMessage('❌ Error', 'Please fill in all required card details.', 'error');
             return false;
         }
         
-        // Let the form submit to the endpoint specified in _get_processing_info
-        console.log('✅ Form validation passed, submitting to Pagar.me endpoint');
+        console.log('✅ Form validation passed, processing payment via AJAX');
         this._showMessage('⏳ Processing', 'Processing payment...', 'info');
+        
+        // Process payment via AJAX to avoid redirect form processing
+        this._processPayment();
+    },
+
+    _processPayment: function () {
+        console.log('📤 Processing payment via AJAX to avoid redirect form processing');
+        
+        // Use AJAX to submit payment data to avoid Odoo's redirect processing
+        this.$el.ajaxSubmit({
+            url: '/payment/pagarme/payment',
+            type: 'POST',
+            timeout: 30000,
+            success: (response) => {
+                console.log('✅ Payment processed successfully');
+                this._showMessage('✅ Success', 'Payment completed successfully!', 'success');
+                // Redirect to payment status page
+                setTimeout(() => {
+                    window.location.href = '/payment/status';
+                }, 2000);
+            },
+            error: (xhr, status, error) => {
+                console.error('❌ Payment processing failed:', error);
+                const errorMsg = xhr.responseJSON?.message || 'Payment processing failed. Please try again.';
+                this._showMessage('❌ Error', errorMsg, 'error');
+            }
+        });
     },
 
     _validateForm: function () {

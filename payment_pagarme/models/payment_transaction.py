@@ -481,20 +481,18 @@ class PaymentTransaction(models.Model):
         
         _logger.info("_get_processing_info called for Pagar.me transaction: %s", self.reference)
         
-        # Get the standard processing info first
-        processing_info = super()._get_processing_info()
-        
-        # For Pagar.me, override to specify inline processing with proper endpoint
-        base_url = self.provider_id.get_base_url()
-        processing_info.update({
+        # For Pagar.me, return inline processing configuration 
+        # This is critical - the flow MUST be 'inline' and we must NOT override 'action'
+        # to let Odoo's payment system handle inline forms properly
+        processing_info = {
             'provider_code': 'pagarme',
-            'reference': self.reference,
-            'flow': 'inline',  # Explicitly specify inline flow
-            'action': f'{base_url}/payment/pagarme/payment',  # Custom processing endpoint
-            'method': 'POST',
-        })
+            'reference': self.reference, 
+            'flow': 'inline',  # This forces Odoo to use inline processing
+            'provider_id': self.provider_id.id,
+            'access_token': self.access_token,
+        }
         
-        _logger.info("Pagar.me processing info: %s", processing_info)
+        _logger.info("Pagar.me processing info (inline flow): %s", processing_info)
         return processing_info
 
     def _get_tx_from_notification_data(self, provider_code, notification_data):
