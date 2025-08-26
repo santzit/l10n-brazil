@@ -22,15 +22,40 @@ class PaymentTransaction(models.Model):
         if self.provider_code != "pagarme":
             return res
 
-        # Pagar.me specific values for inline form
+        # Ensure access token is available
+        if not self.access_token:
+            self.access_token = self._generate_access_token()
+
+        # Provide transaction context data that the template needs
         pagarme_values = {
+            # Template context variables (required by inline form)
+            "reference": self.reference,
+            "provider_id": self.provider_id.id,
+            "access_token": self.access_token,
+            "amount": self.amount,
+            
+            # Pagar.me specific configuration
             "api_key": self.provider_id.pagarme_api_key,
             "encryption_key": self.provider_id.pagarme_encryption_key,
-            "amount": int(self.amount * 100),  # Convert to cents
             "currency": self.currency_id.name,
         }
         
         return {**res, **pagarme_values}
+
+    def _generate_access_token(self):
+        """Generate access token for transaction if not present."""
+        if self.provider_code != "pagarme":
+            return super()._generate_access_token() if hasattr(super(), '_generate_access_token') else None
+            
+        # Use the standard Odoo access token generation
+        if hasattr(self, '_portal_ensure_token'):
+            return self._portal_ensure_token()
+        else:
+            # Fallback to manual generation
+            import uuid
+            token = str(uuid.uuid4())
+            self.access_token = token
+            return token
 
     def _send_payment_request(self):
         """Send the payment request to Pagar.me."""

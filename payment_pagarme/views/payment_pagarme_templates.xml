@@ -3,12 +3,12 @@
 
     <template id="inline_form" name="Pagar.me Inline Form">
         <div t-attf-id="o_pagarme_payment_container_{{provider_id}}" class="o_pagarme_payment_form">
-            <!-- Simple debug information -->
-            <div style="background: #f0f0f0; padding: 10px; margin-bottom: 10px; font-size: 12px;" id="pagarme_debug_info">
-                <strong>🔍 Pagar.me Form Debug:</strong><br/>
+            <!-- Debug information to verify context variables -->
+            <div style="background: #f8f9fa; padding: 10px; margin-bottom: 15px; font-size: 12px; border-radius: 5px;" id="pagarme_debug_info">
+                <strong>🔍 Pagar.me Form Context:</strong><br/>
                 Reference: <span t-esc="reference or 'MISSING'"/><br/>
                 Provider ID: <span t-esc="provider_id or 'MISSING'"/><br/>
-                Access Token: <span t-esc="('Present' if access_token else 'MISSING')"/><br/>
+                Access Token: <span t-esc="('Present: ' + str(access_token)[:20] + '...' if access_token else 'MISSING')"/><br/>
                 Amount: <span t-esc="amount or 'MISSING'"/><br/>
             </div>
             
