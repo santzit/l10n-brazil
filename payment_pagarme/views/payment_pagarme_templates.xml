@@ -6,33 +6,39 @@
             <!-- Enhanced debug information to see ALL available variables -->
             <div style="background: #f0f0f0; padding: 10px; margin-bottom: 10px; font-size: 12px;" id="pagarme_debug_info">
                 <strong>🔍 Pagar.me Template Debug:</strong><br/>
-                <!-- Check if standard Odoo payment variables are available -->
+                <!-- Check direct context variables -->
                 Reference: <span t-esc="reference or 'MISSING'"/><br/>
                 Provider ID: <span t-esc="provider_id or 'MISSING'"/><br/>
                 Access Token: <span t-esc="('Present: ' + access_token[:20] + '...') if access_token else 'MISSING'"/><br/>
                 Transaction ID: <span t-esc="transaction_id or 'MISSING'"/><br/>
                 Amount: <span t-esc="amount or 'MISSING'"/><br/>
                 Currency: <span t-esc="currency or 'MISSING'"/><br/>
-                <!-- Check if we have any transaction object -->
-                TX Object: <span t-esc="'YES' if tx else 'MISSING'"/><br/>
+                
+                <!-- Check transaction object -->
+                TX Object: <span t-esc="'Present' if tx else 'MISSING'"/><br/>
                 <t t-if="tx">
                     TX Ref: <span t-esc="tx.reference or 'EMPTY'"/><br/>
                     TX Provider: <span t-esc="tx.provider_id.id if tx.provider_id else 'EMPTY'"/><br/>
+                    TX Access Token: <span t-esc="('Present' if tx.access_token else 'MISSING') if hasattr(tx, 'access_token') else 'NO_ATTR'"/><br/>
                 </t>
+                
                 <!-- Check processing_values -->
-                Processing Values: <span t-esc="'YES' if processing_values else 'MISSING'"/><br/>
+                Processing Values: <span t-esc="'Present' if processing_values else 'MISSING'"/><br/>
                 <t t-if="processing_values">
                     Processing Ref: <span t-esc="processing_values.get('reference') or 'EMPTY'"/><br/>
+                    Processing Provider: <span t-esc="processing_values.get('provider_id') or 'EMPTY'"/><br/>
                 </t>
             </div>
             
-            <!-- Use multiple fallback strategies for hidden fields -->
+            <!-- Multiple fallback strategies for critical hidden fields -->
             <input type="hidden" name="reference" 
                    t-att-value="reference or (tx.reference if tx else '') or (processing_values.get('reference') if processing_values else '') or ''"/>
+            
             <input type="hidden" name="provider_id" 
-                   t-att-value="provider_id or (tx.provider_id.id if tx and tx.provider_id else '') or ''"/>
+                   t-att-value="provider_id or (tx.provider_id.id if tx and tx.provider_id else '') or (processing_values.get('provider_id') if processing_values else '') or ''"/>
+            
             <input type="hidden" name="access_token" 
-                   t-att-value="access_token or (tx.access_token if tx and hasattr(tx, 'access_token') else '') or ''"/>
+                   t-att-value="access_token or (tx.access_token if tx and hasattr(tx, 'access_token') else '') or (processing_values.get('access_token') if processing_values else '') or ''"/>
             
             <!-- Card input form -->
             <div class="card" style="margin: 15px 0; padding: 20px;">

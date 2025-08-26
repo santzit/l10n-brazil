@@ -73,24 +73,43 @@ class PaymentTransaction(models.Model):
         if self.provider_code != "pagarme":
             return res
 
-        # Simple logging to verify this method is called
+        # Debug logging to verify this method is called
         _logger.info("Pagar.me: _get_specific_rendering_values called for transaction %s (ref: %s)", self.id, self.reference)
+        _logger.info("Pagar.me: processing_values = %s", processing_values)
+
+        # Ensure transaction has required fields
+        if not self.reference:
+            _logger.error("Pagar.me: Transaction %s missing reference!", self.id)
+        if not hasattr(self, 'access_token') or not self.access_token:
+            # Generate access token if missing
+            self.access_token = self._generate_access_token()
+            _logger.info("Pagar.me: Generated access token for transaction %s", self.id)
 
         # Standard Pagar.me values for inline form
-        base_url = self.provider_id.get_base_url()
         pagarme_values = {
             "api_key": self.provider_id.pagarme_api_key,
             "encryption_key": self.provider_id.pagarme_encryption_key,
             "amount": int(self.amount * 100),  # Convert to cents
             "currency": self.currency_id.name,
+            # CRITICAL: Ensure transaction context is available in template
+            "reference": self.reference,
+            "provider_id": self.provider_id.id,
+            "access_token": self.access_token,
+            "tx": self,  # Provide transaction object for template
         }
+        
+        _logger.info("Pagar.me: returning rendering values with reference=%s, provider_id=%s", 
+                    pagarme_values.get('reference'), pagarme_values.get('provider_id'))
         
         return {**res, **pagarme_values}
 
     def _generate_access_token(self):
         """Generate an access token for the transaction if none exists."""
         import uuid
-        return str(uuid.uuid4())
+        token = str(uuid.uuid4())
+        # Store the token in the transaction record
+        self.write({'access_token': token})
+        return token
 
     def _send_payment_request(self):
         """Send the payment request to Pagar.me."""
@@ -462,13 +481,26 @@ class PaymentTransaction(models.Model):
         if not self.reference:
             _logger.error("Pagar.me: Transaction %s has no reference! This must be fixed.", self.id)
         
-        # For Pagar.me, ensure inline processing
+        # Ensure access token exists
+        if not hasattr(self, 'access_token') or not self.access_token:
+            self.access_token = self._generate_access_token()
+            _logger.info("Pagar.me: Generated access token for transaction %s", self.id)
+        
+        # For Pagar.me, ensure inline processing with proper context
         processing_info.update({
             'flow': 'inline',  # Force inline processing
             'inline_form_view_id': self.env.ref('payment_pagarme.inline_form').id,
+            # CRITICAL: Inject transaction context directly into processing_info
+            'reference': self.reference,
+            'provider_id': self.provider_id.id,
+            'access_token': self.access_token,
+            'tx': self,  # Provide transaction object
+            'amount': self.amount,
+            'currency': self.currency_id,
         })
         
-        _logger.info("Pagar.me: processing_info = %s", processing_info)
+        _logger.info("Pagar.me: processing_info updated with context - reference=%s, provider_id=%s", 
+                    processing_info.get('reference'), processing_info.get('provider_id'))
         return processing_info
 
     def _get_tx_from_notification_data(self, provider_code, notification_data):
