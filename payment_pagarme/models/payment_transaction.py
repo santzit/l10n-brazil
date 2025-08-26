@@ -22,9 +22,16 @@ class PaymentTransaction(models.Model):
         if self.provider_code != "pagarme":
             return res
 
+        _logger.info("=== PAGAR.ME PROCESSING VALUES DEBUG ===")
+        _logger.info("Transaction: %s (ID: %s)", self.reference, self.id)
+        _logger.info("Provider: %s (ID: %s)", self.provider_id.name, self.provider_id.id)
+        _logger.info("State: %s", self.state)
+        _logger.info("Amount: %s %s", self.amount, self.currency_id.name)
+
         # Ensure access token is available
         if not self.access_token:
             self.access_token = self._generate_access_token()
+            _logger.info("Generated new access token for transaction %s", self.reference)
 
         # Provide transaction context data that the template needs
         pagarme_values = {
@@ -39,6 +46,9 @@ class PaymentTransaction(models.Model):
             "encryption_key": self.provider_id.pagarme_encryption_key,
             "currency": self.currency_id.name,
         }
+        
+        _logger.info("Pagarme values being returned: %s", {k: ('***' if 'key' in k.lower() else v) for k, v in pagarme_values.items()})
+        _logger.info("=== END PAGAR.ME PROCESSING VALUES DEBUG ===")
         
         return {**res, **pagarme_values}
 
