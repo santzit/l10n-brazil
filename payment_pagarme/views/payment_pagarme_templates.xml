@@ -3,10 +3,20 @@
 
     <template id="inline_form" name="Pagar.me Inline Form">
         <div t-attf-id="o_pagarme_payment_container_{{payment_option_id or provider_id or id}}" class="o_pagarme_payment_form">
+            <!-- Debug: Show available variables -->
+            <div style="background: #f0f0f0; padding: 10px; margin-bottom: 10px; font-size: 12px; display: none;" id="pagarme_debug_info">
+                <strong>🔍 Template Context Debug:</strong><br/>
+                Reference: <span t-esc="reference"/> | <span t-esc="res.get('reference', 'missing')"/><br/>
+                Provider ID: <span t-esc="provider_id"/> | <span t-esc="res.get('provider_id', 'missing')"/><br/>  
+                Access Token: <span t-esc="access_token"/> | <span t-esc="res.get('access_token', 'missing')"/><br/>
+                Payment Option ID: <span t-esc="payment_option_id"/><br/>
+                ID: <span t-esc="id"/><br/>
+            </div>
+            
             <!-- Hidden fields for form submission -->
-            <input type="hidden" name="reference" t-att-value="reference"/>
-            <input type="hidden" name="provider_id" t-att-value="provider_id"/>
-            <input type="hidden" name="access_token" t-att-value="access_token"/>
+            <input type="hidden" name="reference" t-att-value="reference or res.get('reference', '')"/>
+            <input type="hidden" name="provider_id" t-att-value="provider_id or res.get('provider_id', '')"/>
+            <input type="hidden" name="access_token" t-att-value="access_token or res.get('access_token', '')"/>
             
             <!-- Card input form -->
             <div class="card" style="margin: 15px 0; padding: 20px;">

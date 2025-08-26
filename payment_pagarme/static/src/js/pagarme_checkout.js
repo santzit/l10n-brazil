@@ -22,6 +22,13 @@ publicWidget.registry.PagarmePaymentForm = publicWidget.Widget.extend({
         console.log('🎯 PAGAR.ME PAYMENT FORM STARTED!');
         console.log('✅ Template rendered successfully - form is ready for payment processing');
         
+        // Show debug information  
+        const debugInfo = document.getElementById('pagarme_debug_info');
+        if (debugInfo) {
+            debugInfo.style.display = 'block';
+            console.log('🔍 Debug info visible - check form for template context details');
+        }
+        
         // Show success message
         this._showMessage('✅ Pagar.me Ready', 'Payment form loaded successfully. Enter your card details to proceed.', 'success');
         
@@ -113,10 +120,19 @@ publicWidget.registry.PagarmePaymentForm = publicWidget.Widget.extend({
     },
 
     _gatherFormData: function () {
+        const referenceField = $('input[name="reference"]');
+        const providerIdField = $('input[name="provider_id"]');
+        const accessTokenField = $('input[name="access_token"]');
+        
+        console.log('🔍 Form field debug:');
+        console.log('  - Reference field found:', referenceField.length, 'value:', referenceField.val());
+        console.log('  - Provider ID field found:', providerIdField.length, 'value:', providerIdField.val());
+        console.log('  - Access token field found:', accessTokenField.length, 'value:', accessTokenField.val());
+        
         const formData = {
-            reference: $('input[name="reference"]').val(),
-            provider_id: $('input[name="provider_id"]').val(),
-            access_token: $('input[name="access_token"]').val(),
+            reference: referenceField.val() || '',
+            provider_id: providerIdField.val() || '',
+            access_token: accessTokenField.val() || '',
             pagarme_card_number: $('#pagarme_card_number').val().replace(/\s/g, ''),
             pagarme_card_holder_name: $('#pagarme_card_holder').val(),
             pagarme_card_exp_month: $('#pagarme_card_exp_month').val(),
@@ -133,6 +149,17 @@ publicWidget.registry.PagarmePaymentForm = publicWidget.Widget.extend({
             holder_name: formData.pagarme_card_holder_name,
             exp_date: formData.pagarme_card_exp_month + '/' + formData.pagarme_card_exp_year,
         });
+        
+        // Check if critical fields are missing
+        if (!formData.reference) {
+            console.error('❌ CRITICAL: Reference is missing from form data!');
+        }
+        if (!formData.provider_id) {
+            console.error('❌ CRITICAL: Provider ID is missing from form data!');
+        }
+        if (!formData.access_token) {
+            console.error('❌ CRITICAL: Access token is missing from form data!');
+        }
         
         return formData;
     },
