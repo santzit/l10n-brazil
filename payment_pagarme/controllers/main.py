@@ -597,6 +597,40 @@ class PagarmeController(http.Controller):
             return json.dumps(error_response)
 
     @http.route(
+        "/payment/pagarme/checkout",
+        type="http",
+        auth="public",
+        methods=["GET"],
+        csrf=False,
+        save_session=False,
+    )
+    def pagarme_checkout(self, **params):
+        """Render Pagar.me checkout page for redirect payment."""
+        _logger.info("Pagar.me: rendering checkout page")
+        
+        reference = params.get("reference")
+        if not reference:
+            return request.redirect("/payment/process")
+            
+        # Find the transaction
+        tx_sudo = request.env["payment.transaction"].sudo().search([
+            ("reference", "=", reference),
+            ("provider_code", "=", "pagarme"),
+        ])
+        
+        if not tx_sudo:
+            _logger.error("Pagar.me: no transaction found for reference %s", reference)
+            return request.redirect("/payment/process")
+            
+        # Render simple checkout page (in real implementation, this would redirect to Pagar.me)
+        return request.render("payment_pagarme.checkout_page", {
+            "tx": tx_sudo,
+            "reference": reference,
+            "amount": tx_sudo.amount,
+            "currency": tx_sudo.currency_id,
+        })
+
+    @http.route(
         "/payment/pagarme/return",
         type="http",
         auth="public",
@@ -610,6 +644,9 @@ class PagarmeController(http.Controller):
         
         # Handle the return data and redirect appropriately
         reference = post.get("reference")
+        status = post.get("status", "unknown")
+        transaction_id = post.get("transaction_id")
+        
         if not reference:
             _logger.error("Pagar.me: missing reference in return data")
             return request.redirect("/payment/process")
@@ -624,9 +661,28 @@ class PagarmeController(http.Controller):
             _logger.error("Pagar.me: no transaction found for reference %s", reference)
             return request.redirect("/payment/process")
             
-        # Process the return data
+        # Process the return data based on status
         try:
-            tx_sudo._handle_notification_data("pagarme", post)
+            notification_data = {
+                "id": transaction_id or f"sim_{reference}",
+                "status": "paid" if status == "success" else "canceled" if status == "cancel" else "failed",
+                "metadata": {
+                    "odoo_reference": reference,
+                    "odoo_partner_id": str(tx_sudo.partner_id.id),
+                    "odoo_transaction_id": str(tx_sudo.id),
+                }
+            }
+            
+            # Update transaction with provider reference
+            if transaction_id:
+                tx_sudo.provider_reference = transaction_id
+                
+            # Process notification data to update transaction state
+            tx_sudo._process_notification_data(notification_data)
+            
+            _logger.info("Pagar.me: return processed successfully for transaction %s with status %s", 
+                        reference, status)
+                        
         except ValidationError as e:
             _logger.error("Pagar.me: validation error processing return data: %s", e)
             

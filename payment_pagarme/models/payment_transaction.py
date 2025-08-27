@@ -24,7 +24,7 @@ class PaymentTransaction(models.Model):
         Note: self.ensure_one() from `_get_processing_values`
 
         :param dict processing_values: The generic processing values of the transaction
-        :return: The dict of provider-specific processing values (for JavaScript frontend)
+        :return: The dict of provider-specific processing values
         :rtype: dict
         """
         res = super()._get_specific_processing_values(processing_values)
@@ -34,23 +34,77 @@ class PaymentTransaction(models.Model):
         _logger.info("=== PAGAR.ME TRANSACTION _get_specific_processing_values CALLED ===")
         _logger.info("Transaction: %s (ID: %s, state: %s)", self.reference, self.id, self.state)
 
-        # Convert amount to cents for Pagar.me API
-        converted_amount = payment_utils.to_minor_currency_units(
-            self.amount, self.currency_id
-        )
-        
-        _logger.info("Providing Pagar.me processing values for transaction: %s", self.reference)
-        _logger.info("Processing values reference: %s", processing_values.get('reference', 'NOT_SET'))
-        _logger.info("Converted amount: %s cents", converted_amount)
+        # For redirect checkout, generate checkout URL
+        checkout_url = self._create_pagarme_checkout_url(processing_values)
         
         return {
-            'converted_amount': converted_amount,
-            'access_token': payment_utils.generate_access_token(
-                processing_values['reference'],
-                converted_amount,
-                self.currency_id.id,
-                processing_values['partner_id']
-            )
+            'checkout_url': checkout_url,
+            'api_key': self.provider_id.pagarme_api_key,
+        }
+
+    def _create_pagarme_checkout_url(self, processing_values):
+        """Create Pagar.me checkout URL for redirect payment."""
+        if self.provider_code != 'pagarme':
+            return None
+            
+        # Prepare checkout data for Pagar.me
+        base_url = self.provider_id.get_base_url()
+        
+        # Create checkout session data
+        checkout_data = {
+            "success_url": f"{base_url}/payment/pagarme/return?reference={self.reference}&status=success",
+            "cancel_url": f"{base_url}/payment/pagarme/return?reference={self.reference}&status=cancel",
+            "payment_method": "credit_card",
+            "amount": int(self.amount * 100),  # Amount in cents
+            "currency": "BRL",
+            "customer": self._get_pagarme_customer_data(),
+            "metadata": {
+                "odoo_reference": self.reference,
+                "odoo_partner_id": str(self.partner_id.id),
+                "odoo_transaction_id": str(self.id),
+            }
+        }
+        
+        try:
+            # For now, return a mock checkout URL. In real implementation,
+            # this would create a checkout session with Pagar.me API
+            return f"/payment/pagarme/checkout?reference={self.reference}"
+        except Exception as e:
+            _logger.error("Error creating Pagar.me checkout URL: %s", e)
+            return None
+
+    def _get_pagarme_customer_data(self):
+        """Get customer data for Pagar.me checkout."""
+        partner = self.partner_id
+        document = partner.cnpj_cpf or ""
+        clean_document = document.replace(".", "").replace("-", "").replace("/", "")
+        
+        if len(clean_document) == 11:
+            document_type = "cpf"
+            customer_type = "individual"
+        elif len(clean_document) == 14:
+            document_type = "cnpj" 
+            customer_type = "company"
+        else:
+            # Fallback for invalid documents
+            clean_document = "00000000000"
+            document_type = "cpf"
+            customer_type = "individual"
+
+        return {
+            "name": partner.name or "Customer",
+            "email": partner.email or "customer@example.com",
+            "document": clean_document,
+            "document_type": document_type,
+            "type": customer_type,
+            "address": {
+                "street": partner.street or "Unknown",
+                "street_number": partner.street2 or "S/N",
+                "city": partner.city or "Unknown",
+                "state": partner.state_id.code if partner.state_id else "SP",
+                "zip_code": partner.zip.replace("-", "") if partner.zip else "00000000",
+                "country": "BR",
+            }
         }
 
     def _handle_feedback_data(self, provider_code, feedback_data):

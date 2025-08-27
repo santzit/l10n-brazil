@@ -59,7 +59,7 @@ class PaymentProvider(models.Model):
             'support_manual_capture': False,
             'support_refund': 'partial',
             'support_tokenization': False,
-            'support_express_checkout': False,
+            'support_express_checkout': True,  # Enable redirect checkout
         })
 
     @api.depends("code")
@@ -83,6 +83,12 @@ class PaymentProvider(models.Model):
                     raise ValidationError(_("Pagar.me API key must start with 'sk_'"))
 
     #=== BUSINESS METHODS ===#
+
+    def _get_redirect_form_view(self, is_validation=False):
+        """Return the form view for redirect payment flow."""
+        if self.code != 'pagarme':
+            return super()._get_redirect_form_view(is_validation)
+        return self.env.ref('payment_pagarme.redirect_form')
 
     def _pagarme_make_request(self, endpoint, data=None, method="POST"):
         """Make a request to Pagar.me API."""
