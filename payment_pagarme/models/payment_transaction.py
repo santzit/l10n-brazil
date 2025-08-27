@@ -33,62 +33,22 @@ class PaymentTransaction(models.Model):
 
         _logger.info("=== PAGAR.ME TRANSACTION _get_specific_processing_values CALLED ===")
         _logger.info("Transaction: %s (ID: %s, state: %s)", self.reference, self.id, self.state)
-        _logger.info("Processing values keys: %s", list(processing_values.keys()) if processing_values else "None")
 
         # Ensure access token is generated  
         if not self.access_token:
             self._portal_ensure_token()
-        access_token = self.access_token
         
-        _logger.info("Generated/retrieved access token: %s...", access_token[:20] + "..." if access_token else "None")
-
-        # Provide transaction context to template
+        # Return Pagar.me-specific configuration values
         pagarme_values = {
             'api_key': self.provider_id.pagarme_api_key,
             'encryption_key': self.provider_id.pagarme_encryption_key,
-            'reference': self.reference,
-            'provider_id': self.provider_id.id,
-            'access_token': access_token,
-            'amount': self.amount,
-            'currency': self.currency_id,
-            'tx': self,
         }
         
-        _logger.info("Providing context to template: reference=%s, provider_id=%s, access_token=%s...", 
-                    pagarme_values['reference'], pagarme_values['provider_id'], 
-                    pagarme_values['access_token'][:20] + "..." if pagarme_values['access_token'] else "None")
+        _logger.info("Providing Pagar.me config: api_key=%s..., encryption_key=%s...", 
+                    pagarme_values['api_key'][:20] + "..." if pagarme_values['api_key'] else "None",
+                    pagarme_values['encryption_key'][:20] + "..." if pagarme_values['encryption_key'] else "None")
         
         return {**res, **pagarme_values}
-
-    def _get_specific_rendering_values(self, processing_values):
-        """ Override to provide rendering context for Pagar.me inline form.
-        
-        This method is called during template rendering to provide transaction context.
-        """
-        if self.provider_code != 'pagarme':
-            return {}
-
-        _logger.info("=== PAGAR.ME TRANSACTION _get_specific_rendering_values CALLED ===")
-        _logger.info("Transaction: %s (ID: %s, state: %s)", self.reference, self.id, self.state)
-
-        # Ensure access token is available
-        if not self.access_token:
-            self._portal_ensure_token()
-
-        rendering_values = {
-            'reference': self.reference,
-            'provider_id': self.provider_id.id,
-            'access_token': self.access_token,
-            'amount': self.amount,
-            'currency': self.currency_id,
-            'tx': self,
-        }
-        
-        _logger.info("Providing rendering context: reference=%s, provider_id=%s, access_token=%s...", 
-                    rendering_values['reference'], rendering_values['provider_id'], 
-                    rendering_values['access_token'][:20] + "..." if rendering_values['access_token'] else "None")
-        
-        return rendering_values
 
     def _send_payment_request(self):
         """Send the payment request to Pagar.me."""
