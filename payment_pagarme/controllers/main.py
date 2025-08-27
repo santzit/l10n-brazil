@@ -23,45 +23,65 @@ class PagarmeController(http.Controller):
         save_session=False,
     )
     def pagarme_payments(self, **post):
-        """Handle Pagar.me payment processing following Adyen pattern."""
-        _logger.info("Pagar.me: processing payment following Adyen pattern")
+        """Handle Pagar.me payment processing with direct transaction creation."""
+        _logger.info("Pagar.me: processing payment with direct transaction creation")
         _logger.info("Pagar.me: received payment data: %s", {k: ('***' if 'card' in k.lower() or 'cvv' in k.lower() else v) for k, v in post.items()})
         
         try:
-            # Get required parameters (following Adyen pattern)
+            # Get required parameters for transaction creation
             provider_id = post.get("provider_id")
-            reference = post.get("reference")
-            card_data = post.get("card_data", {})
-            access_token = post.get("access_token")
-            converted_amount = post.get("converted_amount")
+            amount = post.get("amount")
             currency_id = post.get("currency_id")
             partner_id = post.get("partner_id")
+            reference = post.get("reference")
+            card_data = post.get("card_data", {})
             
-            _logger.info("Pagar.me: extracted parameters - provider_id: %s, reference: %s, has_card_data: %s, has_access_token: %s", 
-                        provider_id, reference, bool(card_data), bool(access_token))
+            _logger.info("Pagar.me: extracted parameters - provider_id: %s, amount: %s, currency_id: %s, partner_id: %s, reference: %s, has_card_data: %s", 
+                        provider_id, amount, currency_id, partner_id, reference, bool(card_data))
             
-            if not all([provider_id, reference, card_data, access_token]):
+            if not all([provider_id, amount, currency_id, partner_id, card_data]):
                 missing = []
                 if not provider_id: missing.append("provider_id")
-                if not reference: missing.append("reference") 
+                if not amount: missing.append("amount") 
+                if not currency_id: missing.append("currency_id")
+                if not partner_id: missing.append("partner_id")
                 if not card_data: missing.append("card_data")
-                if not access_token: missing.append("access_token")
                 _logger.error("Pagar.me: missing required parameters: %s", missing)
                 return {"error": f"Missing required parameters: {', '.join(missing)}"}
                 
-            # Find the transaction
-            _logger.info("Pagar.me: searching for transaction with reference: %s, provider_id: %s", reference, provider_id)
-            tx_sudo = request.env["payment.transaction"].sudo().search([
-                ("reference", "=", reference),
-                ("provider_code", "=", "pagarme"),
-                ("provider_id", "=", provider_id),
-            ])
-            
+            # Find or create the transaction
+            if reference:
+                _logger.info("Pagar.me: searching for existing transaction with reference: %s", reference)
+                tx_sudo = request.env["payment.transaction"].sudo().search([
+                    ("reference", "=", reference),
+                    ("provider_code", "=", "pagarme"),
+                    ("provider_id", "=", provider_id),
+                ])
+            else:
+                tx_sudo = None
+                
             if not tx_sudo:
-                _logger.error("Pagar.me: transaction not found for reference: %s, provider_id: %s", reference, provider_id)
-                return {"error": "Transaction not found"}
-            
-            _logger.info("Pagar.me: found transaction: %s (ID: %s, state: %s)", tx_sudo.reference, tx_sudo.id, tx_sudo.state)
+                _logger.info("Pagar.me: creating new transaction")
+                # Create a new transaction
+                provider = request.env["payment.provider"].sudo().browse(provider_id)
+                partner = request.env["res.partner"].sudo().browse(partner_id)
+                currency = request.env["res.currency"].sudo().browse(currency_id)
+                
+                if not reference:
+                    reference = f"PAY-{provider_id}-{partner_id}-{int(amount * 100)}"
+                
+                tx_sudo = request.env["payment.transaction"].sudo().create({
+                    "provider_id": provider_id,
+                    "provider_code": "pagarme",
+                    "reference": reference,
+                    "amount": amount,
+                    "currency_id": currency_id,
+                    "partner_id": partner_id,
+                    "state": "draft",
+                })
+                _logger.info("Pagar.me: created transaction: %s (ID: %s)", tx_sudo.reference, tx_sudo.id)
+            else:
+                _logger.info("Pagar.me: found existing transaction: %s (ID: %s, state: %s)", tx_sudo.reference, tx_sudo.id, tx_sudo.state)
                         
             # Validate required payment data
             required_fields = ["card_number", "card_holder_name", "card_exp_month", "card_exp_year", "card_cvv"]
@@ -126,8 +146,13 @@ class PagarmeController(http.Controller):
                 _logger.error("Pagar.me: error processing transaction response: %s", e)
                 return {"error": "Failed to process payment response"}
             
-            _logger.info("Pagar.me: payment processing completed successfully for transaction %s", reference)
-            return {"resultCode": "success", "message": "Payment processed successfully"}
+            _logger.info("Pagar.me: payment processing completed successfully for transaction %s", tx_sudo.reference)
+            return {
+                "resultCode": "success", 
+                "message": "Payment processed successfully",
+                "reference": tx_sudo.reference,
+                "transaction_id": tx_sudo.id
+            }
             
         except ValidationError as e:
             _logger.error("Pagar.me validation error: %s", e)

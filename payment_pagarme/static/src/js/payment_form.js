@@ -13,7 +13,7 @@ checkoutForm.include({
 
     /**
      * Handle form submission for Pagar.me payments.
-     * Following Adyen pattern: get processing values then process payment.
+     * Use direct payment processing without intermediate transaction creation.
      *
      * @private
      * @param {object} state - The form state
@@ -23,37 +23,25 @@ checkoutForm.include({
     _pagarmeOnSubmit: function (state, provider) {
         console.log('🚀 Pagar.me: Processing payment submission');
         
-        // Create the transaction and retrieve the processing values (following Adyen pattern)
+        // Get card data from form
+        const formData = this._getPagarmeFormData();
+        
+        // Validate form data
+        if (!this._validatePagarmeForm(formData)) {
+            throw new Error('Invalid form data');
+        }
+        
+        // Process payment directly using our own route without needing transaction context
         return this._rpc({
-            route: this.txContext.transactionRoute,
-            params: this._prepareTransactionRouteParams('pagarme', provider.id, 'direct'),
-        }).then(processingValues => {
-            console.log('✅ Pagar.me: Got processing values with reference:', processingValues.reference);
-            
-            // Store the reference for later use (following Adyen pattern)
-            this.pagarmeReference = processingValues.reference;
-            
-            // Get card data from form
-            const formData = this._getPagarmeFormData();
-            
-            // Validate form data
-            if (!this._validatePagarmeForm(formData)) {
-                throw new Error('Invalid form data');
-            }
-            
-            // Initiate the payment
-            return this._rpc({
-                route: '/payment/pagarme/payments',
-                params: {
-                    'provider_id': provider.id,
-                    'reference': processingValues.reference,
-                    'converted_amount': processingValues.converted_amount,
-                    'currency_id': processingValues.currency_id,
-                    'partner_id': processingValues.partner_id,
-                    'access_token': processingValues.access_token,
-                    'card_data': formData,
-                },
-            });
+            route: '/payment/pagarme/payments',
+            params: {
+                'provider_id': provider.id,
+                'amount': state.data.amount,
+                'currency_id': state.data.currency_id,
+                'partner_id': state.data.partner_id,
+                'reference': state.data.reference,
+                'card_data': formData,
+            },
         }).then(paymentResponse => {
             console.log('💳 Pagar.me: Payment response received');
             if (paymentResponse.error) {
