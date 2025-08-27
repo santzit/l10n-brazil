@@ -104,7 +104,7 @@ class PaymentProvider(models.Model):
     def _pagarme_make_request(self, endpoint, data=None, method="POST"):
         """Make a request to Pagar.me API."""
         if self.code != "pagarme":
-            return super()._pagarme_make_request(endpoint, data, method)
+            raise UserError(_("This method is only available for Pagar.me providers"))
 
         if not self.pagarme_api_key:
             raise UserError(_("Pagar.me API key is not configured"))
