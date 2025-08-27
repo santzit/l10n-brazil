@@ -15,7 +15,35 @@ publicWidget.registry.PagarmeFormEnhancements = publicWidget.Widget.extend({
 
     start: function () {
         console.log('🎯 Pagar.me form enhancements initialized');
+        
+        // Access and log reference information for debugging
+        const referenceInput = this.$('input[name="reference"]');
+        if (referenceInput.length) {
+            const reference = referenceInput.val();
+            console.log('📝 Pagar.me: Transaction reference from form:', reference);
+        }
+        
         return this._super.apply(this, arguments);
+    },
+
+    /**
+     * Get transaction reference for Pagar.me processing
+     */
+    getTransactionReference: function () {
+        const referenceInput = this.$('input[name="reference"]');
+        return referenceInput.length ? referenceInput.val() : null;
+    },
+
+    /**
+     * Get all Pagar.me form data including reference
+     */
+    getPagarmeFormData: function () {
+        return {
+            reference: this.getTransactionReference(),
+            provider_id: this.$('input[name="provider_id"]').val(),
+            access_token: this.$('input[name="access_token"]').val(),
+            encryption_key: this.$('input[name="encryption_key"]').val(),
+        };
     },
 
     /**

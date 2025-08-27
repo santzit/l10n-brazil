@@ -41,7 +41,7 @@ class PaymentTransaction(models.Model):
             
         # Provide transaction context AND processing configuration for transparent checkout
         pagarme_values = {
-            # Essential transaction context that template needs
+            # Essential transaction context that template needs (using self.reference directly)
             'reference': self.reference,
             'provider_id': self.provider_id.id,
             'access_token': access_token,
@@ -53,8 +53,8 @@ class PaymentTransaction(models.Model):
             'encryption_key': self.provider_id.pagarme_encryption_key,
         }
         
-        _logger.info("Providing processing values with transaction context: reference=%s, provider_id=%s, access_token=%s...", 
-                    pagarme_values['reference'], 
+        _logger.info("Providing processing values with transaction reference: %s, provider_id=%s, access_token=%s...", 
+                    self.reference,
                     pagarme_values['provider_id'], 
                     pagarme_values['access_token'][:20] + "..." if pagarme_values['access_token'] else "None")
         
