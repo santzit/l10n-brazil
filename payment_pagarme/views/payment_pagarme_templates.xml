@@ -11,12 +11,14 @@
                 Access Token: <span t-esc="('Present: ' + str(access_token)[:20] + '...' if access_token else 'MISSING')"/><br/>
                 Amount: <span t-esc="amount or 'MISSING'"/><br/>
                 TX Object: <span t-esc="('Present' if tx else 'MISSING')"/><br/>
+                Encryption Key: <span t-esc="('Present' if encryption_key else 'MISSING')"/><br/>
             </div>
             
             <!-- Hidden fields for transaction data -->
             <input type="hidden" name="reference" t-att-value="reference or ''"/>
             <input type="hidden" name="provider_id" t-att-value="provider_id or ''"/>
             <input type="hidden" name="access_token" t-att-value="access_token or ''"/>
+            <input type="hidden" name="encryption_key" t-att-value="encryption_key or ''"/>
             
             <!-- Card input form -->
             <div class="card" style="margin: 15px 0; padding: 20px;">
@@ -29,8 +31,8 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="pagarme_card_holder" class="required">Nome no Cartão:</label>
-                    <input type="text" id="pagarme_card_holder" name="pagarme_card_holder_name"
+                    <label for="pagarme_card_holder_name" class="required">Nome no Cartão:</label>
+                    <input type="text" id="pagarme_card_holder_name" name="pagarme_card_holder_name"
                            placeholder="Nome conforme impresso no cartão" class="form-control" 
                            autocomplete="cc-name" required="true"/>
                 </div>
@@ -54,9 +56,13 @@
                     </div>
                 </div>
                 
-                <!-- Hidden fields for expiry date components -->
-                <input type="hidden" id="pagarme_card_exp_month" name="pagarme_card_exp_month"/>
-                <input type="hidden" id="pagarme_card_exp_year" name="pagarme_card_exp_year"/>
+                <div class="form-group">
+                    <label for="pagarme_installments">Parcelamento:</label>
+                    <select id="pagarme_installments" name="pagarme_installments" class="form-control">
+                        <option value="1">1x sem juros</option>
+                        <!-- Additional installment options will be loaded dynamically -->
+                    </select>
+                </div>
             </div>
         </div>
     </template>

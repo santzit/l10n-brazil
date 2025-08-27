@@ -20,8 +20,10 @@
     ],
     "assets": {
         "web.assets_frontend": [
-            "payment_pagarme/static/src/js/pagarme_checkout.js",
-            "payment_pagarme/static/src/img/pagarme-icon.png",
+            # Pagar.me official JavaScript SDK for secure card tokenization
+            ("include", "web._assets_helpers"),
+            "https://assets.pagar.me/pagarme-js/4.11.0/pagarme.min.js",
+            "payment_pagarme/static/src/js/payment_form.js",
         ],
     },
     "post_init_hook": "post_init_hook",

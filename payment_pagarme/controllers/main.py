@@ -146,6 +146,111 @@ class PagarmeController(http.Controller):
             return {"status": "error", "message": "Payment processing failed"}
 
     @http.route(
+        "/payment/pagarme/process_transparent",
+        type="json",
+        auth="public",
+        methods=["POST"],
+        csrf=False,
+        save_session=False,
+    )
+    def pagarme_process_transparent(self, **post):
+        """Handle Pagar.me transparent checkout with tokenized card hash."""
+        _logger.info("Pagar.me: processing transparent checkout")
+        _logger.info("Pagar.me: received data: %s", {k: ('***' if 'card' in k.lower() or 'hash' in k.lower() else v) for k, v in post.items()})
+        
+        try:
+            # Get required parameters
+            reference = post.get("reference")
+            provider_id = post.get("provider_id")
+            access_token = post.get("access_token")
+            card_hash = post.get("card_hash")
+            installments = int(post.get("installments", 1))
+            
+            if not all([reference, provider_id, card_hash, access_token]):
+                missing = []
+                if not reference: missing.append("reference")
+                if not provider_id: missing.append("provider_id") 
+                if not card_hash: missing.append("card_hash")
+                if not access_token: missing.append("access_token")
+                _logger.error("Pagar.me: missing required parameters: %s", missing)
+                return {"status": "error", "message": f"Missing required parameters: {', '.join(missing)}"}
+                
+            # Find the transaction
+            _logger.info("Pagar.me: searching for transaction with reference: %s, provider_id: %s", reference, provider_id)
+            tx_sudo = request.env["payment.transaction"].sudo().search([
+                ("reference", "=", reference),
+                ("provider_code", "=", "pagarme"),
+                ("provider_id", "=", int(provider_id)),
+            ])
+            
+            if not tx_sudo:
+                _logger.error("Pagar.me: transaction not found for reference: %s, provider_id: %s", reference, provider_id)
+                return {"status": "error", "message": "Transaction not found"}
+            
+            _logger.info("Pagar.me: found transaction: %s (ID: %s, state: %s)", tx_sudo.reference, tx_sudo.id, tx_sudo.state)
+                
+            # Validate access token
+            if tx_sudo.access_token != access_token:
+                _logger.error("Pagar.me: invalid access token for transaction %s", reference)
+                return {"status": "error", "message": "Invalid access token"}
+                
+            _logger.info("Pagar.me: access token validated successfully")
+                
+            # Process the payment with tokenized card
+            _logger.info("Pagar.me: creating transaction request with card hash...")
+            try:
+                transaction_data = tx_sudo._send_payment_request()
+                
+                # Add tokenized card data to the transaction
+                transaction_data.update({
+                    "payment": {
+                        "payment_method": "credit_card",
+                        "credit_card": {
+                            "installments": installments,
+                            "statement_descriptor": "PAGARME",
+                            "card_hash": card_hash,  # Use tokenized card instead of raw data
+                        }
+                    }
+                })
+                
+                _logger.info("Pagar.me: transaction request created with tokenized card")
+            except Exception as e:
+                _logger.error("Pagar.me: error creating transaction request: %s", e)
+                return {"status": "error", "message": "Failed to create transaction request"}
+            
+            _logger.info("Pagar.me: sending request to Pagar.me API...")
+            try:
+                response = tx_sudo.provider_id._pagarme_make_request("transactions", transaction_data)
+                _logger.info("Pagar.me: API request completed")
+            except Exception as e:
+                _logger.error("Pagar.me: error making API request: %s", e)
+                return {"status": "error", "message": "Payment gateway communication failed"}
+            
+            # Process the response
+            _logger.info("Pagar.me: processing transaction response...")
+            try:
+                if response.get("id"):
+                    tx_sudo.provider_reference = str(response["id"])
+                
+                tx_sudo._process_notification_data(response)
+                _logger.info("Pagar.me: transaction response processed successfully")
+                _logger.info("Pagar.me: final transaction state: %s", tx_sudo.state)
+            except Exception as e:
+                _logger.error("Pagar.me: error processing transaction response: %s", e)
+                return {"status": "error", "message": "Failed to process payment response"}
+            
+            _logger.info("Pagar.me: transparent payment processing completed successfully for transaction %s", reference)
+            return {
+                "status": "success", 
+                "message": "Payment processed successfully",
+                "redirect_url": "/payment/status"
+            }
+            
+        except Exception as e:
+            _logger.error("Pagar.me: unexpected error processing transparent payment: %s", e, exc_info=True)
+            return {"status": "error", "message": "Payment processing failed"}
+
+    @http.route(
         "/payment/pagarme/get_installments",
         type="json",
         auth="public",
