@@ -6,8 +6,8 @@
         <field name="code">pagarme</field>
         <field name="state">disabled</field>
         <field name="inline_form_view_id" ref="payment_pagarme.inline_form"/>
-        <field name="allow_tokenization">True</field>
-        <field name="support_tokenization">True</field>
+        <field name="allow_tokenization">False</field>
+        <field name="support_tokenization">False</field>
         <field name="image_128" type="base64" file="payment_pagarme/static/description/icon.png"/>
         <field name="display_as">💳 Pagar.me</field>
         <field name="pre_msg">Pague com segurança usando seu cartão de crédito através do Pagar.me.</field>

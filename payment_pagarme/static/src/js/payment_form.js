@@ -13,15 +13,21 @@ checkoutForm.include({
 
     /**
      * Handle form submission for Pagar.me payments.
-     * Use direct payment processing without intermediate transaction creation.
+     * Use direct payment processing with proper Odoo flow integration.
      *
      * @private
-     * @param {object} state - The form state
-     * @param {object} provider - The payment provider
+     * @param {string} providerCode - The provider code
+     * @param {number} providerId - The provider id
+     * @param {object} processingValues - The processing values from Odoo
      * @return {Promise}
      */
-    _pagarmeOnSubmit: function (state, provider) {
-        console.log('🚀 Pagar.me: Processing payment submission');
+    _processDirectFlow: function (providerCode, providerId, processingValues) {
+        if (providerCode !== 'pagarme') {
+            return this._super(...arguments);
+        }
+
+        console.log('💳 Pagar.me: Processing direct payment flow');
+        console.log('Processing values:', processingValues);
         
         // Get card data from form
         const formData = this._getPagarmeFormData();
@@ -31,15 +37,16 @@ checkoutForm.include({
             throw new Error('Invalid form data');
         }
         
-        // Process payment directly using our own route without needing transaction context
+        // Process payment using our controller route with standard Odoo flow
         return this._rpc({
             route: '/payment/pagarme/payments',
             params: {
-                'provider_id': provider.id,
-                'amount': state.data.amount,
-                'currency_id': state.data.currency_id,
-                'partner_id': state.data.partner_id,
-                'reference': state.data.reference,
+                'provider_id': providerId,
+                'reference': processingValues.reference,
+                'access_token': processingValues.access_token,
+                'amount': processingValues.amount,
+                'currency_id': processingValues.currency_id,
+                'partner_id': processingValues.partner_id,
                 'card_data': formData,
             },
         }).then(paymentResponse => {
@@ -47,6 +54,8 @@ checkoutForm.include({
             if (paymentResponse.error) {
                 throw new Error(paymentResponse.error);
             }
+            
+            // Return the response to let Odoo handle the post-processing
             return paymentResponse;
         }).catch(error => {
             console.error('❌ Pagar.me: Payment error:', error);
@@ -217,27 +226,9 @@ checkoutForm.include({
         return Promise.resolve();
     },
 
-    /**
-     * Process the direct payment flow for Pagar.me
-     *
-     * @override
-     * @private
-     * @param {string} providerCode - The provider code
-     * @param {number} providerId - The provider id
-     * @param {object} processingValues - The processing values
-     * @return {Promise}
-     */
-    _processDirectFlow: function (providerCode, providerId, processingValues) {
-        if (providerCode !== 'pagarme') {
-            return this._super(...arguments);
-        }
-
-        console.log('💳 Pagar.me: Processing direct payment flow');
-        return this._pagarmeOnSubmit({ data: processingValues }, { id: providerId });
-    },
 });
 
-// Also add to manage form for token operations (if needed)
+// Also add to manage form for consistency
 manageForm.include({
     _initializePagarmeForm: function () {
         console.log('🎯 Pagar.me: Initializing form enhancements in manage form');
