@@ -84,6 +84,63 @@ class PaymentProvider(models.Model):
 
     #=== BUSINESS METHODS ===#
 
+    def _get_specific_rendering_values(self, processing_values):
+        """ Override to provide rendering context for Pagar.me inline form.
+        
+        This ensures the transaction context is available in the template.
+        """
+        if self.code != 'pagarme':
+            return {}
+
+        _logger.info("=== PAGAR.ME PROVIDER _get_specific_rendering_values CALLED ===") 
+        _logger.info("Processing values keys: %s", list(processing_values.keys()) if processing_values else "None")
+
+        # Extract transaction from processing values
+        tx_sudo = processing_values.get('tx_sudo')
+        if not tx_sudo:
+            _logger.warning("No tx_sudo found in processing_values for provider rendering")
+            return {}
+
+        _logger.info("Found transaction: %s (ID: %s, state: %s)", tx_sudo.reference, tx_sudo.id, tx_sudo.state)
+
+        # Call the transaction's rendering method
+        try:
+            tx_rendering_values = tx_sudo._get_specific_rendering_values(processing_values)
+            _logger.info("Retrieved transaction rendering values: %s", list(tx_rendering_values.keys()))
+            return tx_rendering_values
+        except Exception as e:
+            _logger.error("Error getting transaction rendering values: %s", e)
+            return {}
+
+    def _get_specific_processing_values(self, processing_values):
+        """ Override to provide Pagar.me-specific processing values.
+        
+        This method ensures transaction context is passed to the payment process.
+        """
+        res = super()._get_specific_processing_values(processing_values)
+        if self.code != 'pagarme':
+            return res
+
+        _logger.info("=== PAGAR.ME PROVIDER _get_specific_processing_values CALLED ===")
+        _logger.info("Processing values keys: %s", list(processing_values.keys()) if processing_values else "None")
+
+        # Extract transaction from processing values
+        tx_sudo = processing_values.get('tx_sudo')
+        if not tx_sudo:
+            _logger.warning("No tx_sudo found in processing_values for provider processing")
+            return res
+
+        _logger.info("Found transaction: %s (ID: %s, state: %s)", tx_sudo.reference, tx_sudo.id, tx_sudo.state)
+
+        # Get transaction-specific processing values
+        try:
+            tx_processing_values = tx_sudo._get_specific_processing_values(processing_values)
+            _logger.info("Retrieved transaction processing values: %s", list(tx_processing_values.keys()))
+            return {**res, **tx_processing_values}
+        except Exception as e:
+            _logger.error("Error getting transaction processing values: %s", e)
+            return res
+
     def _pagarme_make_request(self, endpoint, data=None, method="POST"):
         """Make a request to Pagar.me API."""
         if self.code != "pagarme":
