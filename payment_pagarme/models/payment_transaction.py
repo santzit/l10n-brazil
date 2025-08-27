@@ -34,29 +34,13 @@ class PaymentTransaction(models.Model):
         _logger.info("=== PAGAR.ME TRANSACTION _get_specific_processing_values CALLED ===")
         _logger.info("Transaction: %s (ID: %s, state: %s)", self.reference, self.id, self.state)
 
-        # Generate access token using standard payment utilities
-        access_token = payment_utils.generate_access_token(
-            self.partner_id.id, self.amount, self.currency_id.id
-        )
-            
-        # Provide transaction context AND processing configuration for transparent checkout
+        # Return only Pagar.me-specific processing configuration (not template context)
         pagarme_values = {
-            # Essential transaction context that template needs (using self.reference directly)
-            'reference': self.reference,
-            'provider_id': self.provider_id.id,
-            'access_token': access_token,
-            'amount': self.amount,
-            'currency': self.currency_id,
-            'tx': self,
-            # Configuration values for JavaScript processing 
             'api_key': self.provider_id.pagarme_api_key,
             'encryption_key': self.provider_id.pagarme_encryption_key,
         }
         
-        _logger.info("Providing processing values with transaction reference: %s, provider_id=%s, access_token=%s...", 
-                    self.reference,
-                    pagarme_values['provider_id'], 
-                    pagarme_values['access_token'][:20] + "..." if pagarme_values['access_token'] else "None")
+        _logger.info("Providing Pagar.me processing configuration for transaction: %s", self.reference)
         
         return {**res, **pagarme_values}
 
