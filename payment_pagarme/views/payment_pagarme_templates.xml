@@ -2,21 +2,21 @@
 <odoo>
 
     <template id="inline_form" name="Pagar.me Inline Form">
-        <div t-attf-id="o_pagarme_payment_container_{{provider_id or (tx and tx.provider_id.id)}}" class="o_pagarme_payment_form">
+        <div t-attf-id="o_pagarme_payment_container_{{provider_id}}" class="o_pagarme_payment_form">
             <!-- Debug information to verify context variables -->
             <div style="background: #f8f9fa; padding: 10px; margin-bottom: 15px; font-size: 12px; border-radius: 5px;" id="pagarme_debug_info">
                 <strong>🔍 Pagar.me Form Debug:</strong><br/>
-                Reference: <span t-esc="reference or (tx and tx.reference) or 'MISSING'"/><br/>
-                Provider ID: <span t-esc="provider_id or (tx and tx.provider_id.id) or 'MISSING'"/><br/>
-                Access Token: <span t-esc="('Present: ' + str(access_token or (tx and tx.access_token) or '')[:20] + '...' if (access_token or (tx and tx.access_token)) else 'MISSING')"/><br/>
-                Amount: <span t-esc="amount or (tx and tx.amount) or 'MISSING'"/><br/>
-                TX Object: <span t-esc="'Present' if tx else 'MISSING'"/><br/>
+                Reference: <span t-esc="reference or 'MISSING'"/><br/>
+                Provider ID: <span t-esc="provider_id or 'MISSING'"/><br/>
+                Access Token: <span t-esc="('Present: ' + str(access_token)[:20] + '...' if access_token else 'MISSING')"/><br/>
+                Amount: <span t-esc="amount or 'MISSING'"/><br/>
+                TX Object: <span t-esc="('Present' if tx else 'MISSING')"/><br/>
             </div>
             
-            <!-- Hidden fields for transaction data with fallback mechanisms -->
-            <input type="hidden" name="reference" t-att-value="reference or (tx and tx.reference) or ''"/>
-            <input type="hidden" name="provider_id" t-att-value="provider_id or (tx and tx.provider_id.id) or ''"/>
-            <input type="hidden" name="access_token" t-att-value="access_token or (tx and tx.access_token) or ''"/>
+            <!-- Hidden fields for transaction data -->
+            <input type="hidden" name="reference" t-att-value="reference or ''"/>
+            <input type="hidden" name="provider_id" t-att-value="provider_id or ''"/>
+            <input type="hidden" name="access_token" t-att-value="access_token or ''"/>
             
             <!-- Card input form -->
             <div class="card" style="margin: 15px 0; padding: 20px;">

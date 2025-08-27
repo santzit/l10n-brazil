@@ -38,15 +38,23 @@ class PaymentTransaction(models.Model):
         if not self.access_token:
             self._portal_ensure_token()
         
-        # Return Pagar.me-specific configuration values
+        # Return both Pagar.me configuration AND transaction context for template
         pagarme_values = {
+            # Configuration values for processing
             'api_key': self.provider_id.pagarme_api_key,
             'encryption_key': self.provider_id.pagarme_encryption_key,
+            # Transaction context for template rendering
+            'reference': self.reference,
+            'provider_id': self.provider_id.id, 
+            'access_token': self.access_token,
+            'amount': self.amount,
+            'currency': self.currency_id,
+            'tx': self,
         }
         
-        _logger.info("Providing Pagar.me config: api_key=%s..., encryption_key=%s...", 
-                    pagarme_values['api_key'][:20] + "..." if pagarme_values['api_key'] else "None",
-                    pagarme_values['encryption_key'][:20] + "..." if pagarme_values['encryption_key'] else "None")
+        _logger.info("Providing Pagar.me values: reference=%s, provider_id=%s, access_token=%s...", 
+                    pagarme_values['reference'], pagarme_values['provider_id'], 
+                    pagarme_values['access_token'][:20] + "..." if pagarme_values['access_token'] else "None")
         
         return {**res, **pagarme_values}
 

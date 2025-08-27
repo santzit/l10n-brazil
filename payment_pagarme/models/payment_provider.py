@@ -84,46 +84,6 @@ class PaymentProvider(models.Model):
 
     #=== BUSINESS METHODS ===#
 
-    def _get_specific_rendering_values(self, processing_values):
-        """ Override to provide rendering context for Pagar.me inline form.
-        
-        This method provides the transaction context needed by the template.
-        """
-        res = super()._get_specific_rendering_values(processing_values)
-        if self.code != 'pagarme':
-            return res
-
-        _logger.info("=== PAGAR.ME PROVIDER _get_specific_rendering_values CALLED ===") 
-        _logger.info("Processing values keys: %s", list(processing_values.keys()) if processing_values else "None")
-
-        # Extract transaction from processing values
-        tx_sudo = processing_values.get('tx_sudo')
-        if not tx_sudo:
-            _logger.warning("No tx_sudo found in processing_values for provider rendering")
-            return res
-
-        _logger.info("Found transaction: %s (ID: %s, state: %s)", tx_sudo.reference, tx_sudo.id, tx_sudo.state)
-
-        # Ensure access token is available
-        if not tx_sudo.access_token:
-            tx_sudo._portal_ensure_token()
-
-        # Provide essential transaction context to the template
-        rendering_values = {
-            'reference': tx_sudo.reference,
-            'provider_id': tx_sudo.provider_id.id,
-            'access_token': tx_sudo.access_token,
-            'amount': tx_sudo.amount,
-            'currency': tx_sudo.currency_id,
-            'tx': tx_sudo,
-        }
-        
-        _logger.info("Providing rendering context: reference=%s, provider_id=%s, access_token=%s...", 
-                    rendering_values['reference'], rendering_values['provider_id'], 
-                    rendering_values['access_token'][:20] + "..." if rendering_values['access_token'] else "None")
-        
-        return {**res, **rendering_values}
-
     def _pagarme_make_request(self, endpoint, data=None, method="POST"):
         """Make a request to Pagar.me API."""
         if self.code != "pagarme":
