@@ -84,6 +84,55 @@ class PaymentProvider(models.Model):
 
     #=== BUSINESS METHODS ===#
 
+    def _get_specific_rendering_values(self, processing_values):
+        """ Override of payment to return Pagar.me-specific rendering values.
+
+        Note: self.ensure_one() from `_get_rendering_values`
+
+        :param dict processing_values: The generic and specific processing values of the transaction
+        :return: The dict of provider-specific rendering values  
+        :rtype: dict
+        """
+        res = super()._get_specific_rendering_values(processing_values)
+        if self.code != 'pagarme':
+            return res
+
+        _logger.info("=== PAGAR.ME PROVIDER _get_specific_rendering_values CALLED ===")
+        
+        # Extract transaction from processing values
+        tx_sudo = processing_values.get('tx_sudo')
+        if not tx_sudo:
+            _logger.error("No transaction found in processing_values")
+            return res
+            
+        _logger.info("Provider rendering for transaction: %s (ID: %s, state: %s)", 
+                    tx_sudo.reference, tx_sudo.id, tx_sudo.state)
+
+        # Ensure access token is generated for the transaction
+        if not tx_sudo.access_token:
+            tx_sudo._portal_ensure_token()
+        
+        # Provide transaction context and configuration to template
+        pagarme_rendering_values = {
+            # Transaction context for template rendering
+            'reference': tx_sudo.reference,
+            'provider_id': self.id, 
+            'access_token': tx_sudo.access_token,
+            'amount': tx_sudo.amount,
+            'currency': tx_sudo.currency_id,
+            'tx': tx_sudo,
+            # Configuration values for JavaScript processing
+            'api_key': self.pagarme_api_key,
+            'encryption_key': self.pagarme_encryption_key,
+        }
+        
+        _logger.info("Providing rendering values: reference=%s, provider_id=%s, access_token=%s...", 
+                    pagarme_rendering_values['reference'], 
+                    pagarme_rendering_values['provider_id'], 
+                    pagarme_rendering_values['access_token'][:20] + "..." if pagarme_rendering_values['access_token'] else "None")
+        
+        return {**res, **pagarme_rendering_values}
+
     def _pagarme_make_request(self, endpoint, data=None, method="POST"):
         """Make a request to Pagar.me API."""
         if self.code != "pagarme":

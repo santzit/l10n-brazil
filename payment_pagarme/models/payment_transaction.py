@@ -34,36 +34,36 @@ class PaymentTransaction(models.Model):
         _logger.info("=== PAGAR.ME TRANSACTION _get_specific_processing_values CALLED ===")
         _logger.info("Transaction: %s (ID: %s, state: %s)", self.reference, self.id, self.state)
 
-        # Ensure access token is generated  
-        if not self.access_token:
-            self._portal_ensure_token()
-        
-        # Return both Pagar.me configuration AND transaction context for template
+        # Return minimal processing configuration for transparent checkout
         pagarme_values = {
-            # Configuration values for processing
             'api_key': self.provider_id.pagarme_api_key,
             'encryption_key': self.provider_id.pagarme_encryption_key,
-            # Transaction context for template rendering
-            'reference': self.reference,
-            'provider_id': self.provider_id.id, 
-            'access_token': self.access_token,
-            'amount': self.amount,
-            'currency': self.currency_id,
-            'tx': self,
         }
         
-        _logger.info("Providing Pagar.me values: reference=%s, provider_id=%s, access_token=%s...", 
-                    pagarme_values['reference'], pagarme_values['provider_id'], 
-                    pagarme_values['access_token'][:20] + "..." if pagarme_values['access_token'] else "None")
+        _logger.info("Providing processing values for transparent checkout")
         
         return {**res, **pagarme_values}
 
+    def _handle_feedback_data(self, provider_code, feedback_data):
+        """Handle feedback data from transparent checkout or webhooks."""
+        if provider_code != "pagarme":
+            return super()._handle_feedback_data(provider_code, feedback_data)
+            
+        _logger.info("Pagar.me: Processing feedback data for transaction %s", self.reference)
+        
+        # Update provider reference if available
+        if feedback_data.get("id"):
+            self.provider_reference = str(feedback_data["id"])
+            
+        # Process notification data to update transaction state
+        self._process_notification_data(feedback_data)
+
     def _send_payment_request(self):
-        """Send the payment request to Pagar.me."""
+        """Prepare payment request data for Pagar.me API (called by controllers in transparent checkout)."""
         if self.provider_code != "pagarme":
             return super()._send_payment_request()
             
-        _logger.info("Pagar.me: Sending payment request for transaction %s", self.reference)
+        _logger.info("Pagar.me: Preparing payment request for transaction %s", self.reference)
         
         # Prepare customer data inline
         partner = self.partner_id
