@@ -16,50 +16,6 @@ class PaymentTransaction(models.Model):
 
     #=== BUSINESS METHODS ===#
 
-    def _get_specific_processing_values(self, processing_values):
-        """Return Pagar.me-specific processing values for inline form."""
-        if self.provider_code != "pagarme":
-            return super()._get_specific_processing_values(processing_values)
-        
-        _logger.info("=== PAGAR.ME TRANSACTION PROCESSING VALUES DEBUG ===")
-        _logger.info("Transaction: %s (ID: %s)", self.reference, self.id)
-        _logger.info("Input processing_values: %s", processing_values)
-        
-        # Ensure access token exists
-        if not self.access_token:
-            self.access_token = self._generate_access_token()
-            
-        # Provide essential transaction context to template
-        pagarme_values = {
-            'reference': self.reference,
-            'provider_id': self.provider_id.id,
-            'access_token': self.access_token,
-            'amount': self.amount,
-            'currency': self.currency_id.name,
-            'api_key': self.provider_id.pagarme_api_key,
-            'encryption_key': self.provider_id.pagarme_encryption_key,
-        }
-        
-        _logger.info("Pagarme processing values being returned: %s", {k: ('***' if 'key' in k.lower() else v) for k, v in pagarme_values.items()})
-        _logger.info("=== END PAGAR.ME TRANSACTION PROCESSING VALUES DEBUG ===")
-        
-        return pagarme_values
-
-    def _generate_access_token(self):
-        """Generate access token for transaction if not present."""
-        if self.provider_code != "pagarme":
-            return super()._generate_access_token() if hasattr(super(), '_generate_access_token') else None
-            
-        # Use the standard Odoo access token generation
-        if hasattr(self, '_portal_ensure_token'):
-            return self._portal_ensure_token()
-        else:
-            # Fallback to manual generation
-            import uuid
-            token = str(uuid.uuid4())
-            self.access_token = token
-            return token
-
     def _send_payment_request(self):
         """Send the payment request to Pagar.me."""
         if self.provider_code != "pagarme":
