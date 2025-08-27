@@ -8,6 +8,8 @@ import requests
 from odoo import _, api, models
 from odoo.exceptions import UserError, ValidationError
 
+from odoo.addons.payment import utils as payment_utils
+
 _logger = logging.getLogger(__name__)
 
 
@@ -15,6 +17,30 @@ class PaymentTransaction(models.Model):
     _inherit = "payment.transaction"
 
     #=== BUSINESS METHODS ===#
+
+    def _get_specific_processing_values(self, processing_values):
+        """ Override of payment to return Pagar.me-specific processing values.
+
+        Note: self.ensure_one() from `_get_processing_values`
+
+        :param dict processing_values: The generic processing values of the transaction
+        :return: The dict of provider-specific processing values
+        :rtype: dict
+        """
+        res = super()._get_specific_processing_values(processing_values)
+        if self.provider_code != 'pagarme':
+            return res
+
+        return {
+            'api_key': self.provider_id.pagarme_api_key,
+            'encryption_key': self.provider_id.pagarme_encryption_key,
+            'access_token': payment_utils.generate_access_token(
+                processing_values['reference'],
+                processing_values['amount'],
+                processing_values['currency_id'],
+                processing_values['partner_id']
+            )
+        }
 
     def _send_payment_request(self):
         """Send the payment request to Pagar.me."""

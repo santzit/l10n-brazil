@@ -84,46 +84,6 @@ class PaymentProvider(models.Model):
 
     #=== BUSINESS METHODS ===#
 
-    def _get_specific_processing_values(self, processing_values):
-        """Return Pagar.me-specific processing values for inline form."""
-        res = super()._get_specific_processing_values(processing_values)
-        if self.code != "pagarme":
-            return res
-
-        _logger.info("=== PAGAR.ME PROVIDER PROCESSING VALUES DEBUG ===")
-        _logger.info("Provider: %s (ID: %s)", self.name, self.id)
-        _logger.info("Input processing_values: %s", processing_values)
-        
-        # Extract transaction from processing_values
-        tx_sudo = processing_values.get('tx_sudo')
-        if not tx_sudo:
-            _logger.error("Pagar.me: No transaction found in processing_values")
-            return res
-            
-        _logger.info("Transaction found: %s (ID: %s, reference: %s)", tx_sudo.reference, tx_sudo.id, tx_sudo.reference)
-        
-        # Ensure access token exists
-        if not tx_sudo.access_token:
-            tx_sudo.access_token = tx_sudo._portal_ensure_token()
-            
-        # Provide essential transaction context to template
-        pagarme_values = {
-            'reference': tx_sudo.reference,
-            'provider_id': self.id,
-            'access_token': tx_sudo.access_token,
-            'amount': tx_sudo.amount,
-            'currency': tx_sudo.currency_id.name,
-            'tx': tx_sudo,  # Provide transaction object to template
-            'api_key': self.pagarme_api_key,
-            'encryption_key': self.pagarme_encryption_key,
-        }
-        
-        _logger.info("Pagarme processing values being returned: %s", {k: ('***' if 'key' in k.lower() else v) for k, v in pagarme_values.items()})
-        _logger.info("=== END PAGAR.ME PROVIDER PROCESSING VALUES DEBUG ===")
-        
-        res.update(pagarme_values)
-        return res
-
     def _pagarme_make_request(self, endpoint, data=None, method="POST"):
         """Make a request to Pagar.me API."""
         if self.code != "pagarme":
