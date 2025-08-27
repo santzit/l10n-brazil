@@ -4,7 +4,8 @@ import { loadJS } from '@web/core/assets';
 import checkoutForm from 'payment.checkout_form';
 import manageForm from 'payment.manage_form';
 
-const pagarMeMixin = {
+// Add Pagar.me functionality to the checkout form
+checkoutForm.include({
 
     //--------------------------------------------------------------------------
     // Private
@@ -207,11 +208,6 @@ const pagarMeMixin = {
             });
         }
     },
-};
-
-// Mix the Pagar.me functionality into the checkout form
-checkoutForm.include({
-    mixins: [pagarMeMixin],
 
     /**
      * Prepare the inline form for Pagar.me provider
@@ -253,9 +249,69 @@ checkoutForm.include({
     },
 });
 
-// Also mix into manage form for token operations
+// Also add to manage form for token operations (if needed)
 manageForm.include({
-    mixins: [pagarMeMixin],
+    _initializePagarmeForm: function () {
+        console.log('🎯 Pagar.me: Initializing form enhancements in manage form');
+        
+        const form = this.el.querySelector('.o_pagarme_payment_form');
+        if (!form) {
+            console.warn('Pagar.me form not found in manage form, skipping initialization');
+            return;
+        }
+
+        // Add input formatting
+        this._setupCardNumberFormatting(form);
+        this._setupExpiryFormatting(form);
+        this._setupCvvFormatting(form);
+        
+        console.log('✅ Pagar.me: Form enhancements initialized in manage form');
+    },
+
+    _setupCardNumberFormatting: function (form) {
+        const cardInput = form.querySelector('#pagarme_card_number');
+        if (cardInput) {
+            cardInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+                value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+                e.target.value = value;
+            });
+        }
+    },
+
+    _setupExpiryFormatting: function (form) {
+        const expiryInput = form.querySelector('#pagarme_card_expiry');
+        const monthInput = form.querySelector('#pagarme_card_exp_month');
+        const yearInput = form.querySelector('#pagarme_card_exp_year');
+        
+        if (expiryInput) {
+            expiryInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                e.target.value = value;
+                
+                // Update hidden month/year fields
+                const parts = value.split('/');
+                if (monthInput && parts[0]) {
+                    monthInput.value = parts[0];
+                }
+                if (yearInput && parts[1]) {
+                    yearInput.value = '20' + parts[1]; // Convert YY to YYYY
+                }
+            });
+        }
+    },
+
+    _setupCvvFormatting: function (form) {
+        const cvvInput = form.querySelector('#pagarme_card_cvv');
+        if (cvvInput) {
+            cvvInput.addEventListener('input', function (e) {
+                e.target.value = e.target.value.replace(/\D/g, '');
+            });
+        }
+    },
 });
 
 console.log('✅ Pagar.me payment form module loaded successfully!');
