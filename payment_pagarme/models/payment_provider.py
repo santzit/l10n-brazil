@@ -74,6 +74,17 @@ class PaymentProvider(models.Model):
 
     #=== CONSTRAINT METHODS ===#
 
+    @api.constrains("state", "pagarme_api_key")
+    def _check_pagarme_configuration(self):
+        """Validate that required Pagar.me configuration is present when enabled.""" 
+        for provider in self:
+            if provider.code == "pagarme" and provider.state in ('enabled', 'test'):
+                if not provider.pagarme_api_key:
+                    raise ValidationError(_(
+                        "Pagar.me API key is required when the provider is enabled. "
+                        "Please configure your Pagar.me credentials before enabling the provider."
+                    ))
+
     @api.constrains("pagarme_api_key")
     def _check_pagarme_api_key(self):
         """Validate Pagar.me API key format."""
