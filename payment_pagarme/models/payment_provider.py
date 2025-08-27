@@ -84,6 +84,52 @@ class PaymentProvider(models.Model):
 
     #=== BUSINESS METHODS ===#
 
+    def _get_specific_processing_values(self, processing_values):
+        """ Override of payment to return Pagar.me-specific processing values.
+
+        Note: self.ensure_one() from `_get_processing_values`
+
+        :param dict processing_values: The generic processing values of the transaction
+        :return: The dict of provider-specific processing values
+        :rtype: dict
+        """
+        res = super()._get_specific_processing_values(processing_values)
+        if self.code != 'pagarme':
+            return res
+
+        _logger.info("=== PAGAR.ME PROVIDER _get_specific_processing_values CALLED ===")
+        _logger.info("Processing values keys: %s", list(processing_values.keys()))
+
+        # Extract transaction from processing values
+        tx_sudo = processing_values.get('tx_sudo')
+        if not tx_sudo:
+            _logger.warning("No tx_sudo found in processing_values")
+            return res
+
+        _logger.info("Transaction found: %s (ID: %s, state: %s)", tx_sudo.reference, tx_sudo.id, tx_sudo.state)
+
+        # Ensure access token is generated  
+        if not tx_sudo.access_token:
+            tx_sudo._portal_ensure_token()
+            _logger.info("Generated access token for transaction: %s", tx_sudo.access_token[:20] + "...")
+
+        # Provide transaction context to template
+        pagarme_values = {
+            'api_key': self.pagarme_api_key,
+            'encryption_key': self.pagarme_encryption_key,
+            'reference': tx_sudo.reference,
+            'provider_id': tx_sudo.provider_id.id,
+            'access_token': tx_sudo.access_token,
+            'amount': tx_sudo.amount,
+            'currency': tx_sudo.currency_id,
+            'tx': tx_sudo,
+        }
+        
+        _logger.info("Providing context to template: reference=%s, provider_id=%s, access_token=%s...", 
+                    pagarme_values['reference'], pagarme_values['provider_id'], pagarme_values['access_token'][:20] + "...")
+        
+        return {**res, **pagarme_values}
+
     def _pagarme_make_request(self, endpoint, data=None, method="POST"):
         """Make a request to Pagar.me API."""
         if self.code != "pagarme":
