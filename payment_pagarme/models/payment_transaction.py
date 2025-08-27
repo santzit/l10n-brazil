@@ -18,6 +18,46 @@ class PaymentTransaction(models.Model):
 
     #=== BUSINESS METHODS ===#
 
+    def _get_specific_processing_values(self, processing_values):
+        """ Override of payment to return Pagar.me-specific processing values.
+
+        Note: self.ensure_one() from `_get_processing_values`
+
+        :param dict processing_values: The generic processing values of the transaction
+        :return: The dict of provider-specific processing values
+        :rtype: dict
+        """
+        res = super()._get_specific_processing_values(processing_values)
+        if self.provider_code != 'pagarme':
+            return res
+
+        _logger.info("=== PAGAR.ME TRANSACTION _get_specific_processing_values CALLED ===")
+        _logger.info("Transaction: %s (ID: %s, state: %s)", self.reference, self.id, self.state)
+
+        # Ensure access token is generated  
+        access_token = payment_utils.generate_access_token(
+            self.partner_id.id, self.amount, self.currency_id.id
+        )
+        
+        _logger.info("Generated access token: %s...", access_token[:20] + "...")
+
+        # Provide transaction context to template
+        pagarme_values = {
+            'api_key': self.provider_id.pagarme_api_key,
+            'encryption_key': self.provider_id.pagarme_encryption_key,
+            'reference': self.reference,
+            'provider_id': self.provider_id.id,
+            'access_token': access_token,
+            'amount': self.amount,
+            'currency': self.currency_id,
+            'tx': self,
+        }
+        
+        _logger.info("Providing context to template: reference=%s, provider_id=%s, access_token=%s...", 
+                    pagarme_values['reference'], pagarme_values['provider_id'], pagarme_values['access_token'][:20] + "...")
+        
+        return {**res, **pagarme_values}
+
     def _send_payment_request(self):
         """Send the payment request to Pagar.me."""
         if self.provider_code != "pagarme":
