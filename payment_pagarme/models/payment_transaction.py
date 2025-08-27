@@ -120,8 +120,8 @@ class PaymentTransaction(models.Model):
             },
             "address": {
                 "street": partner.street or "",
-                "street_number": partner.l10n_br_number or "S/N",
-                "neighborhood": partner.l10n_br_district or "",
+                "street_number": partner.street2 or "S/N",
+                "neighborhood": partner.city or "",
                 "city": partner.city or "",
                 "state": partner.state_id.code if partner.state_id else "",
                 "zip_code": partner.zip.replace("-", "") if partner.zip else "",
@@ -168,7 +168,7 @@ class PaymentTransaction(models.Model):
                 "odoo_reference": self.reference,
                 "odoo_partner_id": str(self.partner_id.id),
                 "odoo_transaction_id": str(self.id),
-                "integration": "odoo_l10n_br",
+                "integration": "odoo_payment",
             },
             "postback_url": f"{self.provider_id.get_base_url()}/payment/pagarme/webhook",
         }

@@ -11,7 +11,6 @@
     "category": "Accounting/Payment Providers",
     "depends": [
         "payment",
-        "l10n_br_base",
     ],
     "data": [
         "views/payment_provider_views.xml",

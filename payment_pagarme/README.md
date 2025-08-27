@@ -161,7 +161,6 @@ This module is specifically designed for the Brazilian market and includes:
 - Brazilian address format support
 - BRL currency handling
 - Installment payment support (common in Brazil)
-- Integration with Brazilian fiscal modules (l10n_br_base)
 
 ## Integration with WooCommerce Plugin
 
