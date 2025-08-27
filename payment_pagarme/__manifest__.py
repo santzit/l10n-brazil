@@ -17,6 +17,11 @@
         "views/payment_pagarme_templates.xml",
         "data/pagarme_provider.xml",
     ],
+    "assets": {
+        "web.assets_frontend": [
+            "payment_pagarme/static/src/js/payment_form.js",
+        ],
+    },
     "post_init_hook": "post_init_hook",
     "uninstall_hook": "uninstall_hook",
     "installable": True,

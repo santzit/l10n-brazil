@@ -24,7 +24,7 @@ class PaymentTransaction(models.Model):
         Note: self.ensure_one() from `_get_processing_values`
 
         :param dict processing_values: The generic processing values of the transaction
-        :return: The dict of provider-specific processing values
+        :return: The dict of provider-specific processing values (for JavaScript frontend)
         :rtype: dict
         """
         res = super()._get_specific_processing_values(processing_values)
@@ -34,13 +34,15 @@ class PaymentTransaction(models.Model):
         _logger.info("=== PAGAR.ME TRANSACTION _get_specific_processing_values CALLED ===")
         _logger.info("Transaction: %s (ID: %s, state: %s)", self.reference, self.id, self.state)
 
-        # Return only Pagar.me-specific processing configuration (not template context)
+        # Return only Pagar.me-specific processing configuration for JavaScript frontend
+        # Note: reference, provider_id, access_token, etc. are provided automatically by Odoo's payment framework
         pagarme_values = {
             'api_key': self.provider_id.pagarme_api_key,
             'encryption_key': self.provider_id.pagarme_encryption_key,
         }
         
         _logger.info("Providing Pagar.me processing configuration for transaction: %s", self.reference)
+        _logger.info("Processing values reference will be available: %s", processing_values.get('reference', 'NOT_SET'))
         
         return {**res, **pagarme_values}
 

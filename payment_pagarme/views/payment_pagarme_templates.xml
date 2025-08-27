@@ -11,14 +11,17 @@
                 Access Token: <span t-esc="('Present: ' + str(access_token)[:20] + '...' if access_token else 'MISSING')"/><br/>
                 Amount: <span t-esc="amount or 'MISSING'"/><br/>
                 TX Object: <span t-esc="('Present' if tx else 'MISSING')"/><br/>
-                Encryption Key: <span t-esc="('Present' if encryption_key else 'MISSING')"/><br/>
+                Encryption Key: <span t-esc="('Present' if api_key else 'MISSING')"/><br/>
             </div>
             
             <!-- Hidden fields for transaction data -->
             <input type="hidden" name="reference" t-att-value="reference or ''"/>
             <input type="hidden" name="provider_id" t-att-value="provider_id or ''"/>
             <input type="hidden" name="access_token" t-att-value="access_token or ''"/>
-            <input type="hidden" name="encryption_key" t-att-value="encryption_key or ''"/>
+            
+            <!-- Hidden fields for expiry month/year (populated by JavaScript) -->
+            <input type="hidden" id="pagarme_card_exp_month" name="pagarme_card_exp_month" value=""/>
+            <input type="hidden" id="pagarme_card_exp_year" name="pagarme_card_exp_year" value=""/>
             
             <!-- Card input form -->
             <div class="card" style="margin: 15px 0; padding: 20px;">
@@ -65,63 +68,6 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Inline JavaScript for form enhancements -->
-        <script type="text/javascript">
-        (function () {
-            'use strict';
-            
-            console.log('🚀 Pagar.me payment form loading...');
-
-            function formatCardNumber(input) {
-                let value = input.value.replace(/\s/g, '').replace(/\D/g, '');
-                value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-                input.value = value;
-            }
-
-            function formatExpiry(input) {
-                let value = input.value.replace(/\D/g, '');
-                if (value.length >= 2) {
-                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
-                }
-                input.value = value;
-            }
-
-            function formatCvv(input) {
-                input.value = input.value.replace(/\D/g, '');
-            }
-
-            // Initialize when DOM is ready
-            document.addEventListener('DOMContentLoaded', function() {
-                // Card number formatting
-                const cardNumberInput = document.getElementById('pagarme_card_number');
-                if (cardNumberInput) {
-                    cardNumberInput.addEventListener('input', function(e) {
-                        formatCardNumber(e.target);
-                    });
-                }
-
-                // Expiry formatting  
-                const expiryInput = document.getElementById('pagarme_card_expiry');
-                if (expiryInput) {
-                    expiryInput.addEventListener('input', function(e) {
-                        formatExpiry(e.target);
-                    });
-                }
-
-                // CVV formatting
-                const cvvInput = document.getElementById('pagarme_card_cvv');
-                if (cvvInput) {
-                    cvvInput.addEventListener('input', function(e) {
-                        formatCvv(e.target);
-                    });
-                }
-
-                console.log('✅ Pagar.me form enhancements initialized');
-            });
-
-        })();
-        </script>
     </template>
 
 </odoo>

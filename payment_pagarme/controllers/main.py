@@ -15,6 +15,128 @@ _logger = logging.getLogger(__name__)
 class PagarmeController(http.Controller):
 
     @http.route(
+        "/payment/pagarme/payments",
+        type="json",
+        auth="public",
+        methods=["POST"],
+        csrf=False,
+        save_session=False,
+    )
+    def pagarme_payments(self, **post):
+        """Handle Pagar.me payment processing following Adyen pattern."""
+        _logger.info("Pagar.me: processing payment following Adyen pattern")
+        _logger.info("Pagar.me: received payment data: %s", {k: ('***' if 'card' in k.lower() or 'cvv' in k.lower() else v) for k, v in post.items()})
+        
+        try:
+            # Get required parameters (following Adyen pattern)
+            provider_id = post.get("provider_id")
+            reference = post.get("reference")
+            card_data = post.get("card_data", {})
+            access_token = post.get("access_token")
+            converted_amount = post.get("converted_amount")
+            currency_id = post.get("currency_id")
+            partner_id = post.get("partner_id")
+            
+            _logger.info("Pagar.me: extracted parameters - provider_id: %s, reference: %s, has_card_data: %s, has_access_token: %s", 
+                        provider_id, reference, bool(card_data), bool(access_token))
+            
+            if not all([provider_id, reference, card_data, access_token]):
+                missing = []
+                if not provider_id: missing.append("provider_id")
+                if not reference: missing.append("reference") 
+                if not card_data: missing.append("card_data")
+                if not access_token: missing.append("access_token")
+                _logger.error("Pagar.me: missing required parameters: %s", missing)
+                return {"error": f"Missing required parameters: {', '.join(missing)}"}
+                
+            # Find the transaction
+            _logger.info("Pagar.me: searching for transaction with reference: %s, provider_id: %s", reference, provider_id)
+            tx_sudo = request.env["payment.transaction"].sudo().search([
+                ("reference", "=", reference),
+                ("provider_code", "=", "pagarme"),
+                ("provider_id", "=", provider_id),
+            ])
+            
+            if not tx_sudo:
+                _logger.error("Pagar.me: transaction not found for reference: %s, provider_id: %s", reference, provider_id)
+                return {"error": "Transaction not found"}
+            
+            _logger.info("Pagar.me: found transaction: %s (ID: %s, state: %s)", tx_sudo.reference, tx_sudo.id, tx_sudo.state)
+                        
+            # Validate required payment data
+            required_fields = ["card_number", "card_holder_name", "card_exp_month", "card_exp_year", "card_cvv"]
+            missing_fields = [field for field in required_fields if not card_data.get(field)]
+            if missing_fields:
+                _logger.error("Pagar.me: missing required payment fields: %s", missing_fields)
+                return {"error": f"Missing required payment information: {', '.join(missing_fields)}"}
+            
+            _logger.info("Pagar.me: payment data validation successful")
+            _logger.info("Pagar.me: payment data overview - card_number: ****%s, installments: %s", 
+                        card_data.get("card_number", "")[-4:] if card_data.get("card_number") else "missing",
+                        card_data.get("installments", "1"))
+                
+            # Process the payment
+            _logger.info("Pagar.me: creating transaction request...")
+            try:
+                transaction_data = tx_sudo._send_payment_request()
+                
+                # Add payment method data
+                transaction_data.update({
+                    "payment": {
+                        "payment_method": "credit_card",
+                        "credit_card": {
+                            "installments": card_data.get("installments", 1),
+                            "statement_descriptor": "PAGARME",
+                            "card": {
+                                "number": card_data["card_number"],
+                                "holder_name": card_data["card_holder_name"],
+                                "exp_month": int(card_data["card_exp_month"]),
+                                "exp_year": int(card_data["card_exp_year"]),
+                                "cvv": card_data["card_cvv"],
+                            }
+                        }
+                    }
+                })
+                
+                _logger.info("Pagar.me: transaction request created successfully")
+                _logger.debug("Pagar.me: transaction request data: %s", {k: ('***' if 'card' in k.lower() else v) for k, v in transaction_data.items()})
+            except Exception as e:
+                _logger.error("Pagar.me: error creating transaction request: %s", e)
+                return {"error": "Failed to create transaction request"}
+            
+            _logger.info("Pagar.me: sending request to Pagar.me API...")
+            try:
+                response = tx_sudo.provider_id._pagarme_make_request("transactions", transaction_data)
+                _logger.info("Pagar.me: API request completed")
+                _logger.debug("Pagar.me: API response: %s", response)
+            except Exception as e:
+                _logger.error("Pagar.me: error making API request: %s", e)
+                return {"error": "Payment gateway communication failed"}
+            
+            # Process the response
+            _logger.info("Pagar.me: processing transaction response...")
+            try:
+                if response.get("id"):
+                    tx_sudo.provider_reference = str(response["id"])
+                
+                tx_sudo._process_notification_data(response)
+                _logger.info("Pagar.me: transaction response processed successfully")
+                _logger.info("Pagar.me: final transaction state: %s", tx_sudo.state)
+            except Exception as e:
+                _logger.error("Pagar.me: error processing transaction response: %s", e)
+                return {"error": "Failed to process payment response"}
+            
+            _logger.info("Pagar.me: payment processing completed successfully for transaction %s", reference)
+            return {"resultCode": "success", "message": "Payment processed successfully"}
+            
+        except ValidationError as e:
+            _logger.error("Pagar.me validation error: %s", e)
+            return {"error": str(e)}
+        except Exception as e:
+            _logger.error("Pagar.me: unexpected error processing payment: %s", e, exc_info=True)
+            return {"error": "Payment processing failed"}
+
+    @http.route(
         "/payment/pagarme/payment",
         type="json",
         auth="public",
