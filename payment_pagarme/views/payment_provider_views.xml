@@ -7,7 +7,7 @@
         <field name="inherit_id" ref="payment.payment_provider_form"/>
         <field name="arch" type="xml">
             <group name="provider_credentials" position="inside">
-                <group attrs="{'invisible': [('code', '!=', 'pagarme')]}" name="pagarme_credentials">
+                <group name="pagarme_credentials" attrs="{'invisible': [('code', '!=', 'pagarme')]}">
                     <field name="pagarme_api_key" attrs="{'required':[('code', '=', 'pagarme'), ('state', '!=', 'disabled')]}" password="True"/>
                     <field name="pagarme_encryption_key" attrs="{'required':[('code', '=', 'pagarme'), ('state', '!=', 'disabled')]}" password="True"/>
                     <field name="pagarme_webhook_url" readonly="1"/>
@@ -16,7 +16,7 @@
                 </group>
             </group>
             <group name="provider_configuration" position="inside">
-                <group attrs="{'invisible': [('code', '!=', 'pagarme')]}" name="pagarme_configuration">
+                <group name="pagarme_configuration" attrs="{'invisible': [('code', '!=', 'pagarme')]}">
                     <field name="support_express_checkout" readonly="1" string="Redirect Checkout"/>
                     <field name="support_refund" readonly="1"/>
                     <field name="support_tokenization" readonly="1"/>
