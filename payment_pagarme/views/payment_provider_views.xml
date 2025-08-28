@@ -10,13 +10,11 @@
                 <group name="pagarme_credentials" attrs="{'invisible': [('code', '!=', 'pagarme')]}">
                     <field name="pagarme_api_key" attrs="{'required':[('code', '=', 'pagarme'), ('state', '!=', 'disabled')]}" password="True"/>
                     <field name="pagarme_encryption_key" attrs="{'required':[('code', '=', 'pagarme'), ('state', '!=', 'disabled')]}" password="True"/>
+                </group>
+                <group name="pagarme_configuration" attrs="{'invisible': [('code', '!=', 'pagarme')]}">
                     <field name="pagarme_webhook_url" readonly="1"/>
                     <field name="pagarme_max_installments"/>
                     <field name="pagarme_min_installment_amount"/>
-                </group>
-            </group>
-            <group name="provider_credentials" position="after">
-                <group name="pagarme_configuration" attrs="{'invisible': [('code', '!=', 'pagarme')]}">
                     <field name="support_express_checkout" readonly="1" string="Redirect Checkout"/>
                     <field name="support_refund" readonly="1"/>
                     <field name="support_tokenization" readonly="1"/>
