@@ -31,52 +31,37 @@ class PaymentTransaction(models.Model):
         if self.provider_code != 'pagarme':
             return res
 
-        _logger.info("=== PAGAR.ME TRANSACTION _get_specific_processing_values CALLED ===")
-        _logger.info("Transaction: %s (ID: %s, state: %s)", self.reference, self.id, self.state)
+        # Convert amount to minor currency units (cents for BRL)
+        converted_amount = payment_utils.to_minor_currency_units(
+            self.amount, self.currency_id
+        )
 
-        # For redirect checkout, generate checkout URL
-        checkout_url = self._create_pagarme_checkout_url(processing_values)
-        
+        # For redirect checkout, return only essential data following Adyen pattern
         return {
-            'checkout_url': checkout_url,
-            'api_key': self.provider_id.pagarme_api_key,
+            'converted_amount': converted_amount,
+            'access_token': payment_utils.generate_access_token(
+                processing_values['reference'],
+                converted_amount,
+                self.currency_id.id,
+                processing_values['partner_id']
+            )
         }
 
     def _create_pagarme_checkout_url(self, processing_values):
-        """Create Pagar.me checkout URL for redirect payment."""
+        """Create Pagar.me checkout URL for redirect payment (simplified for redirect flow)."""
         if self.provider_code != 'pagarme':
             return None
             
-        # Prepare checkout data for Pagar.me
+        # For redirect checkout, we don't need complex checkout URL creation here
+        # The redirect form will handle the submission to our redirect route
         base_url = self.provider_id.get_base_url()
-        
-        # Create checkout session data
-        checkout_data = {
-            "success_url": f"{base_url}/payment/pagarme/return?reference={self.reference}&status=success",
-            "cancel_url": f"{base_url}/payment/pagarme/return?reference={self.reference}&status=cancel",
-            "payment_method": "credit_card",
-            "amount": int(self.amount * 100),  # Amount in cents
-            "currency": "BRL",
-            "customer": self._get_pagarme_customer_data(),
-            "metadata": {
-                "odoo_reference": self.reference,
-                "odoo_partner_id": str(self.partner_id.id),
-                "odoo_transaction_id": str(self.id),
-            }
-        }
-        
-        try:
-            # For now, return a mock checkout URL. In real implementation,
-            # this would create a checkout session with Pagar.me API
-            return f"/payment/pagarme/checkout?reference={self.reference}"
-        except Exception as e:
-            _logger.error("Error creating Pagar.me checkout URL: %s", e)
-            return None
+        return f"{base_url}/payment/pagarme/checkout?reference={self.reference}"
 
     def _get_pagarme_customer_data(self):
         """Get customer data for Pagar.me checkout."""
         partner = self.partner_id
-        document = partner.cnpj_cpf or ""
+        # Use vat field which is the standard field for tax ID (CNPJ/CPF in Brazil)
+        document = partner.vat or ""
         clean_document = document.replace(".", "").replace("-", "").replace("/", "")
         
         if len(clean_document) == 11:
@@ -130,7 +115,8 @@ class PaymentTransaction(models.Model):
         
         # Prepare customer data inline
         partner = self.partner_id
-        document = partner.cnpj_cpf or ""
+        # Use vat field which is the standard field for tax ID (CNPJ/CPF in Brazil)
+        document = partner.vat or ""
         clean_document = document.replace(".", "").replace("-", "").replace("/", "")
         
         if len(clean_document) == 11:

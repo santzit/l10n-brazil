@@ -1,71 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <template id="inline_form" name="Pagar.me Inline Form">
-        <div t-attf-id="o_pagarme_payment_container_{{provider_id}}" class="o_pagarme_payment_form">
-            <!-- Debug information to verify context variables -->
-            <div style="background: #f8f9fa; padding: 10px; margin-bottom: 15px; font-size: 12px; border-radius: 5px;" id="pagarme_debug_info">
-                <strong>🔍 Pagar.me Form Debug:</strong><br/>
-                Reference: <span t-esc="reference or 'MISSING'"/><br/>
-                Provider ID: <span t-esc="provider_id or 'MISSING'"/><br/>
-                Access Token: <span t-esc="('Present: ' + str(access_token)[:20] + '...' if access_token else 'MISSING')"/><br/>
-                Amount: <span t-esc="amount or 'MISSING'"/><br/>
-                TX Object: <span t-esc="('Present' if tx else 'MISSING')"/><br/>
-                Encryption Key: <span t-esc="('Present' if api_key else 'MISSING')"/><br/>
-            </div>
-            
-            <!-- Hidden fields for transaction data -->
-            <input type="hidden" name="reference" t-att-value="reference or ''"/>
-            <input type="hidden" name="provider_id" t-att-value="provider_id or ''"/>
-            <input type="hidden" name="access_token" t-att-value="access_token or ''"/>
-            
-            <!-- Hidden fields for expiry month/year (populated by JavaScript) -->
-            <input type="hidden" id="pagarme_card_exp_month" name="pagarme_card_exp_month" value=""/>
-            <input type="hidden" id="pagarme_card_exp_year" name="pagarme_card_exp_year" value=""/>
-            
-            <!-- Card input form -->
-            <div class="card" style="margin: 15px 0; padding: 20px;">
-                <h5 class="card-title">💳 Dados do Cartão de Crédito</h5>
-                <div class="form-group">
-                    <label for="pagarme_card_number" class="required">Número do Cartão:</label>
-                    <input type="text" id="pagarme_card_number" name="pagarme_card_number" 
-                           placeholder="0000 0000 0000 0000" class="form-control" 
-                           maxlength="19" autocomplete="cc-number" required="true"/>
-                </div>
-                
-                <div class="form-group">
-                    <label for="pagarme_card_holder_name" class="required">Nome no Cartão:</label>
-                    <input type="text" id="pagarme_card_holder_name" name="pagarme_card_holder_name"
-                           placeholder="Nome conforme impresso no cartão" class="form-control" 
-                           autocomplete="cc-name" required="true"/>
-                </div>
-                
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="pagarme_card_expiry" class="required">Validade:</label>
-                            <input type="text" id="pagarme_card_expiry" name="pagarme_card_expiry"
-                                   placeholder="MM/AA" class="form-control" 
-                                   maxlength="5" autocomplete="cc-exp" required="true"/>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="pagarme_card_cvv" class="required">CVV:</label>
-                            <input type="text" id="pagarme_card_cvv" name="pagarme_card_cvv"
-                                   placeholder="123" class="form-control" 
-                                   maxlength="4" autocomplete="cc-csc" required="true"/>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="pagarme_installments">Parcelamento:</label>
-                    <select id="pagarme_installments" name="pagarme_installments" class="form-control">
-                        <option value="1">1x sem juros</option>
-                        <!-- Additional installment options will be loaded dynamically -->
-                    </select>
-                </div>
+    <!-- Note: For Pagar.me redirect checkout, inline form is not needed -->
+    <!-- Payment is processed via redirect to Pagar.me's secure checkout page -->
+    <template id="inline_form" name="Pagar.me Inline Form (Not Used for Redirect)">
+        <div class="o_pagarme_payment_form">
+            <div class="alert alert-info">
+                <strong>Pagamento Seguro via Pagar.me</strong><br/>
+                Você será redirecionado para completar o pagamento de forma segura no Pagar.me.
             </div>
         </div>
     </template>
@@ -77,16 +19,29 @@
                 <p>Você será redirecionado para completar o pagamento de forma segura.</p>
                 <div class="fa fa-spinner fa-spin fa-3x"></div>
                 <p class="mt-3">Se o redirecionamento não funcionar automaticamente, 
-                   <a t-att-href="checkout_url">clique aqui</a>.</p>
+                   <a href="#" onclick="submitPayment()">clique aqui</a>.</p>
             </div>
+            
+            <!-- Hidden form to submit payment data to Pagar.me -->
+            <form id="pagarme_redirect_form" method="post" action="/payment/pagarme/redirect" style="display: none;">
+                <input type="hidden" name="reference" t-att-value="reference"/>
+                <input type="hidden" name="amount" t-att-value="converted_amount"/>
+                <input type="hidden" name="access_token" t-att-value="access_token"/>
+                <input type="hidden" name="partner_id" t-att-value="partner_id"/>
+                <input type="hidden" name="currency_id" t-att-value="currency_id"/>
+                <input type="hidden" name="return_url" t-att-value="return_url"/>
+            </form>
         </div>
         
         <!-- Auto-redirect script -->
         <script type="text/javascript">
+            function submitPayment() {
+                document.getElementById('pagarme_redirect_form').submit();
+            }
+            
+            // Auto-submit after 2 seconds
             setTimeout(function() {
-                if (window.location.href.indexOf('checkout_url') === -1) {
-                    window.location.href = '<t t-raw="checkout_url"/>';
-                }
+                submitPayment();
             }, 2000);
         </script>
     </template>
