@@ -15,7 +15,7 @@
                     <field name="pagarme_min_installment_amount"/>
                 </group>
             </group>
-            <group name="provider_configuration" position="inside">
+            <group name="provider_credentials" position="after">
                 <group name="pagarme_configuration" attrs="{'invisible': [('code', '!=', 'pagarme')]}">
                     <field name="support_express_checkout" readonly="1" string="Redirect Checkout"/>
                     <field name="support_refund" readonly="1"/>
