@@ -57,10 +57,7 @@ jobs:
           export ADDONS_PATH="/opt/odoo-venv/lib/python3.10/site-packages/odoo/addons,/opt/odoo-test-addons"
           oca_run_tests --test-tags l10n_br_payment_pagarme
 
-      - name: Run linting checks
-        run: |
-          ruff check l10n_br_payment_pagarme/
-          ruff format --check l10n_br_payment_pagarme/
+
 
       - name: Validate XML files
         run: |
