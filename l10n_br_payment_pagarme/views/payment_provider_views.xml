@@ -11,10 +11,6 @@
                     <group attrs="{'invisible': [('code', '!=', 'pagarme')]}" name="pagarme_credentials">
                         <field name="pagarme_app_id" attrs="{'required':[('code', '=', 'pagarme'), ('state', '!=', 'disabled')]}"/>
                         <field name="pagarme_api_key" attrs="{'required':[('code', '=', 'pagarme'), ('state', '!=', 'disabled')]}" password="True"/>
-                        <button name="test_pagarme_connection" string="Test Connection" type="object" 
-                                attrs="{'invisible': [('code', '!=', 'pagarme')]}" 
-                                confirm="This will test the connection to Pagar.me API. Continue?"
-                                class="btn-secondary"/>
                     </group>
                 </group>
             </field>

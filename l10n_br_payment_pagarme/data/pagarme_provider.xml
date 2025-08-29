@@ -4,9 +4,9 @@
         <field name="name">Pagar.me</field>
         <field name="code">pagarme</field>
         <field name="state">disabled</field>
-        <!--field name="redirect_form_view_id" ref="redirect_form"/-->
+        <field name="inline_form_view_id" ref="inline_form"/>
         <field name="display_as">💳 Pagar.me</field>
-        <field name="pre_msg">Você será redirecionado para o checkout seguro do Pagar.me para completar o pagamento.</field>
-        <!--field name="image_128" type="base64" file="l10n_br_payment_pagarme/static/description/icon.png"/-->
+        <field name="pre_msg">Pague com segurança usando seu cartão de crédito através do Pagar.me.</field>
+        <field name="image_128" type="base64" file="l10n_br_payment_pagarme/static/description/icon.png"/>
     </record>
 </odoo>
