@@ -75,7 +75,7 @@ class PaymentTransaction(models.Model):
             result = response.json()
 
             # Update transaction with response data
-            self.acquirer_reference = result.get("id")
+            self.provider_reference = result.get("id")
 
             # Set transaction status based on response
             status = result.get("status")
