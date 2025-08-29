@@ -19,30 +19,14 @@
                 <p>Você será redirecionado para completar o pagamento de forma segura.</p>
                 <div class="fa fa-spinner fa-spin fa-3x"></div>
                 <p class="mt-3">Se o redirecionamento não funcionar automaticamente, 
-                   <a href="#" onclick="submitPayment()">clique aqui</a>.</p>
+                   <a t-att-href="api_url" target="_self">clique aqui</a>.</p>
             </div>
-            
-            <!-- Hidden form to submit payment data to Pagar.me -->
-            <form id="pagarme_redirect_form" method="post" action="/payment/pagarme/redirect" style="display: none;">
-                <input type="hidden" name="reference" t-att-value="reference"/>
-                <input type="hidden" name="amount" t-att-value="converted_amount"/>
-                <input type="hidden" name="access_token" t-att-value="access_token"/>
-                <input type="hidden" name="partner_id" t-att-value="partner_id"/>
-                <input type="hidden" name="currency_id" t-att-value="currency_id"/>
-                <input type="hidden" name="return_url" t-att-value="return_url"/>
-            </form>
         </div>
         
         <!-- Auto-redirect script -->
         <script type="text/javascript">
-            function submitPayment() {
-                document.getElementById('pagarme_redirect_form').submit();
-            }
-            
-            // Auto-submit after 2 seconds
-            setTimeout(function() {
-                submitPayment();
-            }, 2000);
+            // Auto-redirect immediately to Pagar.me checkout
+            window.location.href = '<t t-esc="api_url"/>';
         </script>
     </template>
 

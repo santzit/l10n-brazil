@@ -597,40 +597,6 @@ class PagarmeController(http.Controller):
             return json.dumps(error_response)
 
     @http.route(
-        "/payment/pagarme/checkout",
-        type="http",
-        auth="public",
-        methods=["GET"],
-        csrf=False,
-        save_session=False,
-    )
-    def pagarme_checkout(self, **params):
-        """Render Pagar.me checkout page for redirect payment."""
-        _logger.info("Pagar.me: rendering checkout page")
-        
-        reference = params.get("reference")
-        if not reference:
-            return request.redirect("/payment/process")
-            
-        # Find the transaction
-        tx_sudo = request.env["payment.transaction"].sudo().search([
-            ("reference", "=", reference),
-            ("provider_code", "=", "pagarme"),
-        ])
-        
-        if not tx_sudo:
-            _logger.error("Pagar.me: no transaction found for reference %s", reference)
-            return request.redirect("/payment/process")
-            
-        # Render simple checkout page (in real implementation, this would redirect to Pagar.me)
-        return request.render("payment_pagarme.checkout_page", {
-            "tx": tx_sudo,
-            "reference": reference,
-            "amount": tx_sudo.amount,
-            "currency": tx_sudo.currency_id,
-        })
-
-    @http.route(
         "/payment/pagarme/return",
         type="http",
         auth="public",
@@ -1021,46 +987,3 @@ class PagarmeController(http.Controller):
             return False
             
         return True
-
-    @http.route(
-        "/payment/pagarme/redirect",
-        type="http",
-        auth="public",
-        methods=["POST"],
-        csrf=False,
-        save_session=False,
-    )
-    def pagarme_redirect_to_checkout(self, **post):
-        """Redirect to Pagar.me checkout page."""
-        _logger.info("Pagar.me: redirecting to checkout with data: %s", 
-                    {k: ('***' if k in ['access_token'] else v) for k, v in post.items()})
-        
-        reference = post.get("reference")
-        if not reference:
-            return request.redirect("/payment/process")
-            
-        # Find the transaction
-        tx_sudo = request.env["payment.transaction"].sudo().search([
-            ("reference", "=", reference),
-            ("provider_code", "=", "pagarme"),
-        ])
-        
-        if not tx_sudo:
-            _logger.error("Pagar.me: no transaction found for reference %s", reference)
-            return request.redirect("/payment/process")
-            
-        # Create Pagar.me checkout session and redirect
-        try:
-            checkout_url = self._create_checkout_session(tx_sudo, post)
-            _logger.info("Pagar.me: redirecting to checkout URL: %s", checkout_url)
-            return request.redirect(checkout_url)
-        except Exception as e:
-            _logger.error("Pagar.me: error creating checkout session: %s", e)
-            return request.redirect("/payment/process")
-    
-    def _create_checkout_session(self, tx_sudo, post_data):
-        """Create Pagar.me checkout session and return checkout URL."""
-        # In a real implementation, this would call Pagar.me API to create checkout session
-        # For now, redirect to our mock checkout page
-        base_url = tx_sudo.provider_id.get_base_url()
-        return f"{base_url}/payment/pagarme/checkout?reference={tx_sudo.reference}"
