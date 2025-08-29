@@ -27,28 +27,35 @@ jobs:
         ports:
           - 5432:5432
 
+    env:
+      ADDONS_TO_TEST: "l10n_br_payment_pagarme"
+      ADDONS_TO_INSTALL: "account"
+
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      - name: Install addons and dependencies
+      - name: Initialize test database for specific modules only
         run: |
-          # Temporarily rename test-constraints.txt to avoid conflicts
-          if [ -f test-constraints.txt ]; then
-            mv test-constraints.txt test-constraints.txt.backup
-          fi
-          oca_install_addons account,l10n_br_payment_pagarme
-          # Restore test-constraints.txt
-          if [ -f test-constraints.txt.backup ]; then
-            mv test-constraints.txt.backup test-constraints.txt
-          fi
-
-      - name: Initialize test database
-        run: oca_init_test_database
+          # Create targeted addon installation to avoid all l10n_br modules
+          mkdir -p /opt/odoo-test-addons
+          
+          # Only include our specific module
+          cp -r l10n_br_payment_pagarme /opt/odoo-test-addons/
+          
+          # Set environment to use limited addon path for all subsequent steps
+          echo "ADDONS_PATH=/opt/odoo-venv/lib/python3.10/site-packages/odoo/addons,/opt/odoo-test-addons" >> $GITHUB_ENV
+          
+          # Initialize database with limited scope
+          export ADDONS_PATH="/opt/odoo-venv/lib/python3.10/site-packages/odoo/addons,/opt/odoo-test-addons"
+          oca_init_test_database
 
       - name: Run tests for l10n_br_payment_pagarme
-        run: oca_run_tests --test-tags l10n_br_payment_pagarme
+        run: |
+          # Ensure ADDONS_PATH is set for test run
+          export ADDONS_PATH="/opt/odoo-venv/lib/python3.10/site-packages/odoo/addons,/opt/odoo-test-addons"
+          oca_run_tests --test-tags l10n_br_payment_pagarme
 
       - name: Run linting checks
         run: |
