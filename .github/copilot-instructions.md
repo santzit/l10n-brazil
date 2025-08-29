@@ -22,6 +22,7 @@ To provide comprehensive assistance, the GitHub Copilot agent should have access
 
 The modules in this repository depend on standard Odoo modules such as `account`, `sale`, `purchase`, `stock`, `payment` (including `payment_demo`), `base`, and many others from the Odoo core.
 
+
 ## Working Effectively
 
 ### Environment Setup
@@ -127,8 +128,6 @@ This localization handles complex Brazilian tax regulations including:
 
 ### Module Dependencies
 Most modules depend on `l10n_br_base` and `l10n_br_fiscal`. Check `__manifest__.py` files for specific dependencies before making changes.
-
-Brazilian modules typically extend core Odoo functionality and follow the naming convention `l10n_br_*`. They integrate with Brazilian fiscal, tax, and legal requirements while inheriting from standard Odoo models and APIs.
 
 Brazilian modules typically extend core Odoo functionality and follow the naming convention `l10n_br_*`. They integrate with Brazilian fiscal, tax, and legal requirements while inheriting from standard Odoo models and APIs.
 
