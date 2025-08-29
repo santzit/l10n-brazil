@@ -62,8 +62,6 @@ coverage.xml
 # Visual Studio cache/options directory
 .vs/
 .vscode
-# But include copilot-specific VS Code settings
-!.vscode/settings.json
 
 # OSX Files
 .DS_Store

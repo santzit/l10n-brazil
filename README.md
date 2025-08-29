@@ -33,10 +33,6 @@ Não perca a chance de ver a localização em ação:
 4. Entre com `admin/admin`.
 5. Escolha a empresa demo com o regime tributário de seu interesse, seja Simples Nacional ou Lucro Presumido, e explore um ambiente rico em detalhes e funcionalidades.
 
-## GitHub Copilot Setup
-
-Para desenvolvedores usando GitHub Copilot, este repositório inclui configurações para acesso completo ao código base do Odoo. Veja o [guia de configuração do Copilot](docs/copilot-setup.md) para configurar seu ambiente de desenvolvimento com acesso tanto aos módulos de localização brasileira quanto ao framework core do Odoo.
-
 <!-- /!\ do not modify below this line -->
 
 <!-- prettier-ignore-start -->
