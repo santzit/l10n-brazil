@@ -4,6 +4,25 @@
 
 The l10n-brazil repository contains 53 Odoo addons providing comprehensive Brazilian fiscal localization including electronic invoicing (NF-e, NFS-e, CT-e), tax calculations, and regulatory compliance. This is a complex project with 848 Python files and 430 XML files requiring specialized Brazilian fiscal libraries.
 
+## Required Repository Access
+
+To provide comprehensive assistance, the GitHub Copilot agent should have access to:
+
+- **Primary Repository**: `OCA/l10n-brazil` (current repository) - Contains Brazilian-specific modules
+- **Odoo Core Repository**: `https://github.com/odoo/odoo` (branch: `16.0`) - Contains base Odoo framework and standard modules
+
+The modules in this repository depend on standard Odoo modules such as `account`, `sale`, `purchase`, `stock`, `payment` (including `payment_demo`), `base`, and many others from the Odoo core.
+
+## Required Repository Access
+
+To provide comprehensive assistance, the GitHub Copilot agent should have access to:
+
+- **Primary Repository**: `OCA/l10n-brazil` (current repository) - Contains Brazilian-specific modules
+- **Odoo Core Repository**: `https://github.com/odoo/odoo` (branch: `16.0`) - Contains base Odoo framework and standard modules
+
+The modules in this repository depend on standard Odoo modules such as `account`, `sale`, `purchase`, `stock`, `payment` (including `payment_demo`), `base`, and many others from the Odoo core.
+
+
 ## Working Effectively
 
 ### Environment Setup
@@ -109,6 +128,8 @@ This localization handles complex Brazilian tax regulations including:
 
 ### Module Dependencies
 Most modules depend on `l10n_br_base` and `l10n_br_fiscal`. Check `__manifest__.py` files for specific dependencies before making changes.
+
+Brazilian modules typically extend core Odoo functionality and follow the naming convention `l10n_br_*`. They integrate with Brazilian fiscal, tax, and legal requirements while inheriting from standard Odoo models and APIs.
 
 ### Testing Strategy
 1. **Code quality**: Use ruff locally (very fast)
