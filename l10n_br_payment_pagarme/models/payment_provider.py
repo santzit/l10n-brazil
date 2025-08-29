@@ -1,7 +1,11 @@
 # Copyright 2024 OCA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+import logging
+
 from odoo import fields, models
+
+_logger = logging.getLogger(__name__)
 
 
 class PaymentProvider(models.Model):
@@ -11,13 +15,13 @@ class PaymentProvider(models.Model):
         selection_add=[("pagarme", "Pagar.me")], ondelete={"pagarme": "set default"}
     )
     pagarme_app_id = fields.Char(
-        string="App ID",
-        help="Pagar.me Application ID",
+        string="Public Key / App ID",
+        help="Pagar.me Public Key (used for tokenization on frontend)",
         groups="base.group_system",
     )
     pagarme_api_key = fields.Char(
-        string="API Key",
-        help="Pagar.me API Key for server-side operations",
+        string="Secret Key / API Key",
+        help="Pagar.me Secret Key for server-side operations",
         groups="base.group_system",
     )
 
@@ -40,21 +44,86 @@ class PaymentProvider(models.Model):
         if self.code != "pagarme":
             return res
 
+        _logger.info("Pagar.me: Providing processing values for provider %s", self.name)
+
         return {
             "api_url": self._get_pagarme_api_url(),
             "webhook_url": self._get_pagarme_webhook_url(),
-            "app_id": self.pagarme_app_id,
+            "public_key": self.pagarme_app_id,  # Public key for frontend tokenization
+            "app_id": self.pagarme_app_id,  # Legacy compatibility
         }
 
     def _get_pagarme_api_url(self):
         """Get the Pagar.me API URL based on the provider state."""
         self.ensure_one()
         if self.state == "test":
-            return "https://api.pagar.me/1/test"
-        return "https://api.pagar.me/1"
+            return "https://api.pagar.me/core/v5"
+        return "https://api.pagar.me/core/v5"
 
-    def _send_payment_request(self, payload):
-        """Send payment request to Pagar.me API."""
-        # This would implement the actual API call to Pagar.me
-        # For now, return a placeholder response
-        return {"status": "success", "transaction_id": "pagarme_test_txn"}
+    def action_test_connection(self):
+        """Test connectivity to Pagar.me API."""
+        self.ensure_one()
+
+        if not self.pagarme_api_key:
+            raise ValueError("API Key is required for connection testing")
+
+        try:
+            import requests
+
+            headers = {
+                "Authorization": f"Bearer {self.pagarme_api_key}",
+                "Content-Type": "application/json",
+            }
+
+            _logger.info("Pagar.me: Testing connection for provider %s", self.name)
+
+            # Test with a simple API call to check connection
+            response = requests.get(
+                f"{self._get_pagarme_api_url()}/customers",
+                headers=headers,
+                timeout=10,
+                params={"page": 1, "size": 1},  # Minimal request
+            )
+
+            _logger.info(
+                "Pagar.me: Connection test response - Status: %s", response.status_code
+            )
+
+            if response.status_code == 200:
+                return {
+                    "type": "ir.actions.client",
+                    "tag": "display_notification",
+                    "params": {
+                        "title": "Connection Successful",
+                        "message": (
+                            f"Successfully connected to Pagar.me API "
+                            f"(Status: {response.status_code})"
+                        ),
+                        "type": "success",
+                    },
+                }
+            else:
+                error_msg = f"API returned status {response.status_code}"
+                _logger.error("Pagar.me: Connection test failed - %s", error_msg)
+                return {
+                    "type": "ir.actions.client",
+                    "tag": "display_notification",
+                    "params": {
+                        "title": "Connection Failed",
+                        "message": error_msg,
+                        "type": "danger",
+                    },
+                }
+
+        except Exception as e:
+            error_msg = f"Connection test failed: {str(e)}"
+            _logger.error("Pagar.me: %s", error_msg)
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": "Connection Failed",
+                    "message": error_msg,
+                    "type": "danger",
+                },
+            }

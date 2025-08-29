@@ -10,7 +10,7 @@ const pagarmePaymentMixin = {
     //--------------------------------------------------------------------------
 
     /**
-     * Process payment with Pagar.me for direct payment flow.
+     * Process payment with Pagar.me using tokenization for secure handling.
      *
      * @override method from payment.payment_form_mixin
      * @private
@@ -24,6 +24,8 @@ const pagarmePaymentMixin = {
             return this._super(...arguments);
         }
 
+        const self = this;
+        
         // Find the payment form container and scope element search within it
         var paymentContainer = document.querySelector('[id*="pagarme-container-' + providerId + '"]') || 
                                document.querySelector('.o_payment_form') || 
@@ -52,7 +54,7 @@ const pagarmePaymentMixin = {
 
         // Get values from elements
         var cardHolderName = cardHolderNameEl.value;
-        var cardNumber = cardNumberEl.value;
+        var cardNumber = cardNumberEl.value.replace(/\s/g, ''); // Remove spaces
         var cardExpiryMonth = cardExpiryMonthEl.value;
         var cardExpiryYear = cardExpiryYearEl.value;
         var cardCvv = cardCvvEl.value;
@@ -66,27 +68,85 @@ const pagarmePaymentMixin = {
             return Promise.reject(new Error('Incomplete payment data'));
         }
 
-        // Process payment through server
-        return this._rpc({
-            route: '/payment/pagarme/payment',
-            params: {
-                'reference': processingValues.reference,
-                'card_holder_name': cardHolderName,
-                'card_number': cardNumber.replace(/\s/g, ''), // Remove spaces
-                'card_expiry_month': cardExpiryMonth,
-                'card_expiry_year': cardExpiryYear,
-                'card_cvv': cardCvv,
-                'amount': processingValues.amount,
-                'currency': processingValues.currency,
-            },
-        }).then(() => {
-            window.location = '/payment/status';
-        }).catch((error) => {
+        // Check if Tokenizacard is available
+        if (typeof window.TokenizaCard === 'undefined') {
             this._displayError(
-                'Erro no Pagamento',
-                'Ocorreu um erro ao processar o pagamento. Tente novamente.'
+                'Erro de Configuração',
+                'Biblioteca de tokenização não carregada. Recarregue a página e tente novamente.'
             );
-            return Promise.reject(error);
+            return Promise.reject(new Error('Tokenizacard library not loaded'));
+        }
+
+        // Get public key from processing values
+        const publicKey = processingValues.public_key;
+        if (!publicKey) {
+            this._displayError(
+                'Erro de Configuração',
+                'Chave pública não encontrada. Verifique a configuração do provedor.'
+            );
+            return Promise.reject(new Error('Public key not found'));
+        }
+
+        // Initialize Tokenizacard
+        const tokenizacard = new window.TokenizaCard({
+            encryption_key: publicKey
+        });
+
+        // Prepare card data for tokenization
+        const cardData = {
+            card_number: cardNumber,
+            card_holder_name: cardHolderName,
+            card_expiration_date: cardExpiryMonth + cardExpiryYear.slice(-2), // MMYY format
+            card_cvv: cardCvv
+        };
+
+        // Tokenize card data
+        return new Promise((resolve, reject) => {
+            try {
+                const cardToken = tokenizacard.createCardToken(cardData);
+                
+                // Log tokenization success (without sensitive data)
+                console.log('Pagar.me: Card tokenized successfully');
+                
+                // Send tokenized data to server
+                self._rpc({
+                    route: '/payment/pagarme/payment',
+                    params: {
+                        'reference': processingValues.reference,
+                        'card_token': cardToken,
+                        'card_holder_name': cardHolderName,
+                        'amount': processingValues.amount,
+                        'currency': processingValues.currency,
+                    },
+                }).then((result) => {
+                    if (result.error) {
+                        self._displayError(
+                            'Erro no Pagamento',
+                            result.error
+                        );
+                        reject(new Error(result.error));
+                    } else {
+                        console.log('Pagar.me: Payment processed successfully');
+                        window.location = '/payment/status';
+                        resolve(result);
+                    }
+                }).catch((error) => {
+                    console.error('Pagar.me: Payment request failed:', error);
+                    self._displayError(
+                        'Erro no Pagamento',
+                        'Ocorreu um erro ao processar o pagamento. Tente novamente.'
+                    );
+                    reject(error);
+                });
+                
+            } catch (tokenError) {
+                console.error('Pagar.me: Tokenization failed:', tokenError);
+                self._displayError(
+                    'Erro na Tokenização',
+                    'Não foi possível processar os dados do cartão. Verifique as informações e tente novamente.'
+                );
+                reject(tokenError);
+            }
         });
     },
 
@@ -123,6 +183,33 @@ const pagarmePaymentMixin = {
                 var value = this.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
                 var formattedValue = value.match(/.{1,4}/g);
                 this.value = formattedValue ? formattedValue.join(' ') : '';
+                
+                // Limit to 19 characters (16 digits + 3 spaces)
+                if (this.value.length > 19) {
+                    this.value = this.value.slice(0, 19);
+                }
+            });
+        }
+
+        // Add CVV input validation
+        var cardCvvInput = paymentContainer.querySelector('#card_cvv') || 
+                           paymentContainer.querySelector('[name="card_cvv"]');
+        if (cardCvvInput) {
+            cardCvvInput.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/gi, '');
+                if (this.value.length > 4) {
+                    this.value = this.value.slice(0, 4);
+                }
+            });
+        }
+
+        // Add cardholder name validation
+        var cardHolderInput = paymentContainer.querySelector('#card_holder_name') || 
+                              paymentContainer.querySelector('[name="card_holder_name"]');
+        if (cardHolderInput) {
+            cardHolderInput.addEventListener('input', function() {
+                // Allow letters, spaces, and common name characters
+                this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/gi, '');
             });
         }
 

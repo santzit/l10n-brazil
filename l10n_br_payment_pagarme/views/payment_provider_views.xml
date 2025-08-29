@@ -11,6 +11,8 @@
                     <group attrs="{'invisible': [('code', '!=', 'pagarme')]}" name="pagarme_credentials">
                         <field name="pagarme_app_id" attrs="{'required':[('code', '=', 'pagarme'), ('state', '!=', 'disabled')]}"/>
                         <field name="pagarme_api_key" attrs="{'required':[('code', '=', 'pagarme'), ('state', '!=', 'disabled')]}" password="True"/>
+                        <button name="action_test_connection" type="object" string="Test Connection" 
+                                class="btn-secondary" attrs="{'invisible': [('code', '!=', 'pagarme')]}"/>
                     </group>
                 </group>
             </field>
