@@ -1,6 +1,7 @@
 # Copyright 2024 OCA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+from . import controllers
 from . import models
 
 from odoo.addons.payment import setup_provider, reset_payment_provider

@@ -27,10 +27,10 @@ class PaymentTransaction(models.Model):
 
         # Return specific keys expected by the payment framework, similar to Stripe
         return {
-            'public_key': self.provider_id.pagarme_app_id,
-            'api_key': self.provider_id.pagarme_api_key,
-            'amount': int(self.amount * 100),  # Convert to cents for Pagar.me API
-            'currency': self.currency_id.name.lower(),
+            "public_key": self.provider_id.pagarme_app_id,
+            "api_key": self.provider_id.pagarme_api_key,
+            "amount": int(self.amount * 100),  # Convert to cents for Pagar.me API
+            "currency": self.currency_id.name.lower(),
         }
 
     def _send_payment_request(self):
