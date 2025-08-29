@@ -1,0 +1,68 @@
+{
+  "folders": [
+    {
+      "name": "l10n-brazil",
+      "path": "."
+    },
+    {
+      "name": "odoo-core", 
+      "path": "../odoo"
+    }
+  ],
+  "settings": {
+    "github.copilot.enable": {
+      "*": true,
+      "plaintext": false,
+      "markdown": true,
+      "scminput": false
+    },
+    "github.copilot.advanced": {
+      "debug.overrideEngine": "copilot-chat",
+      "inlineSuggest.count": 3
+    },
+    "github.copilot.editor.enableAutoCompletions": true,
+    "python.defaultInterpreterPath": "./venv/bin/python",
+    "python.analysis.extraPaths": [
+      ".",
+      "../odoo",
+      "../odoo/addons",
+      "../odoo/odoo/addons"
+    ],
+    "python.analysis.autoSearchPaths": true,
+    "python.analysis.packageIndexDepths": [
+      { "name": "odoo", "depth": 3 },
+      { "name": "l10n_br", "depth": 2 }
+    ],
+    "files.associations": {
+      "*.py": "python",
+      "*.xml": "xml",
+      "*.yml": "yaml",
+      "*.yaml": "yaml",
+      "*.po": "gettext",
+      "*.pot": "gettext"
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/bower_components": true,
+      "**/*.code-search": true,
+      "**/.git": true,
+      "**/venv": true,
+      "**/__pycache__": true,
+      "**/*.pyc": true,
+      "**/.*": true
+    },
+    "files.exclude": {
+      "**/__pycache__": true,
+      "**/*.pyc": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "GitHub.copilot",
+      "GitHub.copilot-chat",
+      "ms-python.python",
+      "ms-python.pylint",
+      "redhat.vscode-xml"
+    ]
+  }
+}
