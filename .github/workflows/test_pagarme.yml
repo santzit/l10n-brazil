@@ -1,0 +1,65 @@
+name: Test l10n_br_payment_pagarme
+
+on:
+  pull_request:
+    paths:
+      - 'l10n_br_payment_pagarme/**'
+  push:
+    paths:
+      - 'l10n_br_payment_pagarme/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/oca/oca-ci/py3.10-odoo16.0:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: postgres
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install addons and dependencies
+        run: oca_install_addons l10n_br_payment_pagarme
+
+      - name: Initialize test database
+        run: oca_init_test_database
+
+      - name: Run tests for l10n_br_payment_pagarme
+        run: oca_run_tests --test-tags l10n_br_payment_pagarme
+
+      - name: Run linting checks
+        run: |
+          ruff check l10n_br_payment_pagarme/
+          ruff format --check l10n_br_payment_pagarme/
+
+      - name: Validate XML files
+        run: |
+          python3 -c "import xml.etree.ElementTree as ET; [ET.parse(f) for f in ['l10n_br_payment_pagarme/data/pagarme_provider.xml', 'l10n_br_payment_pagarme/views/payment_views.xml']]"
+
+      - name: Check Python syntax
+        run: |
+          python3 -m py_compile $(find l10n_br_payment_pagarme/ -name "*.py")
