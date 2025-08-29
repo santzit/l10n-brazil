@@ -87,10 +87,15 @@ class PaymentTransaction(models.Model):
             
         except Exception as e:
             _logger.error("Pagar.me: error creating checkout session: %s", e)
-            # Return error URL to display error message
+            
+            # Create error URL that shows proper error message
+            error_url = f"/payment/pagarme/error?message={str(e)}&reference={self.reference}"
+            
+            # Return error handling redirect 
             return {
-                'api_url': '/payment/process',
-                'error': str(e)
+                'api_url': error_url,
+                'error_message': str(e),
+                'show_error': True,
             }
 
     def _pagarme_prepare_checkout_request_payload(self):

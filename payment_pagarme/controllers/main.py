@@ -597,6 +597,36 @@ class PagarmeController(http.Controller):
             return json.dumps(error_response)
 
     @http.route(
+        "/payment/pagarme/error",
+        type="http",
+        auth="public",
+        methods=["GET"],
+        csrf=False,
+        save_session=False,
+    )
+    def pagarme_error_page(self, **get):
+        """Display error page when Pagar.me API fails."""
+        message = get.get("message", "Unknown payment error")
+        reference = get.get("reference", "Unknown")
+        
+        _logger.error("Pagar.me: displaying error page for reference %s: %s", reference, message)
+        
+        # Find the transaction to get context
+        tx_sudo = None
+        if reference and reference != "Unknown":
+            tx_sudo = request.env["payment.transaction"].sudo().search([
+                ("reference", "=", reference),
+                ("provider_code", "=", "pagarme"),
+            ], limit=1)
+        
+        # Render error template
+        return request.render("payment_pagarme.payment_error", {
+            'error_message': message,
+            'reference': reference,
+            'transaction': tx_sudo,
+        })
+
+    @http.route(
         "/payment/pagarme/return",
         type="http",
         auth="public",

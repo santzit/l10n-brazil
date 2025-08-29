@@ -1,6 +1,7 @@
 # Copyright 2024 KMEE INFORMATICA LTDA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+import base64
 import logging
 import requests
 from urllib.parse import urljoin
@@ -114,10 +115,19 @@ class PaymentProvider(models.Model):
 
         url = urljoin(base_url, endpoint)
         
+        # Encode API key for Basic Auth (API key as username, empty password)
+        auth_string = f"{self.pagarme_api_key}:"
+        encoded_auth = base64.b64encode(auth_string.encode()).decode()
+        
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Basic {self.pagarme_api_key}:",
+            "Authorization": f"Basic {encoded_auth}",
         }
+
+        _logger.info("Pagar.me API: Making %s request to %s", method, url)
+        _logger.debug("Pagar.me API: Headers: %s", {k: '***' if k == 'Authorization' else v for k, v in headers.items()})
+        if data:
+            _logger.debug("Pagar.me API: Request data: %s", data)
 
         try:
             if method.upper() == "GET":
@@ -129,23 +139,32 @@ class PaymentProvider(models.Model):
             else:
                 raise UserError(_("Unsupported HTTP method: %s") % method)
 
+            _logger.info("Pagar.me API: Response status: %s", response.status_code)
+            _logger.debug("Pagar.me API: Response headers: %s", dict(response.headers))
+            
             response.raise_for_status()
             
             if response.content:
-                return response.json()
+                response_data = response.json()
+                _logger.debug("Pagar.me API: Response data: %s", response_data)
+                return response_data
             else:
                 return {}
 
         except requests.exceptions.Timeout:
+            _logger.error("Pagar.me API: Timeout after 30 seconds for URL: %s", url)
             raise UserError(_("Timeout while communicating with Pagar.me"))
-        except requests.exceptions.ConnectionError:
+        except requests.exceptions.ConnectionError as e:
+            _logger.error("Pagar.me API: Connection error for URL %s: %s", url, e)
             raise UserError(_("Connection error while communicating with Pagar.me"))
         except requests.exceptions.HTTPError as e:
             error_msg = _("HTTP error while communicating with Pagar.me: %s") % e
+            _logger.error("Pagar.me API: HTTP error %s for URL %s", e, url)
             
             # Try to extract error details from response
             try:
                 error_data = e.response.json() if e.response.content else {}
+                _logger.error("Pagar.me API: Error response data: %s", error_data)
                 if "errors" in error_data:
                     error_details = []
                     for error in error_data["errors"]:
@@ -156,6 +175,7 @@ class PaymentProvider(models.Model):
                 
             raise UserError(error_msg)
         except Exception as e:
+            _logger.error("Pagar.me API: Unexpected error for URL %s: %s", url, e, exc_info=True)
             raise UserError(_("Unexpected error while communicating with Pagar.me: %s") % str(e))
 
 
