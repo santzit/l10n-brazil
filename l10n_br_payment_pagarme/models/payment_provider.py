@@ -4,10 +4,10 @@
 from odoo import fields, models
 
 
-class PaymentAcquirer(models.Model):
-    _inherit = "payment.acquirer"
+class PaymentProvider(models.Model):
+    _inherit = "payment.provider"
 
-    provider = fields.Selection(
+    code = fields.Selection(
         selection_add=[("pagarme", "Pagar.me")], ondelete={"pagarme": "set default"}
     )
     pagarme_app_id = fields.Char(
@@ -30,6 +30,6 @@ class PaymentAcquirer(models.Model):
     def _get_default_payment_method_codes(self):
         """Return the default payment method codes."""
         default_codes = super()._get_default_payment_method_codes()
-        if self.provider == "pagarme":
+        if self.code == "pagarme":
             default_codes.append("card")
         return default_codes
