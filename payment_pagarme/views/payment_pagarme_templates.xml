@@ -42,8 +42,8 @@
                             <div class="card-body">
                                 <div class="text-center">
                                     <h4>Resumo do Pagamento</h4>
-                                    <p><strong>Referência:</strong> <span t-esc="reference"/></p>
-                                    <p><strong>Valor:</strong> <span t-esc="currency.symbol"/> <span t-esc="amount"/></p>
+                                    <p><strong>Referência:</strong> <span t-esc="reference"></span></p>
+                                    <p><strong>Valor:</strong> <span t-esc="currency.symbol"></span> <span t-esc="amount"></span></p>
                                     
                                     <div class="mt-4">
                                         <p>Complete o pagamento de forma segura:</p>
@@ -88,10 +88,10 @@
                             <div class="card-body">
                                 <div class="text-center">
                                     <h4>Não foi possível processar o pagamento</h4>
-                                    <p class="text-muted">Referência: <span t-esc="reference"/></p>
+                                    <p class="text-muted">Referência: <span t-esc="reference"></span></p>
                                     
                                     <div class="alert alert-danger mt-3">
-                                        <strong>Erro:</strong> <span t-esc="error_message"/>
+                                        <strong>Erro:</strong> <span t-esc="error_message"></span>
                                     </div>
                                     
                                     <div class="mt-4">
