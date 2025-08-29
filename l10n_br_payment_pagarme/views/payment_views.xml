@@ -3,16 +3,16 @@
     <data>
         <!-- Payment Provider Configuration View -->
         <record id="payment_provider_form_pagarme" model="ir.ui.view">
-            <field name="name">payment.provider.form.pagarme</field>
+            <field name="name">Pagar.me Provider Form</field>
             <field name="model">payment.provider</field>
             <field name="inherit_id" ref="payment.payment_provider_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//group[@name='provider_details']" position="after">
-                    <group attrs="{'invisible': [('code', '!=', 'pagarme')]}" string="Pagar.me Credentials">
-                        <field name="pagarme_app_id" password="True"/>
-                        <field name="pagarme_api_key" password="True"/>
+                <group name="provider_credentials" position="inside">
+                    <group attrs="{'invisible': [('code', '!=', 'pagarme')]}" name="pagarme_credentials">
+                        <field name="pagarme_app_id" attrs="{'required':[('code', '=', 'pagarme'), ('state', '!=', 'disabled')]}"/>
+                        <field name="pagarme_api_key" attrs="{'required':[('code', '=', 'pagarme'), ('state', '!=', 'disabled')]}" password="True"/>
                     </group>
-                </xpath>
+                </group>
             </field>
         </record>
 
