@@ -4,6 +4,7 @@
 import logging
 
 from odoo import fields, models
+from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -23,12 +24,41 @@ class PaymentTransaction(models.Model):
         if self.provider_code != "pagarme":
             return res
 
+        _logger.info(
+            "Getting processing values for Pagar.me transaction %s", self.reference
+        )
+        _logger.info(
+            "Transaction details - Amount: %s, Currency: %s, Partner: %s",
+            self.amount,
+            self.currency_id.name,
+            self.partner_name,
+        )
+
+        # Validate transaction data
+        if not self.amount or self.amount <= 0:
+            _logger.error(
+                "Invalid amount for transaction %s: %s", self.reference, self.amount
+            )
+            raise ValidationError("Transaction amount must be greater than zero")
+
         # Create checkout session and get redirect URL
-        checkout_url = self.provider_id._create_pagarme_checkout_session(self)
-        
-        return {
-            "checkout_url": checkout_url,
-        }
+        try:
+            checkout_url = self.provider_id._create_pagarme_checkout_session(self)
+            _logger.info(
+                "Successfully got checkout URL for transaction %s", self.reference
+            )
+
+            return {
+                "checkout_url": checkout_url,
+            }
+        except Exception as e:
+            _logger.error(
+                "Failed to get checkout URL for transaction %s: %s",
+                self.reference,
+                str(e),
+                exc_info=True,
+            )
+            raise
 
     def _get_tx_from_notification_data(self, provider_code, notification_data):
         """Find transaction from Pagar.me notification data."""

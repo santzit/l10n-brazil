@@ -14,18 +14,20 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
     def test_processing_values(self):
         """Test that processing values are correctly generated."""
         tx = self._create_transaction(flow="redirect")
-        
+
         # Mock the checkout session creation
         with patch.object(
-            tx.provider_id, '_create_pagarme_checkout_session'
+            tx.provider_id, "_create_pagarme_checkout_session"
         ) as mock_create_session:
-            mock_create_session.return_value = "https://checkout.pagar.me/checkout/test_123"
-            
+            mock_create_session.return_value = (
+                "https://checkout.pagar.me/checkout/test_123"
+            )
+
             processing_values = tx._get_specific_processing_values({})
 
             self.assertEqual(
-                processing_values["checkout_url"], 
-                "https://checkout.pagar.me/checkout/test_123"
+                processing_values["checkout_url"],
+                "https://checkout.pagar.me/checkout/test_123",
             )
             mock_create_session.assert_called_once_with(tx)
 
@@ -57,9 +59,7 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
 
         mock_response = {
             "id": "or_test_1234567890",
-            "checkout": {
-                "url": "https://checkout.pagar.me/checkout/test_123"
-            },
+            "checkout": {"url": "https://checkout.pagar.me/checkout/test_123"},
             "status": "pending",
         }
 
@@ -87,7 +87,7 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
         notification_data2 = {
             "id": "or_test_9876543210",
             "metadata": {"odoo_reference": tx2.reference},
-            "status": "paid"
+            "status": "paid",
         }
         found_tx2 = tx2._get_tx_from_notification_data("pagarme", notification_data2)
         self.assertEqual(found_tx2, tx2)
