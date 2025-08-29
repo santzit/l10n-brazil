@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Payment Acquirer: Pagar.me -->
+        <record id="payment_acquirer_pagarme" model="payment.acquirer">
+            <field name="name">Pagar.me</field>
+            <field name="provider">pagarme</field>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="view_template_id" ref="payment_pagarme.pagarme_acquirer_button"/>
+            <field name="state">disabled</field>
+            <field name="image" type="base64" file="payment_pagarme/static/description/icon.png"/>
+            <field name="description">
+                <p>Secure payment processing for Brazilian e-commerce.</p>
+                <ul>
+                    <li>Credit card payments with PCI compliance</li>
+                    <li>Frontend tokenization for security</li>
+                    <li>Real-time payment notifications</li>
+                    <li>Brazilian market optimization</li>
+                </ul>
+            </field>
+        </record>
+
+    </data>
+</odoo>

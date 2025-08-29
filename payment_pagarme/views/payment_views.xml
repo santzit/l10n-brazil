@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Payment Form Template -->
+    <template id="pagarme_acquirer_button" name="Pagar.me Payment Button">
+        <form t-if="acquirer.provider == 'pagarme'" 
+              method="post" 
+              t-att-action="tx_url" 
+              t-att-class="'clearfix ' + (submit_class or '')"
+              t-att-style="submit_style">
+            
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+            <input type="hidden" name="tx_id" t-att-value="tx.id"/>
+            <input type="hidden" name="pagarme_app_id" t-att-value="acquirer.pagarme_app_id"/>
+            <input type="hidden" name="reference" t-att-value="tx.reference"/>
+            <input type="hidden" name="amount" t-att-value="tx.amount"/>
+            <input type="hidden" name="currency" t-att-value="tx.currency_id.name"/>
+            <input type="hidden" name="partner_name" t-att-value="tx.partner_name"/>
+            <input type="hidden" name="partner_email" t-att-value="tx.partner_email"/>
+            <input type="hidden" name="partner_phone" t-att-value="tx.partner_phone"/>
+            <input type="hidden" name="return_url" t-att-value="return_url"/>
+            
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <img src="/payment_pagarme/static/description/logo.png" 
+                                 alt="Pagar.me" 
+                                 style="max-height: 40px; margin-bottom: 15px;"/>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5>Pagamento Seguro com Cartão de Crédito</h5>
+                            <p class="text-muted">
+                                Seus dados são protegidos por criptografia de ponta.
+                                Não armazenamos informações do seu cartão.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Card form will be dynamically inserted here by JavaScript -->
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-12 text-center">
+                            <small class="text-muted">
+                                <i class="fa fa-lock"></i>
+                                Transação processada de forma segura por 
+                                <strong>Pagar.me</strong>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </template>
+
+    <!-- Inline Payment Form (for checkout page) -->
+    <template id="pagarme_payment_form" name="Pagar.me Inline Payment Form">
+        <div t-if="acquirer.provider == 'pagarme'" class="payment_pagarme_form">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-info">
+                        <i class="fa fa-credit-card"></i>
+                        <strong>Cartão de Crédito</strong> - Processamento seguro via Pagar.me
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pagarme_card_form" style="display: none;">
+                <!-- Card form will be created by JavaScript -->
+            </div>
+        </div>
+    </template>
+
+</odoo>
