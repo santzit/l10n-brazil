@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Credit Card Payment Form Template -->
-        <template id="payment_form_pagarme" name="Pagar.me Payment Form">
-            <form class="o_payment_form_pagarme" method="POST" t-if="provider_code == 'pagarme'">
+        <!-- Inline form template for Pagar.me payment provider -->
+        <template id="inline_form" name="Pagar.me Inline Form">
+            <div t-attf-id="pagarme-container-{{provider_id}}">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="card_holder_name" class="control-label">Cardholder Name *</label>
+                        <div class="mb-3">
+                            <label for="card_holder_name" class="form-label">Nome do Portador *</label>
                             <input type="text" 
                                    name="card_holder_name" 
-                                   class="form-control card_holder_name" 
-                                   placeholder="Full name as on the card"
+                                   class="form-control" 
+                                   placeholder="Nome completo como no cartão"
                                    required="required"/>
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="card_number" class="control-label">Card Number *</label>
+                        <div class="mb-3">
+                            <label for="card_number" class="form-label">Número do Cartão *</label>
                             <input type="text" 
                                    name="card_number" 
-                                   class="form-control card_number" 
+                                   class="form-control" 
                                    placeholder="1234 5678 9012 3456"
                                    maxlength="23"
                                    required="required"/>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="control-label">Expiry Date *</label>
+                        <div class="mb-3">
+                            <label class="form-label">Data de Expiração *</label>
                             <div class="row">
                                 <div class="col-6">
-                                    <select name="card_expiry_month" class="form-control card_expiry_month" required="required">
-                                        <option value="">Month</option>
+                                    <select name="card_expiry_month" class="form-select" required="required">
+                                        <option value="">Mês</option>
                                         <option value="01">01</option>
                                         <option value="02">02</option>
                                         <option value="03">03</option>
@@ -48,8 +48,8 @@
                                     </select>
                                 </div>
                                 <div class="col-6">
-                                    <select name="card_expiry_year" class="form-control card_expiry_year" required="required">
-                                        <option value="">Year</option>
+                                    <select name="card_expiry_year" class="form-select" required="required">
+                                        <option value="">Ano</option>
                                         <option value="2024">2024</option>
                                         <option value="2025">2025</option>
                                         <option value="2026">2026</option>
@@ -67,18 +67,18 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="card_cvv" class="control-label">CVV *</label>
+                        <div class="mb-3">
+                            <label for="card_cvv" class="form-label">CVV *</label>
                             <input type="text" 
                                    name="card_cvv" 
-                                   class="form-control card_cvv" 
+                                   class="form-control" 
                                    placeholder="123"
                                    maxlength="4"
                                    required="required"/>
                         </div>
                     </div>
                 </div>
-            </form>
+            </div>
         </template>
     </data>
 </odoo>

@@ -33,3 +33,28 @@ class PaymentProvider(models.Model):
         if self.code == "pagarme":
             default_codes.append("card")
         return default_codes
+
+    def _get_specific_processing_values(self, processing_values):
+        """Return specific processing values for Pagar.me provider."""
+        res = super()._get_specific_processing_values(processing_values)
+        if self.code != "pagarme":
+            return res
+
+        return {
+            "api_url": self._get_pagarme_api_url(),
+            "webhook_url": self._get_pagarme_webhook_url(),
+            "app_id": self.pagarme_app_id,
+        }
+
+    def _get_pagarme_api_url(self):
+        """Get the Pagar.me API URL based on the provider state."""
+        self.ensure_one()
+        if self.state == "test":
+            return "https://api.pagar.me/1/test"
+        return "https://api.pagar.me/1"
+
+    def _send_payment_request(self, payload):
+        """Send payment request to Pagar.me API."""
+        # This would implement the actual API call to Pagar.me
+        # For now, return a placeholder response
+        return {"status": "success", "transaction_id": "pagarme_test_txn"}
