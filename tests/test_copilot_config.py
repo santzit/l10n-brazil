@@ -8,6 +8,7 @@ import json
 import os
 import sys
 
+
 def test_json_file(filepath, expected_keys=None):
     """Test if a JSON file is valid and contains expected keys."""
     try:
@@ -17,7 +18,7 @@ def test_json_file(filepath, expected_keys=None):
             print(f"❌ File does not exist: {filepath}")
             return False
             
-        with open(filepath, 'r') as f:
+        with open(filepath) as f:
             data = json.load(f)
             
         print(f"✅ Valid JSON: {filepath}")

@@ -26,43 +26,85 @@ const pagarmePaymentMixin = {
 
         const self = this;
         
-        // Find the payment form container and scope element search within it
-        var paymentContainer = document.querySelector('[id*="pagarme-container-' + providerId + '"]') || 
-                               document.querySelector('.o_payment_form') || 
-                               document;
-
-        // Get form element - Pagar.me script expects a form
-        var form = paymentContainer.querySelector('form') || paymentContainer.closest('form');
-        if (!form) {
-            this._displayError(
-                'Erro do Formulário',
-                'Formulário de pagamento não encontrado. Recarregue a página e tente novamente.'
-            );
-            return Promise.reject(new Error('Payment form not found'));
+        // Find the payment form container - try different approaches
+        var paymentContainer = document.querySelector('[id*="pagarme-container-' + providerId + '"]');
+        
+        if (!paymentContainer) {
+            // Try to find by provider ID pattern
+            var providerContainers = document.querySelectorAll('[id*="pagarme-container-"]');
+            if (providerContainers.length > 0) {
+                paymentContainer = providerContainers[0];
+            }
+        }
+        
+        if (!paymentContainer) {
+            // Fallback to any element with o_payment_form class
+            paymentContainer = document.querySelector('.o_payment_form');
+        }
+        
+        if (!paymentContainer) {
+            // Last resort - search entire document
+            paymentContainer = document;
         }
 
-        // Get card details from the form for validation
-        var cardHolderNameEl = paymentContainer.querySelector('#card_holder_name') || 
-                               paymentContainer.querySelector('[name="card_holder_name"]');
-        var cardNumberEl = paymentContainer.querySelector('#card_number') || 
-                           paymentContainer.querySelector('[name="card_number"]');
-        var cardExpiryMonthEl = paymentContainer.querySelector('#card_expiry_month') || 
-                                paymentContainer.querySelector('[name="card_expiry_month"]');
-        var cardExpiryYearEl = paymentContainer.querySelector('#card_expiry_year') || 
-                               paymentContainer.querySelector('[name="card_expiry_year"]');
-        var cardCvvEl = paymentContainer.querySelector('#card_cvv') || 
-                        paymentContainer.querySelector('[name="card_cvv"]');
+        // Debug log to help diagnose issues
+        console.log('Pagar.me: Payment container found:', paymentContainer);
+        console.log('Pagar.me: Provider ID:', providerId);
+
+        // Get card details from the form for validation - use more robust selectors
+        var cardHolderNameEl = paymentContainer.querySelector('input[name="card_holder_name"]') || 
+                               paymentContainer.querySelector('#card_holder_name') ||
+                               document.querySelector('input[name="card_holder_name"]');
+        var cardNumberEl = paymentContainer.querySelector('input[name="card_number"]') || 
+                           paymentContainer.querySelector('#card_number') ||
+                           document.querySelector('input[name="card_number"]');
+        var cardExpiryMonthEl = paymentContainer.querySelector('select[name="card_expiry_month"]') || 
+                                paymentContainer.querySelector('#card_expiry_month') ||
+                                document.querySelector('select[name="card_expiry_month"]');
+        var cardExpiryYearEl = paymentContainer.querySelector('select[name="card_expiry_year"]') || 
+                               paymentContainer.querySelector('#card_expiry_year') ||
+                               document.querySelector('select[name="card_expiry_year"]');
+        var cardCvvEl = paymentContainer.querySelector('input[name="card_cvv"]') || 
+                        paymentContainer.querySelector('#card_cvv') ||
+                        document.querySelector('input[name="card_cvv"]');
+
+        // Debug log to help diagnose issues
+        console.log('Pagar.me: Form elements found:', {
+            cardHolderName: !!cardHolderNameEl,
+            cardNumber: !!cardNumberEl,
+            expiryMonth: !!cardExpiryMonthEl,
+            expiryYear: !!cardExpiryYearEl,
+            cvv: !!cardCvvEl
+        });
 
         // Check if all required elements exist
         if (!cardHolderNameEl || !cardNumberEl || !cardExpiryMonthEl || !cardExpiryYearEl || !cardCvvEl) {
+            // More detailed error logging
+            var missingFields = [];
+            if (!cardHolderNameEl) missingFields.push('Nome do Portador');
+            if (!cardNumberEl) missingFields.push('Número do Cartão');
+            if (!cardExpiryMonthEl) missingFields.push('Mês de Expiração');
+            if (!cardExpiryYearEl) missingFields.push('Ano de Expiração');
+            if (!cardCvvEl) missingFields.push('CVV');
+            
+            console.error('Pagar.me: Missing form fields:', missingFields);
+            console.log('Pagar.me: Available form elements in container:', 
+                Array.from(paymentContainer.querySelectorAll('input, select')).map(el => ({
+                    tag: el.tagName,
+                    name: el.name,
+                    id: el.id,
+                    type: el.type
+                }))
+            );
+            
             this._displayError(
                 'Erro do Formulário',
-                'Não foi possível encontrar os campos do cartão. Recarregue a página e tente novamente.'
+                'Não foi possível encontrar os campos do cartão: ' + missingFields.join(', ') + '. Recarregue a página e tente novamente.'
             );
-            return Promise.reject(new Error('Payment form elements not found'));
+            return Promise.reject(new Error('Payment form elements not found: ' + missingFields.join(', ')));
         }
 
-        // Basic validation
+        // Get card details for validation
         var cardHolderName = cardHolderNameEl.value;
         var cardNumber = cardNumberEl.value.replace(/\s/g, ''); // Remove spaces
         var cardExpiryMonth = cardExpiryMonthEl.value;
@@ -77,38 +119,61 @@ const pagarmePaymentMixin = {
             return Promise.reject(new Error('Incomplete payment data'));
         }
 
-        // Create a temporary form submission to trigger Pagar.me tokenization
-        // The Pagar.me script will automatically add "pagarmetoken" field during form submission
+        // Find the actual form element that contains our fields
+        var form = cardHolderNameEl.closest('form');
+        if (!form) {
+            this._displayError(
+                'Erro do Formulário',
+                'Formulário de pagamento não encontrado. Recarregue a página e tente novamente.'
+            );
+            return Promise.reject(new Error('Payment form not found'));
+        }
+
+        console.log('Pagar.me: Found payment form:', form);
+
+        // Use Pagar.me's automatic tokenization by submitting the form
+        // The Pagar.me script will intercept the submission and add the token
         return new Promise((resolve, reject) => {
             try {
-                // Create a hidden form for tokenization
-                var tokenForm = document.createElement('form');
-                tokenForm.style.display = 'none';
-                tokenForm.method = 'POST';
+                // Store the original form action and method
+                var originalAction = form.action;
+                var originalMethod = form.method;
+                var originalTarget = form.target;
                 
-                // Copy all the card fields with data-pagarme-checkout-element attributes
-                var fields = ['card_holder_name', 'card_number', 'card_expiry_month', 'card_expiry_year', 'card_cvv'];
-                fields.forEach(function(fieldName) {
-                    var originalField = paymentContainer.querySelector('[name="' + fieldName + '"]');
-                    if (originalField) {
-                        var clonedField = originalField.cloneNode(true);
-                        tokenForm.appendChild(clonedField);
-                    }
-                });
-
-                document.body.appendChild(tokenForm);
-
-                // Override form submission to capture the token
-                var originalSubmit = tokenForm.submit;
-                tokenForm.submit = function() {
-                    // At this point, Pagar.me should have added the pagarmetoken field
-                    var tokenField = tokenForm.querySelector('[name="pagarmetoken"]');
+                // Set up a temporary submission handler
+                var tokenCheckInterval;
+                var attemptCount = 0;
+                var maxAttempts = 50; // 5 seconds total (50 * 100ms)
+                
+                // Create a hidden iframe to capture the form submission
+                var iframe = document.createElement('iframe');
+                iframe.name = 'pagarme_token_frame';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                
+                // Set form to submit to the iframe
+                form.target = 'pagarme_token_frame';
+                form.action = '#';
+                form.method = 'POST';
+                
+                // Function to check for the token
+                function checkForToken() {
+                    attemptCount++;
+                    var tokenField = form.querySelector('input[name="pagarmetoken"]');
+                    
                     if (tokenField && tokenField.value) {
+                        clearInterval(tokenCheckInterval);
+                        
                         var cardToken = tokenField.value;
                         console.log('Pagar.me: Card tokenized successfully');
                         
-                        // Clean up the temporary form
-                        document.body.removeChild(tokenForm);
+                        // Restore form properties
+                        form.action = originalAction;
+                        form.method = originalMethod;
+                        form.target = originalTarget;
+                        
+                        // Clean up iframe
+                        document.body.removeChild(iframe);
                         
                         // Send tokenized data to server
                         self._rpc({
@@ -140,22 +205,32 @@ const pagarmePaymentMixin = {
                             );
                             reject(error);
                         });
-                    } else {
-                        // Clean up and show error
-                        document.body.removeChild(tokenForm);
+                        
+                    } else if (attemptCount >= maxAttempts) {
+                        clearInterval(tokenCheckInterval);
+                        
+                        // Restore form properties
+                        form.action = originalAction;
+                        form.method = originalMethod;
+                        form.target = originalTarget;
+                        
+                        // Clean up iframe
+                        document.body.removeChild(iframe);
+                        
                         self._displayError(
                             'Erro na Tokenização',
                             'Não foi possível gerar o token do cartão. Verifique as informações e tente novamente.'
                         );
-                        reject(new Error('Token not generated'));
+                        reject(new Error('Token generation timeout'));
                     }
-                };
-
-                // Add a small delay to ensure Pagar.me script is ready, then submit
-                setTimeout(function() {
-                    tokenForm.submit();
-                }, 100);
-
+                }
+                
+                // Start checking for token
+                tokenCheckInterval = setInterval(checkForToken, 100);
+                
+                // Submit the form to trigger Pagar.me tokenization
+                form.submit();
+                
             } catch (error) {
                 console.error('Pagar.me: Tokenization setup failed:', error);
                 self._displayError(
@@ -187,15 +262,37 @@ const pagarmePaymentMixin = {
         // Set the payment flow to direct payment (inline processing)
         this._setPaymentFlow('direct');
         
-        // Add input formatting for card number with scoped search
-        var paymentContainer = document.querySelector('[id*="pagarme-container-' + paymentOptionId + '"]') || 
-                               document.querySelector('.o_payment_form') || 
-                               document;
+        // Find the payment form container - try different approaches  
+        var paymentContainer = document.querySelector('[id*="pagarme-container-' + paymentOptionId + '"]');
+        
+        if (!paymentContainer) {
+            // Try to find by provider ID pattern
+            var providerContainers = document.querySelectorAll('[id*="pagarme-container-"]');
+            if (providerContainers.length > 0) {
+                paymentContainer = providerContainers[0];
+            }
+        }
+        
+        if (!paymentContainer) {
+            // Fallback to any element with o_payment_form class
+            paymentContainer = document.querySelector('.o_payment_form');
+        }
+        
+        if (!paymentContainer) {
+            // Last resort - search entire document
+            paymentContainer = document;
+        }
+
+        console.log('Pagar.me: Preparing inline form, container found:', paymentContainer);
+        console.log('Pagar.me: Payment option ID:', paymentOptionId);
                                
-        var cardNumberInput = paymentContainer.querySelector('#card_number') || 
-                              paymentContainer.querySelector('[name="card_number"]');
+        // Add input formatting for card number with scoped search
+        var cardNumberInput = paymentContainer.querySelector('input[name="card_number"]') || 
+                              paymentContainer.querySelector('#card_number') ||
+                              document.querySelector('input[name="card_number"]');
                               
         if (cardNumberInput) {
+            console.log('Pagar.me: Setting up card number formatting');
             cardNumberInput.addEventListener('input', function() {
                 var value = this.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
                 var formattedValue = value.match(/.{1,4}/g);
@@ -209,9 +306,11 @@ const pagarmePaymentMixin = {
         }
 
         // Add CVV input validation
-        var cardCvvInput = paymentContainer.querySelector('#card_cvv') || 
-                           paymentContainer.querySelector('[name="card_cvv"]');
+        var cardCvvInput = paymentContainer.querySelector('input[name="card_cvv"]') || 
+                           paymentContainer.querySelector('#card_cvv') ||
+                           document.querySelector('input[name="card_cvv"]');
         if (cardCvvInput) {
+            console.log('Pagar.me: Setting up CVV validation');
             cardCvvInput.addEventListener('input', function() {
                 this.value = this.value.replace(/[^0-9]/gi, '');
                 if (this.value.length > 4) {
@@ -221,9 +320,11 @@ const pagarmePaymentMixin = {
         }
 
         // Add cardholder name validation
-        var cardHolderInput = paymentContainer.querySelector('#card_holder_name') || 
-                              paymentContainer.querySelector('[name="card_holder_name"]');
+        var cardHolderInput = paymentContainer.querySelector('input[name="card_holder_name"]') || 
+                              paymentContainer.querySelector('#card_holder_name') ||
+                              document.querySelector('input[name="card_holder_name"]');
         if (cardHolderInput) {
+            console.log('Pagar.me: Setting up cardholder name validation');
             cardHolderInput.addEventListener('input', function() {
                 // Allow letters, spaces, and common name characters
                 this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/gi, '');

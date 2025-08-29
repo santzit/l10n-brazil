@@ -6,7 +6,7 @@
             <!-- Load Pagar.me Tokenizacard.js -->
             <script type="text/javascript" src="https://checkout.pagar.me/v1/tokenizecard.js"></script>
             
-            <div t-attf-id="pagarme-container-{{provider_id}}" class="o_payment_form">
+            <form t-attf-id="pagarme-container-{{provider_id}}" class="o_payment_form" method="post">
                 <div class="row">
                     <div class="mb-3">
                         <input name="provider_id" type="hidden" t-att-value="provider_id"/>
@@ -99,7 +99,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </template>
     </data>
 </odoo>
