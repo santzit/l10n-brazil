@@ -2,6 +2,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
+import pprint
 
 from odoo import http
 from odoo.http import request
@@ -11,16 +12,22 @@ _logger = logging.getLogger(__name__)
 
 class PagarmeController(http.Controller):
     _webhook_url = "/payment/pagarme/webhook"
-    _payment_url = "/payment/pagarme/payment"
+    _return_url = "/payment/pagarme/return"
 
-    @http.route(_payment_url, type="json", auth="public", methods=["POST"], csrf=False)
-    def pagarme_payment(self, **kwargs):
-        """Handle payment processing request from frontend."""
+    @http.route(_return_url, type="http", auth="public", methods=["GET"], csrf=False)
+    def pagarme_return(self, **kwargs):
+        """Handle return from Pagar.me checkout."""
         try:
-            # Get transaction reference
             reference = kwargs.get("reference")
+            status = kwargs.get("status", "cancel")
+            
+            _logger.info(
+                "Pagar.me return with reference: %s, status: %s", reference, status
+            )
+
             if not reference:
-                return {"error": "Missing transaction reference"}
+                _logger.error("Missing reference in Pagar.me return")
+                return request.redirect("/payment/status")
 
             # Find the transaction
             transaction = (
@@ -30,43 +37,49 @@ class PagarmeController(http.Controller):
             )
 
             if not transaction:
-                return {"error": "Transaction not found"}
+                _logger.error("Transaction not found for reference: %s", reference)
+                return request.redirect("/payment/status")
 
-            # Store card data temporarily (in a real implementation,
-            # this would be tokenized)
-            transaction.pagarme_token = "test_token_" + reference
+            # Handle different statuses
+            if status == "success":
+                # Payment completed - wait for webhook confirmation
+                _logger.info("Payment success for transaction %s", reference)
+            elif status == "cancel":
+                # Payment canceled by user
+                transaction._set_canceled()
+                _logger.info("Payment canceled for transaction %s", reference)
+            else:
+                _logger.warning(
+                    "Unknown status '%s' for transaction %s", status, reference
+                )
 
-            # Process the payment
-            transaction._send_payment_request()
-
-            return {"success": True}
+            return request.redirect("/payment/status")
 
         except Exception as e:
-            _logger.error("Pagar.me payment error: %s", str(e))
-            return {"error": str(e)}
+            _logger.error("Pagar.me return error: %s", str(e))
+            return request.redirect("/payment/status")
 
     @http.route(_webhook_url, type="json", auth="public", methods=["POST"], csrf=False)
     def pagarme_webhook(self, **kwargs):
         """Handle webhook notifications from Pagar.me."""
         try:
-            data = kwargs or {}
+            data = request.jsonrequest or {}
+            _logger.info("Pagar.me webhook received: %s", pprint.pformat(data))
 
-            # Find transaction by Pagar.me ID
-            provider_reference = data.get("id")
-            if not provider_reference:
-                return {"error": "Missing provider reference"}
-
-            transaction = (
+            # Find transaction using the notification data
+            tx = (
                 request.env["payment.transaction"]
                 .sudo()
-                .search([("provider_reference", "=", provider_reference)], limit=1)
+                ._get_tx_from_notification_data("pagarme", data)
             )
 
-            if not transaction:
+            if not tx:
+                _logger.error("No transaction found for Pagar.me webhook: %s", data)
                 return {"error": "Transaction not found"}
 
             # Process the notification
-            transaction._process_notification_data(data)
+            tx._process_notification_data(data)
+            _logger.info("Processed webhook for transaction %s", tx.reference)
 
             return {"status": "received"}
 

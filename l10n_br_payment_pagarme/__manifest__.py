@@ -13,11 +13,6 @@
         "views/payment_provider_views.xml",
         "data/pagarme_provider.xml",
     ],
-    "assets": {
-        "web.assets_frontend": [
-            "l10n_br_payment_pagarme/static/src/js/payment_form.js",
-        ],
-    },
     "post_init_hook": "post_init_hook",
     "uninstall_hook": "uninstall_hook",
     "installable": True,
@@ -28,6 +23,7 @@ Brazilian Pagar.me Payment Provider for Odoo 16
 ===============================================
 
 Payment integration with Pagar.me gateway for Brazilian e-commerce.
+Uses Pagar.me hosted checkout for secure payment processing.
     """,
     "external_dependencies": {
         "python": ["requests"],

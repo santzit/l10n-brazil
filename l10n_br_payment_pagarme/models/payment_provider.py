@@ -1,7 +1,14 @@
 # Copyright 2024 OCA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+import logging
+
+import requests
+
 from odoo import fields, models
+from odoo.exceptions import ValidationError
+
+_logger = logging.getLogger(__name__)
 
 
 class PaymentProvider(models.Model):
@@ -27,6 +34,12 @@ class PaymentProvider(models.Model):
         base_url = self.get_base_url()
         return f"{base_url}/payment/pagarme/webhook"
 
+    def _get_return_url(self, reference):
+        """Get the return URL for payment success/cancel."""
+        self.ensure_one()
+        base_url = self.get_base_url()
+        return f"{base_url}/payment/pagarme/return?reference={reference}"
+
     def _get_default_payment_method_codes(self):
         """Return the default payment method codes."""
         default_codes = super()._get_default_payment_method_codes()
@@ -34,27 +47,78 @@ class PaymentProvider(models.Model):
             default_codes.append("card")
         return default_codes
 
-    def _get_specific_processing_values(self, processing_values):
-        """Return specific processing values for Pagar.me provider."""
-        res = super()._get_specific_processing_values(processing_values)
-        if self.code != "pagarme":
-            return res
-
-        return {
-            "api_url": self._get_pagarme_api_url(),
-            "webhook_url": self._get_pagarme_webhook_url(),
-            "app_id": self.pagarme_app_id,
+    def _create_pagarme_checkout_session(self, transaction):
+        """Create a checkout session with Pagar.me API."""
+        self.ensure_one()
+        
+        # Prepare order data for Pagar.me checkout API
+        order_data = {
+            "items": [
+                {
+                    "amount": int(transaction.amount * 100),  # Convert to cents
+                    "description": transaction.reference or "Payment",
+                    "quantity": 1,
+                    "code": transaction.reference,
+                }
+            ],
+            "customer": {
+                "name": transaction.partner_name or "",
+                "email": transaction.partner_email or "",
+                "type": "individual",
+            },
+            "payments": [
+                {
+                    "payment_method": "checkout",
+                    "checkout": {
+                        "expires_in": 3600,  # 1 hour
+                        "default_payment_method": "credit_card",
+                        "accepted_payment_methods": ["credit_card", "boleto", "pix"],
+                        "success_url": (
+                            f"{self._get_return_url(transaction.reference)}"
+                            "&status=success"
+                        ),
+                        "cancel_url": (
+                            f"{self._get_return_url(transaction.reference)}"
+                            "&status=cancel"
+                        ),
+                    }
+                }
+            ],
+            "metadata": {
+                "odoo_reference": transaction.reference,
+                "transaction_id": transaction.id,
+            }
         }
 
-    def _get_pagarme_api_url(self):
-        """Get the Pagar.me API URL based on the provider state."""
-        self.ensure_one()
-        if self.state == "test":
-            return "https://api.pagar.me/1/test"
-        return "https://api.pagar.me/1"
+        # Make API request to Pagar.me
+        headers = {
+            "Authorization": f"Bearer {self.pagarme_api_key}",
+            "Content-Type": "application/json",
+        }
 
-    def _send_payment_request(self, payload):
-        """Send payment request to Pagar.me API."""
-        # This would implement the actual API call to Pagar.me
-        # For now, return a placeholder response
-        return {"status": "success", "transaction_id": "pagarme_test_txn"}
+        try:
+            response = requests.post(
+                "https://api.pagar.me/core/v5/orders",
+                json=order_data,
+                headers=headers,
+                timeout=30,
+            )
+            response.raise_for_status()
+            result = response.json()
+
+            # Extract checkout URL
+            checkout_url = result.get("checkout", {}).get("url")
+            if not checkout_url:
+                raise ValidationError("Pagar.me did not return a checkout URL")
+
+            # Store the order ID for later reference
+            transaction.provider_reference = result.get("id")
+            
+            return checkout_url
+
+        except requests.RequestException as e:
+            _logger.error("Pagar.me checkout session creation failed: %s", e)
+            raise ValidationError(f"Failed to create checkout session: {str(e)}") from e
+        except Exception as e:
+            _logger.error("Unexpected error creating Pagar.me checkout: %s", e)
+            raise ValidationError(f"Checkout creation error: {str(e)}") from e

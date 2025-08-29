@@ -3,8 +3,6 @@
 
 import logging
 
-import requests
-
 from odoo import fields, models
 
 _logger = logging.getLogger(__name__)
@@ -13,88 +11,61 @@ _logger = logging.getLogger(__name__)
 class PaymentTransaction(models.Model):
     _inherit = "payment.transaction"
 
-    pagarme_token = fields.Char(
-        string="Pagar.me Token",
-        help="Token received from Pagar.me tokenization",
+    pagarme_order_id = fields.Char(
+        string="Pagar.me Order ID",
+        help="Order ID from Pagar.me checkout session",
         readonly=True,
     )
 
     def _get_specific_processing_values(self, processing_values):
-        """Return Pagar.me-specific processing values."""
+        """Return Pagar.me-specific processing values for redirect flow."""
         res = super()._get_specific_processing_values(processing_values)
         if self.provider_code != "pagarme":
             return res
 
-        # Return specific keys expected by the payment framework, similar to Stripe
+        # Create checkout session and get redirect URL
+        checkout_url = self.provider_id._create_pagarme_checkout_session(self)
+        
         return {
-            "public_key": self.provider_id.pagarme_app_id,
-            "api_key": self.provider_id.pagarme_api_key,
-            "amount": int(self.amount * 100),  # Convert to cents for Pagar.me API
-            "currency": self.currency_id.name.lower(),
+            "checkout_url": checkout_url,
         }
 
-    def _send_payment_request(self):
-        """Send payment request to Pagar.me."""
-        if self.provider_code != "pagarme":
-            return super()._send_payment_request()
-
-        # Prepare order data for Pagar.me API
-        order_data = {
-            "amount": int(self.amount * 100),  # Convert to cents
-            "currency": self.currency_id.name,
-            "payments": [
-                {
-                    "payment_method": "credit_card",
-                    "amount": int(self.amount * 100),
-                    "credit_card": {
-                        "card_token": self.pagarme_token,
-                    },
-                }
-            ],
-            "customer": {
-                "name": self.partner_name or "",
-                "email": self.partner_email or "",
-                "type": "individual",
-            },
-        }
-
-        # Make API request to Pagar.me
-        headers = {
-            "Authorization": f"Bearer {self.provider_id.pagarme_api_key}",
-            "Content-Type": "application/json",
-        }
-
-        try:
-            response = requests.post(
-                "https://api.pagar.me/core/v5/orders",
-                json=order_data,
-                headers=headers,
-                timeout=10,
+    def _get_tx_from_notification_data(self, provider_code, notification_data):
+        """Find transaction from Pagar.me notification data."""
+        if provider_code != "pagarme":
+            return super()._get_tx_from_notification_data(
+                provider_code, notification_data
             )
-            response.raise_for_status()
-            result = response.json()
 
-            # Update transaction with response data
-            self.provider_reference = result.get("id")
+        # Try to find by provider_reference (Pagar.me order ID)
+        provider_reference = notification_data.get("id")
+        if provider_reference:
+            tx = self.search([("provider_reference", "=", provider_reference)], limit=1)
+            if tx:
+                return tx
 
-            # Set transaction status based on response
-            status = result.get("status")
-            if status == "paid":
-                self._set_done()
-            elif status == "pending":
-                self._set_pending()
-            else:
-                self._set_error("Payment failed")
+        # Try to find by reference in metadata
+        metadata = notification_data.get("metadata", {})
+        odoo_reference = metadata.get("odoo_reference")
+        if odoo_reference:
+            tx = self.search([("reference", "=", odoo_reference)], limit=1)
+            if tx:
+                return tx
 
-        except requests.RequestException as e:
-            _logger.error("Pagar.me payment request failed: %s", e)
-            self._set_error(f"Payment failed: {str(e)}")
+        raise ValueError(
+            f"No transaction found for Pagar.me notification: {notification_data}"
+        )
 
     def _process_notification_data(self, notification_data):
         """Process notification data from Pagar.me webhooks."""
         if self.provider_code != "pagarme":
             return super()._process_notification_data(notification_data)
 
+        # Update provider reference if not set
+        if not self.provider_reference and notification_data.get("id"):
+            self.provider_reference = notification_data.get("id")
+
+        # Process payment status
         status = notification_data.get("status")
         if status == "paid":
             self._set_done()
@@ -104,3 +75,5 @@ class PaymentTransaction(models.Model):
             self._set_canceled()
         elif status == "pending":
             self._set_pending()
+        else:
+            _logger.warning("Unknown Pagar.me status: %s", status)
