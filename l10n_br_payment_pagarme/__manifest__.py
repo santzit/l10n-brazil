@@ -9,9 +9,9 @@
         "payment",
     ],
     "data": [
-        "data/pagarme_provider.xml",
-        "views/payment_provider_views.xml",
         "views/payment_templates.xml",
+        "views/payment_provider_views.xml",
+        "data/pagarme_provider.xml",
     ],
     "assets": {
         "web.assets_frontend": [
