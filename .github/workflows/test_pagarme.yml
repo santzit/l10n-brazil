@@ -2,11 +2,11 @@ name: Test l10n_br_payment_pagarme
 
 on:
   pull_request:
-    paths:
-      - 'l10n_br_payment_pagarme/**'
+    branches:
+      - "copilot/fix-*"
   push:
-    paths:
-      - 'l10n_br_payment_pagarme/**'
+    branches:
+      - "copilot/fix-*"
 
 jobs:
   test_pagarme:
