@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
-    
     <record id="payment_provider_pagarme" model="payment.provider">
         <field name="name">Pagar.me</field>
         <field name="code">pagarme</field>
@@ -10,5 +9,4 @@
         <field name="pre_msg">Pague com segurança usando seu cartão de crédito através do Pagar.me.</field>
         <field name="image_128" type="base64" file="l10n_br_payment_pagarme/static/description/icon.png"/>
     </record>
-
 </odoo>
