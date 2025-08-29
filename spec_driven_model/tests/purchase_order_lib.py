@@ -3,6 +3,7 @@
 
 from dataclasses import dataclass, field
 from decimal import Decimal
+from typing import List, Optional
 
 from xsdata.models.datatype import XmlDate
 
@@ -11,7 +12,7 @@ __NAMESPACE__ = "http://tempuri.org/PurchaseOrderSchema.xsd"
 
 @dataclass
 class Items:
-    item: list["Items.Item"] = field(
+    item: List["Items.Item"] = field(
         default_factory=list,
         metadata={
             "type": "Element",
@@ -21,7 +22,7 @@ class Items:
 
     @dataclass
     class Item:
-        product_name: str | None = field(
+        product_name: Optional[str] = field(
             default=None,
             metadata={
                 "name": "productName",
@@ -30,7 +31,7 @@ class Items:
                 "required": True,
             },
         )
-        quantity: int | None = field(
+        quantity: Optional[int] = field(
             default=None,
             metadata={
                 "type": "Element",
@@ -40,7 +41,7 @@ class Items:
                 "max_exclusive": 100,
             },
         )
-        usprice: Decimal | None = field(
+        usprice: Optional[Decimal] = field(
             default=None,
             metadata={
                 "name": "USPrice",
@@ -49,7 +50,7 @@ class Items:
                 "required": True,
             },
         )
-        comment: str | None = field(
+        comment: Optional[str] = field(
             default=None,
             metadata={
                 "type": "Element",
@@ -57,7 +58,7 @@ class Items:
                 "required": True,
             },
         )
-        ship_date: XmlDate | None = field(
+        ship_date: Optional[XmlDate] = field(
             default=None,
             metadata={
                 "name": "shipDate",
@@ -65,7 +66,7 @@ class Items:
                 "namespace": "http://tempuri.org/PurchaseOrderSchema.xsd",
             },
         )
-        part_num: str | None = field(
+        part_num: Optional[str] = field(
             default=None,
             metadata={
                 "name": "partNum",
@@ -84,7 +85,7 @@ class Usaddress:
     class Meta:
         name = "USAddress"
 
-    name: str | None = field(
+    name: Optional[str] = field(
         default=None,
         metadata={
             "type": "Element",
@@ -92,7 +93,7 @@ class Usaddress:
             "required": True,
         },
     )
-    street: str | None = field(
+    street: Optional[str] = field(
         default=None,
         metadata={
             "type": "Element",
@@ -100,7 +101,7 @@ class Usaddress:
             "required": True,
         },
     )
-    city: str | None = field(
+    city: Optional[str] = field(
         default=None,
         metadata={
             "type": "Element",
@@ -108,7 +109,7 @@ class Usaddress:
             "required": True,
         },
     )
-    state: str | None = field(
+    state: Optional[str] = field(
         default=None,
         metadata={
             "type": "Element",
@@ -116,7 +117,7 @@ class Usaddress:
             "required": True,
         },
     )
-    zip: Decimal | None = field(
+    zip: Optional[Decimal] = field(
         default=None,
         metadata={
             "type": "Element",
@@ -149,7 +150,7 @@ class Comment:
 
 @dataclass
 class PurchaseOrderType:
-    ship_to: Usaddress | None = field(
+    ship_to: Optional[Usaddress] = field(
         default=None,
         metadata={
             "name": "shipTo",
@@ -158,7 +159,7 @@ class PurchaseOrderType:
             "required": True,
         },
     )
-    bill_to: Usaddress | None = field(
+    bill_to: Optional[Usaddress] = field(
         default=None,
         metadata={
             "name": "billTo",
@@ -167,14 +168,14 @@ class PurchaseOrderType:
             "required": True,
         },
     )
-    comment: str | None = field(
+    comment: Optional[str] = field(
         default=None,
         metadata={
             "type": "Element",
             "namespace": "http://tempuri.org/PurchaseOrderSchema.xsd",
         },
     )
-    items: Items | None = field(
+    items: Optional[Items] = field(
         default=None,
         metadata={
             "type": "Element",
@@ -182,14 +183,14 @@ class PurchaseOrderType:
             "required": True,
         },
     )
-    order_date: XmlDate | None = field(
+    order_date: Optional[XmlDate] = field(
         default=None,
         metadata={
             "name": "orderDate",
             "type": "Attribute",
         },
     )
-    confirm_date: XmlDate | None = field(
+    confirm_date: Optional[XmlDate] = field(
         default=None,
         metadata={
             "name": "confirmDate",

@@ -77,9 +77,9 @@ class TestFiscalDocumentGeneric(TransactionCase):
             # ICMS
             self.assertTrue(
                 is_icms_internal,
-                f"Error to mapping ICMS Inernal for {self.nfe_same_state.partner_id.state_id.name}"
+                "Error to mapping ICMS Inernal for {}"
                 " for Venda de Contribuinte Dentro do "
-                "Estado.",
+                "Estado.".format(self.nfe_same_state.partner_id.state_id.name),
             )
             self.assertEqual(
                 line.icms_cst_id.code,

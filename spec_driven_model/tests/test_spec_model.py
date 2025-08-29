@@ -21,27 +21,21 @@ class TestSpecModel(TransactionCase, FakeModelLoader):
 
         # import a simpilified equivalent of purchase module
         from .fake_mixin import PoXsdMixin
+        from .spec_poxsd import (
+            Items,
+            Item,
+            Usaddress,
+            Comment,
+            PurchaseOrderType,
+        )
         from .fake_odoo_purchase import (
             PurchaseOrder as FakePurchaseOrder,
-        )
-        from .fake_odoo_purchase import (
             PurchaseOrderLine as FakePurchaseOrderLine,
-        )
-        from .spec_poxsd import (
-            Comment,
-            Item,
-            Items,
-            PurchaseOrderType,
-            Usaddress,
-        )
-        from .spec_purchase import (
-            PurchaseOrder as SpecPurchaseOrder,
-        )
-        from .spec_purchase import (
-            PurchaseOrderLine as SpecPurchaseOrderLine,
         )
         from .spec_purchase import (
             ResPartner,
+            PurchaseOrder as SpecPurchaseOrder,
+            PurchaseOrderLine as SpecPurchaseOrderLine,
         )
 
         cls.loader.update_registry(
@@ -71,8 +65,6 @@ class TestSpecModel(TransactionCase, FakeModelLoader):
         # inject the mixins into existing Odoo models
         from .spec_purchase import (
             PurchaseOrder as PurchaseOrder2,
-        )
-        from .spec_purchase import (
             PurchaseOrderLine,
             ResPartner,
         )
@@ -84,7 +76,7 @@ class TestSpecModel(TransactionCase, FakeModelLoader):
     @classmethod
     def tearDownClass(cls):
         cls.loader.restore_registry()
-        super().tearDownClass()
+        super(TestSpecModel, cls).tearDownClass()
 
     def test_spec_models(self):
         self.assertTrue(
