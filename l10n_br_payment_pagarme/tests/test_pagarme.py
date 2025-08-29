@@ -1,0 +1,171 @@
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from unittest.mock import patch
+
+from odoo.tests import tagged
+from odoo.tools import mute_logger
+
+from odoo.addons.l10n_br_payment_pagarme.tests.common import PagarmeCommon
+from odoo.addons.payment.tests.http_common import PaymentHttpCommon
+
+
+@tagged("post_install", "-at_install")
+class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
+    def test_processing_values(self):
+        """Test that processing values are correctly generated."""
+        tx = self._create_transaction(flow="redirect")
+        processing_values = tx._get_specific_processing_values({})
+
+        self.assertEqual(processing_values["app_id"], self.pagarme.pagarme_app_id)
+        self.assertEqual(processing_values["amount"], int(self.amount * 100))
+        self.assertEqual(processing_values["currency"], self.currency.name)
+
+    def test_provider_webhook_url_generation(self):
+        """Test that webhook URL is correctly generated."""
+        webhook_url = self.pagarme._get_pagarme_webhook_url()
+        expected_url = f"{self.pagarme.get_base_url()}/payment/pagarme/webhook"
+        self.assertEqual(webhook_url, expected_url)
+
+    def test_provider_default_payment_methods(self):
+        """Test that default payment method codes include card for Pagar.me."""
+        payment_methods = self.pagarme._get_default_payment_method_codes()
+        self.assertIn("card", payment_methods)
+
+    @mute_logger("odoo.addons.l10n_br_payment_pagarme.models.payment_transaction")
+    def test_send_payment_request_success(self):
+        """Test successful payment request."""
+        tx = self._create_transaction("redirect", state="draft")
+        tx.pagarme_token = "card_test_1234567890"
+
+        mock_response = {
+            "id": "or_test_1234567890",
+            "status": "paid",
+            "amount": int(self.amount * 100),
+        }
+
+        with patch("requests.post") as mock_post:
+            mock_post.return_value.json.return_value = mock_response
+            mock_post.return_value.raise_for_status.return_value = None
+
+            tx._send_payment_request()
+
+        self.assertEqual(tx.state, "done")
+        self.assertEqual(tx.acquirer_reference, "or_test_1234567890")
+
+    @mute_logger("odoo.addons.l10n_br_payment_pagarme.models.payment_transaction")
+    def test_send_payment_request_pending(self):
+        """Test pending payment request."""
+        tx = self._create_transaction("redirect", state="draft")
+        tx.pagarme_token = "card_test_1234567890"
+
+        mock_response = {
+            "id": "or_test_pending_1234567890",
+            "status": "pending",
+            "amount": int(self.amount * 100),
+        }
+
+        with patch("requests.post") as mock_post:
+            mock_post.return_value.json.return_value = mock_response
+            mock_post.return_value.raise_for_status.return_value = None
+
+            tx._send_payment_request()
+
+        self.assertEqual(tx.state, "pending")
+        self.assertEqual(tx.acquirer_reference, "or_test_pending_1234567890")
+
+    @mute_logger("odoo.addons.l10n_br_payment_pagarme.models.payment_transaction")
+    def test_send_payment_request_failed(self):
+        """Test failed payment request."""
+        tx = self._create_transaction("redirect", state="draft")
+        tx.pagarme_token = "card_test_1234567890"
+
+        mock_response = {
+            "id": "or_test_failed_1234567890",
+            "status": "failed",
+            "amount": int(self.amount * 100),
+        }
+
+        with patch("requests.post") as mock_post:
+            mock_post.return_value.json.return_value = mock_response
+            mock_post.return_value.raise_for_status.return_value = None
+
+            tx._send_payment_request()
+
+        self.assertEqual(tx.state, "error")
+
+    @mute_logger("odoo.addons.l10n_br_payment_pagarme.models.payment_transaction")
+    def test_process_notification_data_paid(self):
+        """Test processing of successful payment notification."""
+        tx = self._create_transaction("redirect", state="pending")
+
+        tx._process_notification_data(self.notification_data)
+
+        self.assertEqual(tx.state, "done")
+
+    @mute_logger("odoo.addons.l10n_br_payment_pagarme.models.payment_transaction")
+    def test_process_notification_data_failed(self):
+        """Test processing of failed payment notification."""
+        tx = self._create_transaction("redirect", state="pending")
+
+        tx._process_notification_data(self.failed_notification_data)
+
+        self.assertEqual(tx.state, "error")
+
+    @mute_logger("odoo.addons.l10n_br_payment_pagarme.models.payment_transaction")
+    def test_process_notification_data_canceled(self):
+        """Test processing of canceled payment notification."""
+        tx = self._create_transaction("redirect", state="pending")
+
+        canceled_data = dict(self.notification_data, status="canceled")
+        tx._process_notification_data(canceled_data)
+
+        self.assertEqual(tx.state, "cancel")
+
+    def test_provider_configuration_fields(self):
+        """Test that provider configuration fields are properly set."""
+        self.assertTrue(hasattr(self.pagarme, "pagarme_app_id"))
+        self.assertTrue(hasattr(self.pagarme, "pagarme_api_key"))
+        self.assertEqual(self.pagarme.pagarme_app_id, "app_test_1234567890")
+        self.assertEqual(
+            self.pagarme.pagarme_api_key, "sk_test_abcdef1234567890abcdef1234567890"
+        )
+
+    def test_provider_code_selection(self):
+        """Test that Pagar.me is available as a provider option."""
+        provider_codes = self.env["payment.provider"]._fields["code"].selection
+        pagarme_option = next(
+            (option for option in provider_codes if option[0] == "pagarme"), None
+        )
+        self.assertIsNotNone(pagarme_option)
+        self.assertEqual(pagarme_option[1], "Pagar.me")
+
+    def test_transaction_pagarme_token_field(self):
+        """Test that transaction has pagarme_token field."""
+        tx = self._create_transaction("redirect")
+        self.assertTrue(hasattr(tx, "pagarme_token"))
+
+        # Test setting and getting token
+        test_token = "card_test_token_1234567890"
+        tx.pagarme_token = test_token
+        self.assertEqual(tx.pagarme_token, test_token)
+
+    def test_module_installation(self):
+        """Test that the module can be properly installed and configured."""
+        # Test that the provider can be created
+        provider = self.env["payment.provider"].create(
+            {
+                "name": "Test Pagar.me Provider",
+                "code": "pagarme",
+                "state": "test",
+                "pagarme_app_id": "test_app_id",
+                "pagarme_api_key": "test_api_key",
+            }
+        )
+
+        self.assertEqual(provider.code, "pagarme")
+        self.assertEqual(provider.pagarme_app_id, "test_app_id")
+        self.assertEqual(provider.pagarme_api_key, "test_api_key")
+
+        # Test webhook URL generation
+        webhook_url = provider._get_pagarme_webhook_url()
+        self.assertIn("/payment/pagarme/webhook", webhook_url)
