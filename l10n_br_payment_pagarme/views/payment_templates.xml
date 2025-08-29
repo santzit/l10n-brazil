@@ -3,8 +3,8 @@
     <data>
         <!-- Inline form template for Pagar.me payment provider -->
         <template id="inline_form" name="Pagar.me Inline Form">
-            <!-- Load Pagar.me Checkout.js -->
-            <script type="text/javascript" src="https://assets.pagar.me/checkout/1.0.0/checkout.js"></script>
+            <!-- Load Pagar.me Tokenizacard.js -->
+            <script type="text/javascript" src="https://checkout.pagar.me/v1/tokenizecard.js"></script>
             
             <div t-attf-id="pagarme-container-{{provider_id}}" class="o_payment_form">
                 <div class="row">

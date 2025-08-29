@@ -15,7 +15,7 @@
     ],
     "assets": {
         "web.assets_frontend": [
-            "https://js.pagar.me/tokenizacard.min.js",
+            "https://checkout.pagar.me/v1/tokenizecard.js",
             "l10n_br_payment_pagarme/static/src/js/payment_form.js",
         ],
     },
