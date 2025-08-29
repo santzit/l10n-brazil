@@ -16,9 +16,9 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
         tx = self._create_transaction(flow="redirect")
         processing_values = tx._get_specific_processing_values({})
 
-        self.assertEqual(processing_values["app_id"], self.pagarme.pagarme_app_id)
+        self.assertEqual(processing_values["public_key"], self.pagarme.pagarme_app_id)
         self.assertEqual(processing_values["amount"], int(self.amount * 100))
-        self.assertEqual(processing_values["currency"], self.currency.name)
+        self.assertEqual(processing_values["currency"], self.currency.name.lower())
 
     def test_provider_webhook_url_generation(self):
         """Test that webhook URL is correctly generated."""
@@ -50,7 +50,7 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
             tx._send_payment_request()
 
         self.assertEqual(tx.state, "done")
-        self.assertEqual(tx.acquirer_reference, "or_test_1234567890")
+        self.assertEqual(tx.provider_reference, "or_test_1234567890")
 
     @mute_logger("odoo.addons.l10n_br_payment_pagarme.models.payment_transaction")
     def test_send_payment_request_pending(self):
@@ -71,7 +71,7 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
             tx._send_payment_request()
 
         self.assertEqual(tx.state, "pending")
-        self.assertEqual(tx.acquirer_reference, "or_test_pending_1234567890")
+        self.assertEqual(tx.provider_reference, "or_test_pending_1234567890")
 
     @mute_logger("odoo.addons.l10n_br_payment_pagarme.models.payment_transaction")
     def test_send_payment_request_failed(self):

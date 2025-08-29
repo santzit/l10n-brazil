@@ -25,13 +25,13 @@ class PaymentTransaction(models.Model):
         if self.provider_code != "pagarme":
             return res
 
-        pagarme_values = {
-            "app_id": self.provider_id.pagarme_app_id,
-            "amount": int(self.amount * 100),  # Convert to cents
-            "currency": self.currency_id.name,
+        # Return specific keys expected by the payment framework, similar to Stripe
+        return {
+            'public_key': self.provider_id.pagarme_app_id,
+            'api_key': self.provider_id.pagarme_api_key,
+            'amount': int(self.amount * 100),  # Convert to cents for Pagar.me API
+            'currency': self.currency_id.name.lower(),
         }
-        res.update(pagarme_values)
-        return res
 
     def _send_payment_request(self):
         """Send payment request to Pagar.me."""
