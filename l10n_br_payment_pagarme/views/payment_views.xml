@@ -1,92 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <data>
+        <!-- Payment Provider Configuration View -->
+        <record id="payment_provider_form_pagarme" model="ir.ui.view">
+            <field name="name">payment.provider.form.pagarme</field>
+            <field name="model">payment.provider</field>
+            <field name="inherit_id" ref="payment.payment_provider_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='provider_details']" position="after">
+                    <group attrs="{'invisible': [('code', '!=', 'pagarme')]}" string="Pagar.me Credentials">
+                        <field name="pagarme_app_id" password="True"/>
+                        <field name="pagarme_api_key" password="True"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
 
-    <!-- Payment Provider Configuration View -->
-    <record id="payment_provider_form_pagarme" model="ir.ui.view">
-        <field name="name">payment.provider.form.pagarme</field>
-        <field name="model">payment.provider</field>
-        <field name="inherit_id" ref="payment.payment_provider_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//group[@name='provider']" position="after">
-                <group attrs="{'invisible': [('code', '!=', 'pagarme')]}" string="Pagar.me Credentials">
-                    <field name="pagarme_app_id" password="True"/>
-                    <field name="pagarme_api_key" password="True"/>
-                </group>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- Credit Card Payment Form Template -->
-    <template id="payment_form_pagarme" name="Pagar.me Payment Form">
-        <form class="o_payment_form_pagarme" method="POST" t-if="provider_code == 'pagarme'">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group">
-                        <label for="card_holder_name" class="control-label">Cardholder Name *</label>
-                        <input type="text" 
-                               name="card_holder_name" 
-                               class="form-control card_holder_name" 
-                               placeholder="Full name as on the card"
-                               required="required"/>
+        <!-- Credit Card Payment Form Template -->
+        <template id="payment_form_pagarme" name="Pagar.me Payment Form">
+            <form class="o_payment_form_pagarme" method="POST" t-if="provider_code == 'pagarme'">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="card_holder_name" class="control-label">Cardholder Name *</label>
+                            <input type="text" 
+                                   name="card_holder_name" 
+                                   class="form-control card_holder_name" 
+                                   placeholder="Full name as on the card"
+                                   required="required"/>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-12">
-                    <div class="form-group">
-                        <label for="card_number" class="control-label">Card Number *</label>
-                        <input type="text" 
-                               name="card_number" 
-                               class="form-control card_number" 
-                               placeholder="1234 5678 9012 3456"
-                               maxlength="23"
-                               required="required"/>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="card_number" class="control-label">Card Number *</label>
+                            <input type="text" 
+                                   name="card_number" 
+                                   class="form-control card_number" 
+                                   placeholder="1234 5678 9012 3456"
+                                   maxlength="23"
+                                   required="required"/>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label class="control-label">Expiry Date *</label>
-                        <div class="row">
-                            <div class="col-6">
-                                <select name="card_expiry_month" class="form-control card_expiry_month" required="required">
-                                    <option value="">Month</option>
-                                    <option value="01">01</option>
-                                    <option value="02">02</option>
-                                    <option value="03">03</option>
-                                    <option value="04">04</option>
-                                    <option value="05">05</option>
-                                    <option value="06">06</option>
-                                    <option value="07">07</option>
-                                    <option value="08">08</option>
-                                    <option value="09">09</option>
-                                    <option value="10">10</option>
-                                    <option value="11">11</option>
-                                    <option value="12">12</option>
-                                </select>
-                            </div>
-                            <div class="col-6">
-                                <select name="card_expiry_year" class="form-control card_expiry_year" required="required">
-                                    <option value="">Year</option>
-                                    <t t-set="current_year" t-value="datetime.datetime.now().year"/>
-                                    <t t-foreach="range(current_year, current_year + 11)" t-as="year">
-                                        <option t-att-value="year" t-esc="year"/>
-                                    </t>
-                                </select>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="control-label">Expiry Date *</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <select name="card_expiry_month" class="form-control card_expiry_month" required="required">
+                                        <option value="">Month</option>
+                                        <option value="01">01</option>
+                                        <option value="02">02</option>
+                                        <option value="03">03</option>
+                                        <option value="04">04</option>
+                                        <option value="05">05</option>
+                                        <option value="06">06</option>
+                                        <option value="07">07</option>
+                                        <option value="08">08</option>
+                                        <option value="09">09</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <select name="card_expiry_year" class="form-control card_expiry_year" required="required">
+                                        <option value="">Year</option>
+                                        <t t-set="current_year" t-value="datetime.datetime.now().year"/>
+                                        <t t-foreach="range(current_year, current_year + 11)" t-as="year">
+                                            <option t-att-value="year" t-esc="year"/>
+                                        </t>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="card_cvv" class="control-label">CVV *</label>
-                        <input type="text" 
-                               name="card_cvv" 
-                               class="form-control card_cvv" 
-                               placeholder="123"
-                               maxlength="4"
-                               required="required"/>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="card_cvv" class="control-label">CVV *</label>
+                            <input type="text" 
+                                   name="card_cvv" 
+                                   class="form-control card_cvv" 
+                                   placeholder="123"
+                                   maxlength="4"
+                                   required="required"/>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
-    </template>
-
+            </form>
+        </template>
+    </data>
 </odoo>
