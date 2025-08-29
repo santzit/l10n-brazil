@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Payment Method -->
+    <record id="payment_method_pagarme" model="payment.method">
+        <field name="name">Credit Card</field>
+        <field name="code">pagarme</field>
+        <field name="sequence">1</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Payment Acquirer: Pagar.me -->
+    <record id="payment_acquirer_pagarme" model="payment.acquirer">
+        <field name="name">Pagar.me</field>
+        <field name="provider">pagarme</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="state">disabled</field>
+        <field name="inline_form_view_id" ref="pagarme_form"/>
+        <field name="payment_icon_ids" eval="[(6, 0, [
+            ref('payment.payment_icon_visa'),
+            ref('payment.payment_icon_mastercard'),
+            ref('payment.payment_icon_amex'),
+            ref('payment.payment_icon_diners'),
+            ref('payment.payment_icon_elo')
+        ])]"/>
+        <field name="journal_id" ref="account.bank_journal"/>
+        <field name="capture_manually">False</field>
+        <field name="allow_tokenization">False</field>
+        <field name="allow_express_checkout">False</field>
+        <field name="display_as">Cartão de Crédito via Pagar.me</field>
+        <field name="description">
+            <![CDATA[
+            <p>Aceite cartões de crédito de forma segura através do Pagar.me</p>
+            <ul>
+                <li>Suporte para as principais bandeiras (Visa, Mastercard, Amex, Diners, Elo)</li>
+                <li>Processamento seguro com tokenização no frontend</li>
+                <li>Integração nativa com dashboard Pagar.me</li>
+                <li>Suporte a webhooks para atualizações em tempo real</li>
+            </ul>
+            ]]>
+        </field>
+    </record>
+
+    <!-- Payment Method Lines -->
+    <record id="payment_method_line_pagarme" model="payment.method">
+        <field name="name">Pagar.me</field>
+        <field name="code">pagarme</field>
+        <field name="payment_type">inbound</field>
+    </record>
+
+</odoo>

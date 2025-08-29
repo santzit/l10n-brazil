@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Pagar.me Inline Payment Form Template -->
+    <template id="pagarme_form" name="Pagar.me: Inline Payment Form">
+        <form method="post" 
+              target="_self"
+              name="o_payment_form"
+              t-att-data-acquirer-id="acquirer.id"
+              t-att-data-acquirer-provider="acquirer.provider"
+              t-att-action="tx_url"
+              class="o_payment_form o_payment_pagarme_form">
+
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+            <input type="hidden" name="data_set" t-att-value="tx_values"/>
+            <input type="hidden" name="reference" t-att-value="reference"/>
+            <input type="hidden" name="amount" t-att-value="amount"/>
+            <input type="hidden" name="currency_id" t-att-value="currency_id"/>
+            <input type="hidden" name="partner_id" t-att-value="partner_id"/>
+            <input type="hidden" name="return_url" t-att-value="return_url"/>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fa fa-credit-card"></i>
+                        Cartão de Crédito - Pagar.me
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info" role="alert">
+                        <small>
+                            <i class="fa fa-shield"></i>
+                            Seus dados de cartão são criptografados e processados com segurança pelo Pagar.me.
+                            Nenhuma informação sensível é armazenada em nossos servidores.
+                        </small>
+                    </div>
+                    
+                    <!-- Card form will be built by JavaScript -->
+                    <div class="o_pagarme_card_container">
+                        <!-- JavaScript will populate this -->
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="pagarme_terms" required="required">
+                                <label class="form-check-label" for="pagarme_terms">
+                                    <small>
+                                        Concordo com os 
+                                        <a href="https://pagar.me/termos-de-uso/" target="_blank">termos de uso</a>
+                                        e 
+                                        <a href="https://pagar.me/politica-de-privacidade/" target="_blank">política de privacidade</a>
+                                        do Pagar.me
+                                    </small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </template>
+
+    <!-- Pagar.me Payment Status Template -->
+    <template id="pagarme_payment_status" name="Pagar.me: Payment Status">
+        <div class="o_payment_pagarme_status" t-att-data-tx-id="tx.id">
+            <t t-if="tx.state == 'pending'">
+                <div class="alert alert-warning" role="alert">
+                    <i class="fa fa-clock-o"></i>
+                    Seu pagamento está sendo processado. Aguarde a confirmação.
+                </div>
+            </t>
+            <t t-if="tx.state == 'done'">
+                <div class="alert alert-success" role="alert">
+                    <i class="fa fa-check"></i>
+                    Pagamento confirmado com sucesso!
+                </div>
+            </t>
+            <t t-if="tx.state == 'error'">
+                <div class="alert alert-danger" role="alert">
+                    <i class="fa fa-times"></i>
+                    Erro no processamento do pagamento. Por favor, tente novamente.
+                    <t t-if="tx.state_message">
+                        <br/><small t-esc="tx.state_message"/>
+                    </t>
+                </div>
+            </t>
+        </div>
+    </template>
+
+</odoo>

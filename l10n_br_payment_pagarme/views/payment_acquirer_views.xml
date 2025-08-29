@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Pagar.me Configuration View -->
+    <record id="payment_acquirer_pagarme_view_form" model="ir.ui.view">
+        <field name="name">payment.acquirer.pagarme.form</field>
+        <field name="model">payment.acquirer</field>
+        <field name="inherit_id" ref="payment.payment_acquirer_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='acquirer']" position="after">
+                <group attrs="{'invisible': [('provider', '!=', 'pagarme')]}" 
+                       string="Pagar.me Credentials">
+                    <field name="pagarme_api_key" 
+                           password="True"
+                           placeholder="sk_test_xxxxx ou sk_live_xxxxx"/>
+                    <field name="pagarme_encryption_key" 
+                           password="True"
+                           placeholder="ek_test_xxxxx ou ek_live_xxxxx"/>
+                    <field name="pagarme_webhook_secret" 
+                           password="True"
+                           placeholder="whsec_xxxxx (opcional)"/>
+                </group>
+            </xpath>
+            <xpath expr="//group[@name='payment_icons']" position="after">
+                <group attrs="{'invisible': [('provider', '!=', 'pagarme')]}" 
+                       string="Configurações do Pagar.me">
+                    <div class="alert alert-info" role="alert">
+                        <h5>Configuração do Pagar.me</h5>
+                        <ol>
+                            <li>Acesse o <a href="https://dashboard.pagar.me" target="_blank">Dashboard do Pagar.me</a></li>
+                            <li>Vá em "Configurações" > "Chaves de API"</li>
+                            <li>Copie a "Chave Secreta" para o campo "API Key"</li>
+                            <li>Copie a "Chave de Criptografia" para o campo "Encryption Key"</li>
+                            <li>Configure o webhook URL: 
+                                <code t-esc="'/payment/pagarme/webhook'"/>
+                            </li>
+                            <li>Configure a URL de retorno: 
+                                <code t-esc="'/payment/pagarme/return'"/>
+                            </li>
+                        </ol>
+                        <p><strong>Importante:</strong> Use chaves de teste durante o desenvolvimento e chaves de produção apenas quando estiver pronto para processar pagamentos reais.</p>
+                    </div>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Payment Method Menu Item -->
+    <record id="payment_acquirer_pagarme_menu" model="ir.ui.menu">
+        <field name="name">Pagar.me</field>
+        <field name="parent_id" ref="payment.payment_acquirer_menu"/>
+        <field name="action" ref="payment.payment_acquirer_action"/>
+        <field name="sequence" position="after"/>
+    </record>
+
+</odoo>
