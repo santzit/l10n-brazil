@@ -43,7 +43,16 @@ jobs:
           persist-credentials: false
 
       - name: Install addons and dependencies
-        run: oca_install_addons account,l10n_br_payment_pagarme
+        run: |
+          # Temporarily rename test-constraints.txt to avoid conflicts
+          if [ -f test-constraints.txt ]; then
+            mv test-constraints.txt test-constraints.txt.backup
+          fi
+          oca_install_addons account,l10n_br_payment_pagarme
+          # Restore test-constraints.txt
+          if [ -f test-constraints.txt.backup ]; then
+            mv test-constraints.txt.backup test-constraints.txt
+          fi
 
       - name: Initialize test database
         run: oca_init_test_database

@@ -35,6 +35,7 @@ odoo-addon-l10n_br_nfe @ file:///repo/l10n_br_nfe
 odoo-addon-l10n_br_nfe_spec @ file:///repo/l10n_br_nfe_spec
 odoo-addon-l10n_br_nfse @ file:///repo/l10n_br_nfse
 odoo-addon-l10n_br_nfse_focus @ file:///repo/l10n_br_nfse_focus
+odoo-addon-l10n_br_payment_pagarme @ file:///repo/l10n_br_payment_pagarme
 odoo-addon-l10n_br_product_contract @ file:///repo/l10n_br_product_contract
 odoo-addon-l10n_br_purchase @ file:///repo/l10n_br_purchase
 odoo-addon-l10n_br_purchase_request @ file:///repo/l10n_br_purchase_request
