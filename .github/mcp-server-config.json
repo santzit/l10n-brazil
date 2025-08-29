@@ -1,0 +1,43 @@
+{
+  "name": "l10n-brazil-mcp-config",
+  "description": "MCP Server configuration for l10n-brazil with Odoo core access",
+  "version": "1.0.0",
+  "repositories": [
+    {
+      "name": "l10n-brazil",
+      "url": "https://github.com/OCA/l10n-brazil",
+      "branch": "16.0",
+      "description": "Brazilian localization modules for Odoo",
+      "primary": true
+    },
+    {
+      "name": "odoo-core",
+      "url": "https://github.com/odoo/odoo", 
+      "branch": "16.0",
+      "description": "Odoo core framework and standard modules",
+      "required": true,
+      "purpose": "Provides base modules like account, sale, purchase, stock, payment, etc."
+    }
+  ],
+  "context": {
+    "framework": "Odoo 16.0",
+    "localization": "Brazil",
+    "module_prefix": "l10n_br_",
+    "dependencies": [
+      "account",
+      "sale", 
+      "purchase",
+      "stock",
+      "payment",
+      "base",
+      "web",
+      "mail"
+    ]
+  },
+  "instructions": {
+    "always_check_both_repos": true,
+    "understand_odoo_inheritance": true,
+    "follow_brazilian_conventions": true,
+    "reference_standard_apis": true
+  }
+}
