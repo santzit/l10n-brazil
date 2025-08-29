@@ -3,6 +3,32 @@
     <data>
         <!-- Inline form template for Pagar.me payment provider -->
         <template id="inline_form" name="Pagar.me Inline Form">
+            <!-- Load Tokenizacard.js with fallback -->
+            <script type="text/javascript">
+                if (typeof window.TokenizaCard === 'undefined') {
+                    // Try loading from primary CDN
+                    var script = document.createElement('script');
+                    script.src = 'https://js.pagar.me/tokenizacard.min.js';
+                    script.onload = function() {
+                        console.log('Pagar.me: Tokenizacard.js loaded successfully');
+                    };
+                    script.onerror = function() {
+                        console.warn('Pagar.me: Failed to load Tokenizacard.js from CDN');
+                        // Try alternative URL
+                        var fallbackScript = document.createElement('script');
+                        fallbackScript.src = 'https://assets.pagar.me/checkout/tokenizacard.min.js';
+                        fallbackScript.onload = function() {
+                            console.log('Pagar.me: Tokenizacard.js loaded from fallback URL');
+                        };
+                        fallbackScript.onerror = function() {
+                            console.error('Pagar.me: Failed to load Tokenizacard.js from all sources');
+                        };
+                        document.head.appendChild(fallbackScript);
+                    };
+                    document.head.appendChild(script);
+                }
+            </script>
+            
             <div t-attf-id="pagarme-container-{{provider_id}}" class="o_payment_form">
                 <div class="row">
                     <div class="mb-3">

@@ -68,14 +68,47 @@ const pagarmePaymentMixin = {
             return Promise.reject(new Error('Incomplete payment data'));
         }
 
-        // Check if Tokenizacard is available
+        // Prepare card data object
+        const cardData = {
+            cardHolderName: cardHolderName,
+            cardNumber: cardNumber,
+            cardExpiryMonth: cardExpiryMonth,
+            cardExpiryYear: cardExpiryYear,
+            cardCvv: cardCvv
+        };
+
+        // Check if Tokenizacard is available, if not try to wait for it
         if (typeof window.TokenizaCard === 'undefined') {
-            this._displayError(
-                'Erro de Configuração',
-                'Biblioteca de tokenização não carregada. Recarregue a página e tente novamente.'
-            );
-            return Promise.reject(new Error('Tokenizacard library not loaded'));
+            // Wait up to 5 seconds for the library to load
+            var attempts = 0;
+            var maxAttempts = 10;
+            return new Promise((resolve, reject) => {
+                var checkInterval = setInterval(() => {
+                    attempts++;
+                    if (typeof window.TokenizaCard !== 'undefined') {
+                        clearInterval(checkInterval);
+                        self._processPagarmePayment(processingValues, cardData).then(resolve).catch(reject);
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(checkInterval);
+                        self._displayError(
+                            'Erro de Configuração',
+                            'Biblioteca de tokenização não está disponível. Isso pode ser devido a restrições de rede ou problemas de conectividade. Tente recarregar a página.'
+                        );
+                        reject(new Error('Tokenizacard library not available'));
+                    }
+                }, 500);
+            });
         }
+
+        return this._processPagarmePayment(processingValues, cardData);
+    },
+
+    /**
+     * Process the actual payment with Pagar.me tokenization
+     * @private
+     */
+    _processPagarmePayment: function(processingValues, cardData) {
+        const self = this;
 
         // Get public key from processing values
         const publicKey = processingValues.public_key;
@@ -93,17 +126,17 @@ const pagarmePaymentMixin = {
         });
 
         // Prepare card data for tokenization
-        const cardData = {
-            card_number: cardNumber,
-            card_holder_name: cardHolderName,
-            card_expiration_date: cardExpiryMonth + cardExpiryYear.slice(-2), // MMYY format
-            card_cvv: cardCvv
+        const cardDataForToken = {
+            card_number: cardData.cardNumber,
+            card_holder_name: cardData.cardHolderName,
+            card_expiration_date: cardData.cardExpiryMonth + cardData.cardExpiryYear.slice(-2), // MMYY format
+            card_cvv: cardData.cardCvv
         };
 
         // Tokenize card data
         return new Promise((resolve, reject) => {
             try {
-                const cardToken = tokenizacard.createCardToken(cardData);
+                const cardToken = tokenizacard.createCardToken(cardDataForToken);
                 
                 // Log tokenization success (without sensitive data)
                 console.log('Pagar.me: Card tokenized successfully');
@@ -114,7 +147,7 @@ const pagarmePaymentMixin = {
                     params: {
                         'reference': processingValues.reference,
                         'card_token': cardToken,
-                        'card_holder_name': cardHolderName,
+                        'card_holder_name': cardData.cardHolderName,
                         'amount': processingValues.amount,
                         'currency': processingValues.currency,
                     },
