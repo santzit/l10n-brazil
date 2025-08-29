@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="payment_provider_pagarme" model="payment.provider">
+            <field name="name">Pagar.me</field>
+            <field name="code">pagarme</field>
+            <field name="sequence">50</field>
+            <field name="state">disabled</field>
+            <field name="is_published">False</field>
+            <field name="allow_tokenization">True</field>
+            <field name="capture_manually">False</field>
+            <field name="allow_express_checkout">False</field>
+            <field name="redirect_form_view_id" ref="payment_form_pagarme"/>
+            <field name="inline_form_view_id" ref="payment_form_pagarme"/>
+            <field name="token_inline_form_view_id" ref="payment_form_pagarme"/>
+            <field name="fees_active">False</field>
+            <field name="fees_dom_fixed">0.0</field>
+            <field name="fees_dom_var">0.0</field>
+            <field name="fees_int_fixed">0.0</field>
+            <field name="fees_int_var">0.0</field>
+            <field name="support_manual_capture">manual</field>
+            <field name="support_refund">full_only</field>
+            <field name="support_tokenization">True</field>
+            <field name="module_id" ref="base.module_l10n_br_payment_pagarme"/>
+            <field name="module_state">installed</field>
+        </record>
+    </data>
+</odoo>

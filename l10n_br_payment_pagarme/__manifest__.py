@@ -9,6 +9,7 @@
         "payment",
     ],
     "data": [
+        "data/pagarme_provider.xml",
         "views/payment_views.xml",
     ],
     "assets": {
