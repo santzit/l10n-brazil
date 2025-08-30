@@ -39,6 +39,15 @@ class PaymentTransaction(models.Model):
         if self.provider_code != "pagarme":
             return super()._send_payment_request()
 
+        # For inline payment, we need a token from the frontend
+        if not self.pagarme_token:
+            # This should not happen in normal flow as JS should provide token
+            _logger.error(
+                "Pagar.me: No token provided for transaction %s", self.reference
+            )
+            self._set_error("Token de cartão não fornecido")
+            return
+
         _logger.info(
             "Pagar.me: Starting payment request for transaction %s", self.reference
         )

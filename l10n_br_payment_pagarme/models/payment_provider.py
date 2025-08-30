@@ -25,6 +25,15 @@ class PaymentProvider(models.Model):
         groups="base.group_system",
     )
 
+    def _compute_feature_support_fields(self):
+        """ Override of payment to enable transparent checkout features. """
+        super()._compute_feature_support_fields()
+        self.filtered(lambda p: p.code == "pagarme").update({
+            'support_tokenization': False,
+            'support_express_checkout': False,
+            'support_refund': 'partial',
+        })
+
     def _get_pagarme_webhook_url(self):
         """Get the webhook URL for Pagar.me notifications."""
         self.ensure_one()
