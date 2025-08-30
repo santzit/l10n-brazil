@@ -28,96 +28,94 @@
 
         <!-- Inline form template for Pagar.me payment provider following payment_demo pattern -->
         <template id="inline_form" name="Pagar.me Inline Form">
-            <div t-attf-id="pagarme-container-{{provider_id}}">
-                <div class="row">
-                    <div class="mb-3">
-                        <input name="provider_id" type="hidden" id="provider_id" t-att-value="id"/>
-                        <input name="partner_id" type="hidden" t-att-value="partner_id"/>
-                    </div>
-                    <div class="col-md-12 mb-3">
-                        <label for="card_holder_name" class="form-label">
-                            <small><b>Nome do Portador *</b></small>
-                        </label>
-                        <input type="text" 
-                               name="card_holder_name" 
-                               id="card_holder_name"
-                               data-pagarme-checkout-element="cardholder-name"
-                               class="form-control" 
-                               placeholder="Nome completo como no cartão"
-                               required="required"/>
-                    </div>
-                    <div class="col-md-12 mb-3">
-                        <label for="card_number" class="form-label">
-                            <small><b>Número do Cartão *</b></small>
-                        </label>
-                        <input type="text" 
-                               name="card_number" 
-                               id="card_number"
-                               data-pagarme-checkout-element="card-number"
-                               class="form-control" 
-                               placeholder="1234 5678 9012 3456"
-                               required="required"/>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="card_expiry_month" class="form-label">
-                            <small><b>Mês *</b></small>
-                        </label>
-                        <select name="card_expiry_month" 
-                                id="card_expiry_month" 
-                                data-pagarme-checkout-element="card-expiry-month"
-                                class="form-select" 
-                                required="required">
-                            <option value="">Mês</option>
-                            <option value="01">01</option>
-                            <option value="02">02</option>
-                            <option value="03">03</option>
-                            <option value="04">04</option>
-                            <option value="05">05</option>
-                            <option value="06">06</option>
-                            <option value="07">07</option>
-                            <option value="08">08</option>
-                            <option value="09">09</option>
-                            <option value="10">10</option>
-                            <option value="11">11</option>
-                            <option value="12">12</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="card_expiry_year" class="form-label">
-                            <small><b>Ano *</b></small>
-                        </label>
-                        <select name="card_expiry_year" 
-                                id="card_expiry_year" 
-                                data-pagarme-checkout-element="card-expiry-year"
-                                class="form-select" 
-                                required="required">
-                            <option value="">Ano</option>
-                            <option value="2024">2024</option>
-                            <option value="2025">2025</option>
-                            <option value="2026">2026</option>
-                            <option value="2027">2027</option>
-                            <option value="2028">2028</option>
-                            <option value="2029">2029</option>
-                            <option value="2030">2030</option>
-                            <option value="2031">2031</option>
-                            <option value="2032">2032</option>
-                            <option value="2033">2033</option>
-                            <option value="2034">2034</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="card_cvv" class="form-label">
-                            <small><b>CVV *</b></small>
-                        </label>
-                        <input type="text" 
-                               name="card_cvv" 
-                               id="card_cvv"
-                               data-pagarme-checkout-element="card-cvv"
-                               class="form-control" 
-                               placeholder="123"
-                               maxlength="4"
-                               required="required"/>
-                    </div>
+            <div t-attf-id="pagarme-container-{{provider_id}}" class="row">
+                <div class="mb-3">
+                    <input name="provider_id" type="hidden" id="provider_id" t-att-value="id"/>
+                    <input name="partner_id" type="hidden" t-att-value="partner_id"/>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label for="card_holder_name" class="form-label">
+                        <small><b>Nome do Portador *</b></small>
+                    </label>
+                    <input type="text" 
+                           name="card_holder_name" 
+                           id="card_holder_name"
+                           data-pagarme-checkout-element="cardholder-name"
+                           class="form-control" 
+                           placeholder="Nome completo como no cartão"
+                           required="required"/>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label for="card_number" class="form-label">
+                        <small><b>Número do Cartão *</b></small>
+                    </label>
+                    <input type="text" 
+                           name="card_number" 
+                           id="card_number"
+                           data-pagarme-checkout-element="card-number"
+                           class="form-control" 
+                           placeholder="1234 5678 9012 3456"
+                           required="required"/>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="card_expiry_month" class="form-label">
+                        <small><b>Mês *</b></small>
+                    </label>
+                    <select name="card_expiry_month" 
+                            id="card_expiry_month" 
+                            data-pagarme-checkout-element="card-expiry-month"
+                            class="form-select" 
+                            required="required">
+                        <option value="">Mês</option>
+                        <option value="01">01</option>
+                        <option value="02">02</option>
+                        <option value="03">03</option>
+                        <option value="04">04</option>
+                        <option value="05">05</option>
+                        <option value="06">06</option>
+                        <option value="07">07</option>
+                        <option value="08">08</option>
+                        <option value="09">09</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="card_expiry_year" class="form-label">
+                        <small><b>Ano *</b></small>
+                    </label>
+                    <select name="card_expiry_year" 
+                            id="card_expiry_year" 
+                            data-pagarme-checkout-element="card-expiry-year"
+                            class="form-select" 
+                            required="required">
+                        <option value="">Ano</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                        <option value="2028">2028</option>
+                        <option value="2029">2029</option>
+                        <option value="2030">2030</option>
+                        <option value="2031">2031</option>
+                        <option value="2032">2032</option>
+                        <option value="2033">2033</option>
+                        <option value="2034">2034</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="card_cvv" class="form-label">
+                        <small><b>CVV *</b></small>
+                    </label>
+                    <input type="text" 
+                           name="card_cvv" 
+                           id="card_cvv"
+                           data-pagarme-checkout-element="card-cvv"
+                           class="form-control" 
+                           placeholder="123"
+                           maxlength="4"
+                           required="required"/>
                 </div>
             </div>
         </template>

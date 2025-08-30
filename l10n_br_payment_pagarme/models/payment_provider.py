@@ -33,6 +33,26 @@ class PaymentProvider(models.Model):
                 "support_tokenization": False,
                 "support_express_checkout": False,
                 "support_refund": "partial",
+                # Explicitly disable redirect flow since we want inline
+                "support_redirect_flow": False,
+            }
+        )
+
+    def _compute_view_configuration_fields(self):
+        """Override payment configuration to hide certain form elements."""
+        super()._compute_view_configuration_fields()
+        self.filtered(lambda p: p.code == "pagarme").update(
+            {
+                # Hide redirect-related configuration since we're inline-only
+                "show_credentials_page": True,
+                "show_allow_tokenization": True,
+                "show_allow_express_checkout": False,
+                "show_payment_icon_ids": True,
+                "show_pre_msg": True,
+                "show_pending_msg": True,
+                "show_auth_msg": True,
+                "show_done_msg": True,
+                "show_cancel_msg": True,
             }
         )
 
@@ -47,7 +67,24 @@ class PaymentProvider(models.Model):
         """
         if self.code != "pagarme":
             return super()._should_build_inline_form(is_validation)
+        
+        # Always use inline form for Pagar.me (transparent checkout)
         return True
+
+    def _get_redirect_form_view(self, is_validation=False):
+        """Return the view of the template used to render the redirect form.
+        
+        For Pagar.me, we should never use redirect, so return None/False.
+
+        :param bool is_validation: Whether the operation is a validation.
+        :return: The view of the redirect form template.
+        :rtype: record of `ir.ui.view`
+        """
+        if self.code != "pagarme":
+            return super()._get_redirect_form_view(is_validation)
+        
+        # Pagar.me uses inline forms only, no redirect
+        return False
 
     def _get_pagarme_webhook_url(self):
         """Get the webhook URL for Pagar.me notifications."""
@@ -65,12 +102,18 @@ class PaymentProvider(models.Model):
 
         _logger.info("Pagar.me: Providing processing values for provider %s", self.name)
 
-        return {
+        pagarme_values = {
             "api_url": self._get_pagarme_api_url(),
             "webhook_url": self._get_pagarme_webhook_url(),
             "public_key": self.pagarme_app_id,  # Public key for frontend tokenization
             "app_id": self.pagarme_app_id,  # Legacy compatibility
+            # Explicitly indicate this is a direct/inline payment
+            "is_direct_payment": True,
+            "flow": "direct",
         }
+        
+        res.update(pagarme_values)
+        return res
 
     def _get_pagarme_api_url(self):
         """Get the Pagar.me API URL based on the provider state."""

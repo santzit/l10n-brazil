@@ -10,7 +10,10 @@ on:
 
 env:
   # Limit test execution to only account and our payment module
+  ADDONS_TO_TEST: "l10n_br_payment_pagarme"
   INCLUDE: "account,l10n_br_payment_pagarme"
+  # Disable unrelated modules
+  EXCLUDE: "*"
 
 jobs:
   test_pagarme:
