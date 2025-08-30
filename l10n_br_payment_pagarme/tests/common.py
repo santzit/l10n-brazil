@@ -14,6 +14,7 @@ class PagarmeCommon(PaymentCommon):
                 "pagarme_app_id": "app_test_1234567890",
                 "pagarme_api_key": "sk_test_abcdef1234567890abcdef1234567890",
                 "payment_icon_ids": [(5, 0, 0)],
+                "redirect_form_view_id": False,  # Ensure transparent checkout
             },
         )
 

@@ -297,8 +297,11 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
 
     def test_transparent_checkout_configuration(self):
         """Test that the provider is configured for transparent checkout."""
-        # Test that the provider supports direct payment (transparent checkout)
-        self.assertIn("card", self.pagarme._get_default_payment_method_codes())
+        # Test that the provider supports inline forms (transparent checkout)
+        self.assertTrue(
+            self.pagarme._should_build_inline_form(),
+            "Provider should support inline forms for transparent checkout"
+        )
 
         # Test that tokenization support is correctly configured
         self.assertFalse(self.pagarme.support_tokenization)

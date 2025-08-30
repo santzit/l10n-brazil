@@ -55,12 +55,7 @@ class PaymentProvider(models.Model):
         base_url = self.get_base_url()
         return f"{base_url}/payment/pagarme/webhook"
 
-    def _get_default_payment_method_codes(self):
-        """Return the default payment method codes."""
-        default_codes = super()._get_default_payment_method_codes()
-        if self.code == "pagarme":
-            default_codes.append("card")
-        return default_codes
+
 
     def _get_specific_processing_values(self, processing_values):
         """Return specific processing values for Pagar.me provider."""
