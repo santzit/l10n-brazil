@@ -182,6 +182,28 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
         inline_template = self.env.ref('l10n_br_payment_pagarme.inline_form')
         self.assertEqual(self.pagarme.inline_form_view_id, inline_template)
         
+        # Test that _should_build_inline_form returns True for direct payments
+        self.assertTrue(self.pagarme._should_build_inline_form(is_validation=False))
+        self.assertTrue(self.pagarme._should_build_inline_form(is_validation=True))
+        
+    def test_should_build_inline_form_method(self):
+        """Test that _should_build_inline_form method is implemented correctly."""
+        # For Pagar.me provider, should always return True for inline forms
+        self.assertTrue(self.pagarme._should_build_inline_form())
+        self.assertTrue(self.pagarme._should_build_inline_form(is_validation=True))
+        self.assertTrue(self.pagarme._should_build_inline_form(is_validation=False))
+        
+        # For other providers, should call super method
+        other_provider = self.env['payment.provider'].create({
+            'name': 'Other Provider',
+            'code': 'other',
+            'state': 'test',
+        })
+        # This should call the default implementation
+        result = other_provider._should_build_inline_form()
+        # Default implementation returns True
+        self.assertTrue(result)
+        
     def test_inline_form_template_structure(self):
         """Test that the inline form template has the correct structure."""
         # Get the template
@@ -238,3 +260,51 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
         self.assertIn("processado com sucesso", self.pagarme.done_msg.lower())
         self.assertIn("processando", self.pagarme.pending_msg.lower())
         self.assertIn("cancelado", self.pagarme.cancel_msg.lower())
+        
+        # Test provider state and publishing
+        self.assertIn(self.pagarme.state, ['test', 'disabled'])  # Should not be enabled by default
+        
+        # Test that the provider has the correct configuration for transparent checkout
+        # These are the key fields that determine inline vs redirect behavior
+        self.assertTrue(self.pagarme.inline_form_view_id, "inline_form_view_id must be set for transparent checkout")
+        self.assertFalse(self.pagarme.redirect_form_view_id, "redirect_form_view_id must be False for transparent checkout")
+        
+        # Test support fields are configured correctly for transparent checkout
+        self.assertFalse(self.pagarme.support_tokenization, "Tokenization should be disabled for transparent checkout")
+        self.assertFalse(self.pagarme.support_express_checkout, "Express checkout should be disabled")
+        self.assertEqual(self.pagarme.support_refund, "partial", "Should support partial refunds")
+        
+    def test_transparent_vs_redirect_configuration(self):
+        """Test that the provider is correctly configured for transparent (inline) checkout vs redirect."""
+        # Test the key method that determines if inline form should be built
+        should_build_inline = self.pagarme._should_build_inline_form()
+        self.assertTrue(should_build_inline, "_should_build_inline_form must return True for transparent checkout")
+        
+        # Test template references
+        self.assertIsNotNone(self.pagarme.inline_form_view_id, "Inline form template is required for transparent checkout")
+        self.assertIsNone(self.pagarme.redirect_form_view_id, "Redirect form template must be None for transparent checkout")
+        
+        # Test that the template actually exists and is accessible
+        try:
+            template = self.env.ref('l10n_br_payment_pagarme.inline_form')
+            self.assertTrue(template, "Inline form template must exist")
+            self.assertEqual(template.type, 'qweb', "Template must be a QWeb template")
+        except Exception as e:
+            self.fail(f"Inline form template is not accessible: {e}")
+            
+        # Test provider selection logic would include this provider for inline payments
+        # This simulates the logic Odoo uses to determine available payment providers
+        compatible_providers = self.env['payment.provider']._get_compatible_providers(
+            company_id=self.env.company.id,
+            partner_id=self.partner.id,
+            amount=100.0,
+            currency_id=self.currency.id,
+            force_tokenization=False,
+            is_express_checkout=False,
+            is_validation=False
+        )
+        
+        # The provider should be compatible (if enabled/test mode)
+        if self.pagarme.state in ['enabled', 'test']:
+            self.assertIn(self.pagarme, compatible_providers, "Provider should be compatible for direct payments")
+    

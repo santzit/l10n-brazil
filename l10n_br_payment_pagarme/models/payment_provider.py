@@ -34,6 +34,19 @@ class PaymentProvider(models.Model):
             'support_refund': 'partial',
         })
 
+    def _should_build_inline_form(self, is_validation=False):
+        """ Return whether the inline payment form should be instantiated.
+        
+        For Pagar.me, we always want to build the inline form for transparent checkout.
+        
+        :param bool is_validation: Whether the operation is a validation.
+        :return: Whether the inline form should be instantiated.
+        :rtype: bool
+        """
+        if self.code != 'pagarme':
+            return super()._should_build_inline_form(is_validation)
+        return True
+
     def _get_pagarme_webhook_url(self):
         """Get the webhook URL for Pagar.me notifications."""
         self.ensure_one()
