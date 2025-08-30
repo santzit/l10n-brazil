@@ -52,42 +52,65 @@ const pagarmePaymentMixin = {
         return new Promise((resolve, reject) => {
             // Add a retry mechanism for DOM readiness
             let retryCount = 0;
-            const maxRetries = 10;
+            const maxRetries = 15;
             
             const attemptProcessPayment = () => {
                 console.log(`Pagar.me: DOM search attempt ${retryCount + 1}/${maxRetries}`);
                 
-                // Try multiple search strategies - start simple, get more complex
+                // First find the payment option container for this specific provider
+                const paymentOptionContainer = document.querySelector(`[data-payment-option-id="${processingValues.payment_option_id}"]`) ||
+                                             document.querySelector('.o_payment_option_card') ||
+                                             document.querySelector('.o_payment_form_pagarme');
+                
+                if (!paymentOptionContainer) {
+                    console.log('Pagar.me: Payment option container not found, searching globally...');
+                }
+                
+                // Define search container (either the specific container or document)
+                const searchContainer = paymentOptionContainer || document;
+                console.log('Pagar.me: Using search container:', searchContainer.className || 'document');
+                
+                // Try multiple search strategies - start with most specific
                 const searchStrategies = [
-                    // Strategy 1: Direct ID search in document
+                    // Strategy 1: Search within payment option container by ID
+                    () => ({
+                        cardHolderName: searchContainer.querySelector('#pagarme_card_holder_name'),
+                        cardNumber: searchContainer.querySelector('#pagarme_card_number'),
+                        cardExpiryMonth: searchContainer.querySelector('#pagarme_card_expiry_month'),
+                        cardExpiryYear: searchContainer.querySelector('#pagarme_card_expiry_year'),
+                        cardCvv: searchContainer.querySelector('#pagarme_card_cvv')
+                    }),
+                    
+                    // Strategy 2: Search by name attributes within container
+                    () => ({
+                        cardHolderName: searchContainer.querySelector('input[name="pagarme_card_holder_name"]'),
+                        cardNumber: searchContainer.querySelector('input[name="pagarme_card_number"]'),
+                        cardExpiryMonth: searchContainer.querySelector('select[name="pagarme_card_expiry_month"]'),
+                        cardExpiryYear: searchContainer.querySelector('select[name="pagarme_card_expiry_year"]'),
+                        cardCvv: searchContainer.querySelector('input[name="pagarme_card_cvv"]')
+                    }),
+                    
+                    // Strategy 3: Search by data attributes within container
+                    () => ({
+                        cardHolderName: searchContainer.querySelector('[data-pagarme-checkout-element="cardholder-name"]'),
+                        cardNumber: searchContainer.querySelector('[data-pagarme-checkout-element="card-number"]'),
+                        cardExpiryMonth: searchContainer.querySelector('[data-pagarme-checkout-element="card-expiry-month"]'),
+                        cardExpiryYear: searchContainer.querySelector('[data-pagarme-checkout-element="card-expiry-year"]'),
+                        cardCvv: searchContainer.querySelector('[data-pagarme-checkout-element="card-cvv"]')
+                    }),
+                    
+                    // Strategy 4: Global document search as fallback
                     () => ({
                         cardHolderName: document.getElementById('pagarme_card_holder_name'),
                         cardNumber: document.getElementById('pagarme_card_number'),
                         cardExpiryMonth: document.getElementById('pagarme_card_expiry_month'),
                         cardExpiryYear: document.getElementById('pagarme_card_expiry_year'),
                         cardCvv: document.getElementById('pagarme_card_cvv')
-                    }),
-                    
-                    // Strategy 2: Search by name attributes
-                    () => ({
-                        cardHolderName: document.querySelector('input[name="pagarme_card_holder_name"]'),
-                        cardNumber: document.querySelector('input[name="pagarme_card_number"]'),
-                        cardExpiryMonth: document.querySelector('select[name="pagarme_card_expiry_month"]'),
-                        cardExpiryYear: document.querySelector('select[name="pagarme_card_expiry_year"]'),
-                        cardCvv: document.querySelector('input[name="pagarme_card_cvv"]')
-                    }),
-                    
-                    // Strategy 3: Search by data attributes
-                    () => ({
-                        cardHolderName: document.querySelector('[data-pagarme-checkout-element="cardholder-name"]'),
-                        cardNumber: document.querySelector('[data-pagarme-checkout-element="card-number"]'),
-                        cardExpiryMonth: document.querySelector('[data-pagarme-checkout-element="card-expiry-month"]'),
-                        cardExpiryYear: document.querySelector('[data-pagarme-checkout-element="card-expiry-year"]'),
-                        cardCvv: document.querySelector('[data-pagarme-checkout-element="card-cvv"]')
                     })
                 ];
                 
                 let elements = null;
+                let strategyUsed = -1;
                 
                 // Try each strategy until we find all elements
                 for (let i = 0; i < searchStrategies.length; i++) {
@@ -96,9 +119,14 @@ const pagarmePaymentMixin = {
                     // Check if we found all required elements
                     if (elements.cardHolderName && elements.cardNumber && 
                         elements.cardExpiryMonth && elements.cardExpiryYear && elements.cardCvv) {
-                        console.log(`Pagar.me: Found all elements using strategy ${i + 1}`);
+                        strategyUsed = i + 1;
+                        console.log(`Pagar.me: Found all elements using strategy ${strategyUsed}`);
                         break;
                     } else {
+                        // Log which elements were found/missing for this strategy
+                        const foundElements = Object.keys(elements).filter(key => elements[key]);
+                        const missingElements = Object.keys(elements).filter(key => !elements[key]);
+                        console.log(`Pagar.me: Strategy ${i + 1} - Found: [${foundElements.join(', ')}], Missing: [${missingElements.join(', ')}]`);
                         elements = null;
                     }
                 }
@@ -110,24 +138,30 @@ const pagarmePaymentMixin = {
                     return;
                 }
                 
-                // Log debug information about what's in the DOM
-                console.log('Pagar.me: Form elements not found. Debug info:');
-                console.log('Forms:', Array.from(document.querySelectorAll('form')).map(f => ({
-                    id: f.id, 
-                    className: f.className,
-                    hasClass: f.classList.contains('o_payment_form_pagarme')
+                // Log extensive debug information about what's in the DOM
+                console.log('Pagar.me: Form elements not found. Comprehensive debug info:');
+                console.log('Payment option containers:', Array.from(document.querySelectorAll('[data-payment-option-id]')).map(el => ({
+                    id: el.getAttribute('data-payment-option-id'), 
+                    className: el.className
                 })));
-                console.log('Pagarme elements:', Array.from(document.querySelectorAll('[data-pagarme-checkout-element]')));
-                console.log('All inputs:', Array.from(document.querySelectorAll('input')).map(i => ({
-                    id: i.id, 
-                    name: i.name, 
-                    type: i.type
+                console.log('Pagarme forms:', Array.from(document.querySelectorAll('.o_payment_form_pagarme')));
+                console.log('Pagarme data elements:', Array.from(document.querySelectorAll('[data-pagarme-checkout-element]')).map(el => ({
+                    element: el.getAttribute('data-pagarme-checkout-element'),
+                    tagName: el.tagName,
+                    id: el.id,
+                    name: el.name
                 })));
+                console.log('All pagarme inputs:', Array.from(document.querySelectorAll('input[id*="pagarme"], select[id*="pagarme"]')).map(el => ({
+                    id: el.id, 
+                    name: el.name, 
+                    type: el.type || el.tagName
+                })));
+                console.log('Processing values payment_option_id:', processingValues.payment_option_id);
                 
                 // Retry if we haven't reached max attempts
                 if (retryCount < maxRetries) {
                     retryCount++;
-                    setTimeout(attemptProcessPayment, 200);
+                    setTimeout(attemptProcessPayment, 300); // Increased delay for better DOM stability
                 } else {
                     console.error('Pagar.me: Could not find payment form elements after all attempts');
                     const missingFields = ['Nome do Portador', 'Número do Cartão', 'Mês de Expiração', 'Ano de Expiração', 'CVV'];
@@ -286,55 +320,91 @@ const pagarmePaymentMixin = {
         this._setPaymentFlow('direct');
         
         console.log('Pagar.me: Preparing inline form for payment option:', paymentOptionId);
+        console.log('Pagar.me: Payment flow set to:', flow);
         
-        // Simple setup - wait for DOM to be ready then add input formatting
-        setTimeout(() => {
-            // Add input formatting for card number
-            const cardNumberInput = document.getElementById('pagarme_card_number') ||
-                                   document.querySelector('input[name="pagarme_card_number"]');
+        return new Promise((resolve) => {
+            // Add setup retry mechanism to handle DOM timing
+            let attempts = 0;
+            const maxAttempts = 10;
             
-            if (cardNumberInput) {
-                console.log('Pagar.me: Setting up card number formatting');
-                cardNumberInput.addEventListener('input', function() {
-                    const value = this.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-                    const formattedValue = value.match(/.{1,4}/g);
-                    this.value = formattedValue ? formattedValue.join(' ') : '';
+            const setupFormInputs = () => {
+                attempts++;
+                console.log(`Pagar.me: Form setup attempt ${attempts}/${maxAttempts}`);
+                
+                // Look for the payment option container
+                const paymentContainer = document.querySelector(`[data-payment-option-id="${paymentOptionId}"]`) ||
+                                       document.querySelector('.o_payment_option_card') ||
+                                       document.querySelector('.o_payment_form_pagarme');
+                
+                const searchScope = paymentContainer || document;
+                
+                // Try to find card inputs
+                const cardNumberInput = searchScope.querySelector('#pagarme_card_number') ||
+                                       searchScope.querySelector('input[name="pagarme_card_number"]') ||
+                                       searchScope.querySelector('[data-pagarme-checkout-element="card-number"]');
+                
+                const cardCvvInput = searchScope.querySelector('#pagarme_card_cvv') ||
+                                    searchScope.querySelector('input[name="pagarme_card_cvv"]') ||
+                                    searchScope.querySelector('[data-pagarme-checkout-element="card-cvv"]');
+                
+                const cardHolderInput = searchScope.querySelector('#pagarme_card_holder_name') ||
+                                       searchScope.querySelector('input[name="pagarme_card_holder_name"]') ||
+                                       searchScope.querySelector('[data-pagarme-checkout-element="cardholder-name"]');
+                
+                // If we found at least one input, set up formatting
+                if (cardNumberInput || cardCvvInput || cardHolderInput) {
+                    console.log('Pagar.me: Found form inputs, setting up formatting...');
                     
-                    // Limit to 19 characters (16 digits + 3 spaces)
-                    if (this.value.length > 19) {
-                        this.value = this.value.slice(0, 19);
+                    if (cardNumberInput) {
+                        console.log('Pagar.me: Setting up card number formatting');
+                        cardNumberInput.addEventListener('input', function() {
+                            const value = this.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                            const formattedValue = value.match(/.{1,4}/g);
+                            this.value = formattedValue ? formattedValue.join(' ') : '';
+                            
+                            // Limit to 19 characters (16 digits + 3 spaces)
+                            if (this.value.length > 19) {
+                                this.value = this.value.slice(0, 19);
+                            }
+                        });
                     }
-                });
-            }
 
-            // Add CVV input validation
-            const cardCvvInput = document.getElementById('pagarme_card_cvv') ||
-                                document.querySelector('input[name="pagarme_card_cvv"]');
-            
-            if (cardCvvInput) {
-                console.log('Pagar.me: Setting up CVV validation');
-                cardCvvInput.addEventListener('input', function() {
-                    this.value = this.value.replace(/[^0-9]/gi, '');
-                    if (this.value.length > 4) {
-                        this.value = this.value.slice(0, 4);
+                    if (cardCvvInput) {
+                        console.log('Pagar.me: Setting up CVV validation');
+                        cardCvvInput.addEventListener('input', function() {
+                            this.value = this.value.replace(/[^0-9]/gi, '');
+                            if (this.value.length > 4) {
+                                this.value = this.value.slice(0, 4);
+                            }
+                        });
                     }
-                });
-            }
 
-            // Add cardholder name validation
-            const cardHolderInput = document.getElementById('pagarme_card_holder_name') ||
-                                   document.querySelector('input[name="pagarme_card_holder_name"]');
+                    if (cardHolderInput) {
+                        console.log('Pagar.me: Setting up cardholder name validation');
+                        cardHolderInput.addEventListener('input', function() {
+                            // Allow letters, spaces, and common name characters
+                            this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/gi, '');
+                        });
+                    }
+                    
+                    console.log('Pagar.me: Form preparation completed successfully');
+                    resolve();
+                    return;
+                }
+                
+                // If no inputs found and still have attempts, retry
+                if (attempts < maxAttempts) {
+                    console.log('Pagar.me: Form inputs not found, retrying...');
+                    setTimeout(setupFormInputs, 200);
+                } else {
+                    console.log('Pagar.me: Form preparation completed (inputs not found but continuing)');
+                    resolve();
+                }
+            };
             
-            if (cardHolderInput) {
-                console.log('Pagar.me: Setting up cardholder name validation');
-                cardHolderInput.addEventListener('input', function() {
-                    // Allow letters, spaces, and common name characters
-                    this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/gi, '');
-                });
-            }
-        }, 100);
-
-        return Promise.resolve();
+            // Start setup
+            setupFormInputs();
+        });
     },
 };
 

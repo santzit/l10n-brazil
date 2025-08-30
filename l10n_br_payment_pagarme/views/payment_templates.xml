@@ -7,7 +7,8 @@
             <script type="text/javascript" src="https://checkout.pagar.me/v1/tokenizecard.js"></script>
             
             <!-- Payment form following standard Odoo payment structure -->
-            <form class="o_payment_form_pagarme" method="post" action="#" data-pagarme-form="true">
+            <div class="o_payment_option_card" t-att-data-payment-option-id="payment_option_id">
+                <form class="o_payment_form_pagarme" method="post" action="#" data-pagarme-form="true">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="mb-3">
@@ -101,7 +102,8 @@
                         </div>
                     </div>
                 </div>
-            </form>
+                </form>
+            </div>
         </template>
     </data>
 </odoo>
