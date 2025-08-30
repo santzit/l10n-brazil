@@ -6,18 +6,15 @@
             <!-- Load Pagar.me Tokenizacard.js -->
             <script type="text/javascript" src="https://checkout.pagar.me/v1/tokenizecard.js"></script>
             
-            <form t-attf-id="pagarme-container-{{provider_id}}" class="o_payment_form" method="post">
+            <!-- Payment fields container - don't wrap in form as Odoo handles the form structure -->
+            <div t-attf-id="pagarme-container-{{payment_option_id}}" class="o_payment_form_pagarme">
                 <div class="row">
-                    <div class="mb-3">
-                        <input name="provider_id" type="hidden" t-att-value="provider_id"/>
-                        <input name="partner_id" type="hidden" t-att-value="partner_id"/>
-                    </div>
                     <div class="col-md-12">
                         <div class="mb-3">
-                            <label for="card_holder_name" class="form-label">Nome do Portador *</label>
+                            <label for="pagarme_card_holder_name" class="form-label">Nome do Portador *</label>
                             <input type="text" 
-                                   name="card_holder_name" 
-                                   id="card_holder_name"
+                                   name="pagarme_card_holder_name" 
+                                   id="pagarme_card_holder_name"
                                    data-pagarme-checkout-element="cardholder-name"
                                    class="form-control" 
                                    placeholder="Nome completo como no cartão"
@@ -26,10 +23,10 @@
                     </div>
                     <div class="col-md-12">
                         <div class="mb-3">
-                            <label for="card_number" class="form-label">Número do Cartão *</label>
+                            <label for="pagarme_card_number" class="form-label">Número do Cartão *</label>
                             <input type="text" 
-                                   name="card_number" 
-                                   id="card_number"
+                                   name="pagarme_card_number" 
+                                   id="pagarme_card_number"
                                    data-pagarme-checkout-element="card-number"
                                    class="form-control" 
                                    placeholder="1234 5678 9012 3456"
@@ -42,8 +39,8 @@
                             <label class="form-label">Data de Expiração *</label>
                             <div class="row">
                                 <div class="col-6">
-                                    <select name="card_expiry_month" 
-                                            id="card_expiry_month" 
+                                    <select name="pagarme_card_expiry_month" 
+                                            id="pagarme_card_expiry_month" 
                                             data-pagarme-checkout-element="card-expiry-month"
                                             class="form-select" 
                                             required="required">
@@ -63,8 +60,8 @@
                                     </select>
                                 </div>
                                 <div class="col-6">
-                                    <select name="card_expiry_year" 
-                                            id="card_expiry_year" 
+                                    <select name="pagarme_card_expiry_year" 
+                                            id="pagarme_card_expiry_year" 
                                             data-pagarme-checkout-element="card-expiry-year"
                                             class="form-select" 
                                             required="required">
@@ -87,10 +84,10 @@
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="card_cvv" class="form-label">CVV *</label>
+                            <label for="pagarme_card_cvv" class="form-label">CVV *</label>
                             <input type="text" 
-                                   name="card_cvv" 
-                                   id="card_cvv"
+                                   name="pagarme_card_cvv" 
+                                   id="pagarme_card_cvv"
                                    data-pagarme-checkout-element="card-cvv"
                                    class="form-control" 
                                    placeholder="123"
@@ -99,7 +96,7 @@
                         </div>
                     </div>
                 </div>
-            </form>
+            </div>
         </template>
     </data>
 </odoo>

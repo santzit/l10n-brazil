@@ -37,26 +37,31 @@ const pagarmePaymentMixin = {
                 // Try multiple strategies to find the payment container
                 var paymentContainer = null;
                 
-                // Strategy 1: Look for specific Pagar.me container
+                // Strategy 1: Look for specific Pagar.me container with payment option ID
                 var containers = document.querySelectorAll('[id*="pagarme-container"]');
                 if (containers.length > 0) {
                     paymentContainer = containers[0];
                 }
                 
-                // Strategy 2: Look for any payment form
+                // Strategy 2: Look for payment form container with Pagar.me class
+                if (!paymentContainer) {
+                    paymentContainer = document.querySelector('.o_payment_form_pagarme');
+                }
+                
+                // Strategy 3: Look for any payment form
                 if (!paymentContainer) {
                     paymentContainer = document.querySelector('.o_payment_form');
                 }
                 
-                // Strategy 3: Look for form containing our specific fields
+                // Strategy 4: Look for form containing our specific fields
                 if (!paymentContainer) {
-                    var holderInput = document.querySelector('input[name="card_holder_name"], #card_holder_name');
+                    var holderInput = document.querySelector('input[name="pagarme_card_holder_name"], #pagarme_card_holder_name, input[name="card_holder_name"], #card_holder_name');
                     if (holderInput) {
-                        paymentContainer = holderInput.closest('form') || holderInput.closest('.o_payment_form') || document;
+                        paymentContainer = holderInput.closest('form') || holderInput.closest('.o_payment_form') || holderInput.closest('.o_payment_form_pagarme') || document;
                     }
                 }
                 
-                // Strategy 4: Use document as fallback
+                // Strategy 5: Use document as fallback
                 if (!paymentContainer) {
                     paymentContainer = document;
                 }
@@ -75,6 +80,8 @@ const pagarmePaymentMixin = {
                 }
 
                 var cardHolderNameEl = findElement([
+                    'input[name="pagarme_card_holder_name"]',
+                    '#pagarme_card_holder_name',
                     'input[name="card_holder_name"]',
                     '#card_holder_name',
                     'input[placeholder*="Nome"]',
@@ -82,6 +89,8 @@ const pagarmePaymentMixin = {
                 ]);
                 
                 var cardNumberEl = findElement([
+                    'input[name="pagarme_card_number"]',
+                    '#pagarme_card_number',
                     'input[name="card_number"]',
                     '#card_number',
                     'input[placeholder*="1234"]',
@@ -89,18 +98,24 @@ const pagarmePaymentMixin = {
                 ]);
                 
                 var cardExpiryMonthEl = findElement([
+                    'select[name="pagarme_card_expiry_month"]',
+                    '#pagarme_card_expiry_month',
                     'select[name="card_expiry_month"]',
                     '#card_expiry_month',
                     'select[data-pagarme-checkout-element="card-expiry-month"]'
                 ]);
                 
                 var cardExpiryYearEl = findElement([
+                    'select[name="pagarme_card_expiry_year"]',
+                    '#pagarme_card_expiry_year',
                     'select[name="card_expiry_year"]',
                     '#card_expiry_year',
                     'select[data-pagarme-checkout-element="card-expiry-year"]'
                 ]);
                 
                 var cardCvvEl = findElement([
+                    'input[name="pagarme_card_cvv"]',
+                    '#pagarme_card_cvv',
                     'input[name="card_cvv"]',
                     '#card_cvv',
                     'input[placeholder*="123"]',
@@ -186,14 +201,31 @@ const pagarmePaymentMixin = {
             return Promise.reject(new Error('Incomplete payment data'));
         }
 
-        // Find the actual form element that contains our fields
+        // Find the actual form element that contains our fields or the closest form
         var form = cardHolderNameEl.closest('form');
         if (!form) {
-            this._displayError(
-                'Erro do Formulário',
-                'Formulário de pagamento não encontrado. Recarregue a página e tente novamente.'
-            );
-            return Promise.reject(new Error('Payment form not found'));
+            // If we can't find a parent form, create a temporary form for tokenization
+            form = document.createElement('form');
+            form.style.display = 'none';
+            form.method = 'POST';
+            form.action = '#';
+            
+            // Clone the card input elements into the temporary form
+            var tempCardHolderName = cardHolderNameEl.cloneNode(true);
+            var tempCardNumber = cardNumberEl.cloneNode(true);
+            var tempCardExpiryMonth = cardExpiryMonthEl.cloneNode(true);
+            var tempCardExpiryYear = cardExpiryYearEl.cloneNode(true);
+            var tempCardCvv = cardCvvEl.cloneNode(true);
+            
+            form.appendChild(tempCardHolderName);
+            form.appendChild(tempCardNumber);
+            form.appendChild(tempCardExpiryMonth);
+            form.appendChild(tempCardExpiryYear);
+            form.appendChild(tempCardCvv);
+            
+            document.body.appendChild(form);
+            
+            console.log('Pagar.me: Created temporary form for tokenization');
         }
 
         console.log('Pagar.me: Found payment form:', form);
@@ -242,6 +274,11 @@ const pagarmePaymentMixin = {
                         // Clean up iframe
                         document.body.removeChild(iframe);
                         
+                        // Clean up temporary form if we created one
+                        if (form && form.parentNode === document.body && form.style.display === 'none') {
+                            document.body.removeChild(form);
+                        }
+                        
                         // Send tokenized data to server
                         self._rpc({
                             route: '/payment/pagarme/payment',
@@ -283,6 +320,11 @@ const pagarmePaymentMixin = {
                         
                         // Clean up iframe
                         document.body.removeChild(iframe);
+                        
+                        // Clean up temporary form if we created one
+                        if (form && form.parentNode === document.body && form.style.display === 'none') {
+                            document.body.removeChild(form);
+                        }
                         
                         self._displayError(
                             'Erro na Tokenização',
@@ -341,6 +383,11 @@ const pagarmePaymentMixin = {
         }
         
         if (!paymentContainer) {
+            // Try to find by Pagar.me specific class
+            paymentContainer = document.querySelector('.o_payment_form_pagarme');
+        }
+        
+        if (!paymentContainer) {
             // Fallback to any element with o_payment_form class
             paymentContainer = document.querySelector('.o_payment_form');
         }
@@ -353,9 +400,12 @@ const pagarmePaymentMixin = {
         console.log('Pagar.me: Preparing inline form, container found:', paymentContainer);
         console.log('Pagar.me: Payment option ID:', paymentOptionId);
                                
-        // Add input formatting for card number with scoped search
-        var cardNumberInput = paymentContainer.querySelector('input[name="card_number"]') || 
+        // Add input formatting for card number with scoped search (try new names first, then fallback)
+        var cardNumberInput = paymentContainer.querySelector('input[name="pagarme_card_number"]') || 
+                              paymentContainer.querySelector('#pagarme_card_number') ||
+                              paymentContainer.querySelector('input[name="card_number"]') || 
                               paymentContainer.querySelector('#card_number') ||
+                              document.querySelector('input[name="pagarme_card_number"]') ||
                               document.querySelector('input[name="card_number"]');
                               
         if (cardNumberInput) {
@@ -373,8 +423,11 @@ const pagarmePaymentMixin = {
         }
 
         // Add CVV input validation
-        var cardCvvInput = paymentContainer.querySelector('input[name="card_cvv"]') || 
+        var cardCvvInput = paymentContainer.querySelector('input[name="pagarme_card_cvv"]') || 
+                           paymentContainer.querySelector('#pagarme_card_cvv') ||
+                           paymentContainer.querySelector('input[name="card_cvv"]') || 
                            paymentContainer.querySelector('#card_cvv') ||
+                           document.querySelector('input[name="pagarme_card_cvv"]') ||
                            document.querySelector('input[name="card_cvv"]');
         if (cardCvvInput) {
             console.log('Pagar.me: Setting up CVV validation');
@@ -387,8 +440,11 @@ const pagarmePaymentMixin = {
         }
 
         // Add cardholder name validation
-        var cardHolderInput = paymentContainer.querySelector('input[name="card_holder_name"]') || 
+        var cardHolderInput = paymentContainer.querySelector('input[name="pagarme_card_holder_name"]') || 
+                              paymentContainer.querySelector('#pagarme_card_holder_name') ||
+                              paymentContainer.querySelector('input[name="card_holder_name"]') || 
                               paymentContainer.querySelector('#card_holder_name') ||
+                              document.querySelector('input[name="pagarme_card_holder_name"]') ||
                               document.querySelector('input[name="card_holder_name"]');
         if (cardHolderInput) {
             console.log('Pagar.me: Setting up cardholder name validation');
