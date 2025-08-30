@@ -26,24 +26,26 @@ class PaymentProvider(models.Model):
     )
 
     def _compute_feature_support_fields(self):
-        """ Override of payment to enable transparent checkout features. """
+        """Override of payment to enable transparent checkout features."""
         super()._compute_feature_support_fields()
-        self.filtered(lambda p: p.code == "pagarme").update({
-            'support_tokenization': False,
-            'support_express_checkout': False,
-            'support_refund': 'partial',
-        })
+        self.filtered(lambda p: p.code == "pagarme").update(
+            {
+                "support_tokenization": False,
+                "support_express_checkout": False,
+                "support_refund": "partial",
+            }
+        )
 
     def _should_build_inline_form(self, is_validation=False):
-        """ Return whether the inline payment form should be instantiated.
-        
+        """Return whether the inline payment form should be instantiated.
+
         For Pagar.me, we always want to build the inline form for transparent checkout.
-        
+
         :param bool is_validation: Whether the operation is a validation.
         :return: Whether the inline form should be instantiated.
         :rtype: bool
         """
-        if self.code != 'pagarme':
+        if self.code != "pagarme":
             return super()._should_build_inline_form(is_validation)
         return True
 
@@ -93,10 +95,10 @@ class PaymentProvider(models.Model):
             import requests
             from requests.auth import HTTPBasicAuth
 
-            # Pagar.me uses Basic Authentication with secret key as username 
+            # Pagar.me uses Basic Authentication with secret key as username
             # and empty password
-            auth = HTTPBasicAuth(self.pagarme_api_key, '')
-            
+            auth = HTTPBasicAuth(self.pagarme_api_key, "")
+
             headers = {
                 "Content-Type": "application/json",
             }
