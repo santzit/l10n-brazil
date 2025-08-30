@@ -6,8 +6,8 @@
             <!-- Load Pagar.me Tokenizacard.js -->
             <script type="text/javascript" src="https://checkout.pagar.me/v1/tokenizecard.js"></script>
             
-            <!-- Payment fields container with simplified IDs -->
-            <div class="o_payment_form_pagarme">
+            <!-- Payment form following standard Odoo payment structure -->
+            <form class="o_payment_form_pagarme" method="post" action="#" data-pagarme-form="true">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="mb-3">
@@ -101,7 +101,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </template>
     </data>
 </odoo>
