@@ -3,21 +3,26 @@
     <data>
         <!-- Inline form template for Pagar.me payment provider -->
         <template id="inline_form" name="Pagar.me Inline Form">
-            <!-- Load Pagar.me Tokenizacard.js -->
-            <script type="text/javascript" src="https://checkout.pagar.me/v1/tokenizecard.js"></script>
-            
-            <!-- Payment form following standard Odoo payment structure -->
-            <div class="o_payment_option_card" t-att-data-payment-option-id="payment_option_id">
-                <form class="o_payment_form_pagarme" method="post" action="#" data-pagarme-form="true">
+            <!-- Container for Pagar.me payment form following payment_demo pattern -->
+            <div t-attf-id="pagarme-container-{{provider_id}}">
+                <!-- Hidden fields for provider and partner -->
+                <div class="row">
+                    <div class="mb-3">
+                        <input name="provider_id" type="hidden" id="provider_id" t-att-value="id"/>
+                        <input name="partner_id" type="hidden" t-att-value="partner_id"/>
+                    </div>
+                </div>
+                
+                <!-- Credit card form fields -->
                 <div class="row">
                     <div class="col-md-12">
                         <div class="mb-3">
-                            <label class="form-label">Nome do Portador *</label>
+                            <label for="pagarme_card_holder_name" class="form-label">Nome do Portador *</label>
                             <input type="text" 
                                    name="pagarme_card_holder_name" 
                                    id="pagarme_card_holder_name"
                                    data-pagarme-checkout-element="cardholder-name"
-                                   class="form-control o_payment_form_input" 
+                                   class="form-control" 
                                    placeholder="Nome completo como no cartão"
                                    autocomplete="cc-name"
                                    required="required"/>
@@ -25,12 +30,12 @@
                     </div>
                     <div class="col-md-12">
                         <div class="mb-3">
-                            <label class="form-label">Número do Cartão *</label>
+                            <label for="pagarme_card_number" class="form-label">Número do Cartão *</label>
                             <input type="text" 
                                    name="pagarme_card_number" 
                                    id="pagarme_card_number"
                                    data-pagarme-checkout-element="card-number"
-                                   class="form-control o_payment_form_input" 
+                                   class="form-control" 
                                    placeholder="1234 5678 9012 3456"
                                    autocomplete="cc-number"
                                    maxlength="23"
@@ -39,62 +44,61 @@
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label">Data de Expiração *</label>
-                            <div class="row">
-                                <div class="col-6">
-                                    <select name="pagarme_card_expiry_month" 
-                                            id="pagarme_card_expiry_month" 
-                                            data-pagarme-checkout-element="card-expiry-month"
-                                            class="form-select o_payment_form_input" 
-                                            autocomplete="cc-exp-month"
-                                            required="required">
-                                        <option value="">Mês</option>
-                                        <option value="01">01</option>
-                                        <option value="02">02</option>
-                                        <option value="03">03</option>
-                                        <option value="04">04</option>
-                                        <option value="05">05</option>
-                                        <option value="06">06</option>
-                                        <option value="07">07</option>
-                                        <option value="08">08</option>
-                                        <option value="09">09</option>
-                                        <option value="10">10</option>
-                                        <option value="11">11</option>
-                                        <option value="12">12</option>
-                                    </select>
-                                </div>
-                                <div class="col-6">
-                                    <select name="pagarme_card_expiry_year" 
-                                            id="pagarme_card_expiry_year" 
-                                            data-pagarme-checkout-element="card-expiry-year"
-                                            class="form-select o_payment_form_input" 
-                                            autocomplete="cc-exp-year"
-                                            required="required">
-                                        <option value="">Ano</option>
-                                        <option value="2024">2024</option>
-                                        <option value="2025">2025</option>
-                                        <option value="2026">2026</option>
-                                        <option value="2027">2027</option>
-                                        <option value="2028">2028</option>
-                                        <option value="2029">2029</option>
-                                        <option value="2030">2030</option>
-                                        <option value="2031">2031</option>
-                                        <option value="2032">2032</option>
-                                        <option value="2033">2033</option>
-                                        <option value="2034">2034</option>
-                                    </select>
-                                </div>
-                            </div>
+                            <label for="pagarme_card_expiry_month" class="form-label">Mês de Expiração *</label>
+                            <select name="pagarme_card_expiry_month" 
+                                    id="pagarme_card_expiry_month" 
+                                    data-pagarme-checkout-element="card-expiry-month"
+                                    class="form-select" 
+                                    autocomplete="cc-exp-month"
+                                    required="required">
+                                <option value="">Mês</option>
+                                <option value="01">01</option>
+                                <option value="02">02</option>
+                                <option value="03">03</option>
+                                <option value="04">04</option>
+                                <option value="05">05</option>
+                                <option value="06">06</option>
+                                <option value="07">07</option>
+                                <option value="08">08</option>
+                                <option value="09">09</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label">CVV *</label>
+                            <label for="pagarme_card_expiry_year" class="form-label">Ano de Expiração *</label>
+                            <select name="pagarme_card_expiry_year" 
+                                    id="pagarme_card_expiry_year" 
+                                    data-pagarme-checkout-element="card-expiry-year"
+                                    class="form-select" 
+                                    autocomplete="cc-exp-year"
+                                    required="required">
+                                <option value="">Ano</option>
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                                <option value="2026">2026</option>
+                                <option value="2027">2027</option>
+                                <option value="2028">2028</option>
+                                <option value="2029">2029</option>
+                                <option value="2030">2030</option>
+                                <option value="2031">2031</option>
+                                <option value="2032">2032</option>
+                                <option value="2033">2033</option>
+                                <option value="2034">2034</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="pagarme_card_cvv" class="form-label">CVV *</label>
                             <input type="text" 
                                    name="pagarme_card_cvv" 
                                    id="pagarme_card_cvv"
                                    data-pagarme-checkout-element="card-cvv"
-                                   class="form-control o_payment_form_input" 
+                                   class="form-control" 
                                    placeholder="123"
                                    autocomplete="cc-csc"
                                    maxlength="4"
@@ -102,7 +106,6 @@
                         </div>
                     </div>
                 </div>
-                </form>
             </div>
         </template>
     </data>

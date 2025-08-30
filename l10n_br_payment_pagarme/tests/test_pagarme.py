@@ -13,7 +13,7 @@ from odoo.addons.payment.tests.http_common import PaymentHttpCommon
 class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
     def test_processing_values(self):
         """Test that processing values are correctly generated."""
-        tx = self._create_transaction(flow="redirect")
+        tx = self._create_transaction(flow="direct")
         processing_values = tx._get_specific_processing_values({})
 
         self.assertEqual(processing_values["public_key"], self.pagarme.pagarme_app_id)
@@ -34,7 +34,7 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
     @mute_logger("odoo.addons.l10n_br_payment_pagarme.models.payment_transaction")
     def test_send_payment_request_success(self):
         """Test successful payment request."""
-        tx = self._create_transaction("redirect", state="draft")
+        tx = self._create_transaction("direct", state="draft")
         tx.pagarme_token = "card_test_1234567890"
 
         mock_response = {
@@ -55,7 +55,7 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
     @mute_logger("odoo.addons.l10n_br_payment_pagarme.models.payment_transaction")
     def test_send_payment_request_pending(self):
         """Test pending payment request."""
-        tx = self._create_transaction("redirect", state="draft")
+        tx = self._create_transaction("direct", state="draft")
         tx.pagarme_token = "card_test_1234567890"
 
         mock_response = {
@@ -76,7 +76,7 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
     @mute_logger("odoo.addons.l10n_br_payment_pagarme.models.payment_transaction")
     def test_send_payment_request_failed(self):
         """Test failed payment request."""
-        tx = self._create_transaction("redirect", state="draft")
+        tx = self._create_transaction("direct", state="draft")
         tx.pagarme_token = "card_test_1234567890"
 
         mock_response = {
@@ -96,7 +96,7 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
     @mute_logger("odoo.addons.l10n_br_payment_pagarme.models.payment_transaction")
     def test_process_notification_data_paid(self):
         """Test processing of successful payment notification."""
-        tx = self._create_transaction("redirect", state="pending")
+        tx = self._create_transaction("direct", state="pending")
 
         tx._process_notification_data(self.notification_data)
 
@@ -105,7 +105,7 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
     @mute_logger("odoo.addons.l10n_br_payment_pagarme.models.payment_transaction")
     def test_process_notification_data_failed(self):
         """Test processing of failed payment notification."""
-        tx = self._create_transaction("redirect", state="pending")
+        tx = self._create_transaction("direct", state="pending")
 
         tx._process_notification_data(self.failed_notification_data)
 
@@ -114,7 +114,7 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
     @mute_logger("odoo.addons.l10n_br_payment_pagarme.models.payment_transaction")
     def test_process_notification_data_canceled(self):
         """Test processing of canceled payment notification."""
-        tx = self._create_transaction("redirect", state="pending")
+        tx = self._create_transaction("direct", state="pending")
 
         canceled_data = dict(self.notification_data, status="canceled")
         tx._process_notification_data(canceled_data)
@@ -141,7 +141,7 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
 
     def test_transaction_pagarme_token_field(self):
         """Test that transaction has pagarme_token field."""
-        tx = self._create_transaction("redirect")
+        tx = self._create_transaction("direct")
         self.assertTrue(hasattr(tx, "pagarme_token"))
 
         # Test setting and getting token
@@ -169,3 +169,72 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
         # Test webhook URL generation
         webhook_url = provider._get_pagarme_webhook_url()
         self.assertIn("/payment/pagarme/webhook", webhook_url)
+
+    def test_inline_form_configuration(self):
+        """Test that the inline form is properly configured for transparent checkout."""
+        # Test that inline_form_view_id is set
+        self.assertTrue(self.pagarme.inline_form_view_id)
+        
+        # Test that redirect_form_view_id is False (indicating transparent checkout)
+        self.assertFalse(self.pagarme.redirect_form_view_id)
+        
+        # Test that the inline form template exists
+        inline_template = self.env.ref('l10n_br_payment_pagarme.inline_form')
+        self.assertEqual(self.pagarme.inline_form_view_id, inline_template)
+        
+    def test_inline_form_template_structure(self):
+        """Test that the inline form template has the correct structure."""
+        # Get the template
+        template = self.env.ref('l10n_br_payment_pagarme.inline_form')
+        self.assertTrue(template)
+        
+        # Check template arch contains the required form elements
+        template_arch = template.arch
+        
+        # Check for required input fields
+        self.assertIn('pagarme_card_holder_name', template_arch)
+        self.assertIn('pagarme_card_number', template_arch)
+        self.assertIn('pagarme_card_expiry_month', template_arch)
+        self.assertIn('pagarme_card_expiry_year', template_arch)
+        self.assertIn('pagarme_card_cvv', template_arch)
+        
+        # Check for Pagar.me data attributes
+        self.assertIn('data-pagarme-checkout-element="cardholder-name"', template_arch)
+        self.assertIn('data-pagarme-checkout-element="card-number"', template_arch)
+        self.assertIn('data-pagarme-checkout-element="card-expiry-month"', template_arch)
+        self.assertIn('data-pagarme-checkout-element="card-expiry-year"', template_arch)
+        self.assertIn('data-pagarme-checkout-element="card-cvv"', template_arch)
+        
+    def test_direct_payment_flow_creation(self):
+        """Test that transactions can be created for direct payment flow."""
+        tx = self._create_transaction(flow="direct", state="draft")
+        
+        # Test that the transaction is configured for direct payment
+        self.assertEqual(tx.operation, "online_direct")
+        
+        # Test processing values for direct payment
+        processing_values = tx._get_specific_processing_values({})
+        self.assertEqual(processing_values["public_key"], self.pagarme.pagarme_app_id)
+        
+    def test_transparent_checkout_configuration(self):
+        """Test that the provider is configured for transparent checkout."""
+        # Test that the provider supports direct payment (transparent checkout)
+        self.assertIn("card", self.pagarme._get_default_payment_method_codes())
+        
+        # Test that tokenization support is correctly configured
+        self.assertFalse(self.pagarme.support_tokenization)
+        self.assertFalse(self.pagarme.support_express_checkout)
+        
+        # Test refund support
+        self.assertEqual(self.pagarme.support_refund, "partial")
+        
+    def test_provider_display_configuration(self):
+        """Test that the provider display configuration is correct for inline form."""
+        # Test display properties
+        self.assertEqual(self.pagarme.display_as, "💳 Pagar.me")
+        self.assertIn("segurança", self.pagarme.pre_msg.lower())
+        
+        # Test that messages are in Portuguese (Brazilian localization)
+        self.assertIn("processado com sucesso", self.pagarme.done_msg.lower())
+        self.assertIn("processando", self.pagarme.pending_msg.lower())
+        self.assertIn("cancelado", self.pagarme.cancel_msg.lower())
