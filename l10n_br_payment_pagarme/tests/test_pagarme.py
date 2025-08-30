@@ -3,6 +3,7 @@
 from unittest.mock import patch
 
 from odoo.tests import tagged
+from odoo.tests.common import TransactionCase
 from odoo.tools import mute_logger
 
 from odoo.addons.l10n_br_payment_pagarme.tests.common import PagarmeCommon
@@ -10,7 +11,59 @@ from odoo.addons.payment.tests.http_common import PaymentHttpCommon
 
 
 @tagged("post_install", "-at_install")
+class PagarmeBasicTest(TransactionCase):
+    """Basic tests that should always run to verify test discovery."""
+
+    def test_module_installed(self):
+        """Test that the module is properly installed."""
+        # Test that the module is available
+        module = self.env["ir.module.module"].search(
+            [("name", "=", "l10n_br_payment_pagarme")]
+        )
+        self.assertTrue(module, "l10n_br_payment_pagarme module should be found")
+
+        # Test that payment provider model is available
+        provider_model = self.env["payment.provider"]
+        self.assertTrue(provider_model, "payment.provider model should be available")
+
+    def test_pagarme_provider_code_available(self):
+        """Test that pagarme is available as a provider code."""
+        provider_model = self.env["payment.provider"]
+        provider_codes = provider_model._fields["code"].selection
+        pagarme_codes = [code for code, name in provider_codes if code == "pagarme"]
+        self.assertEqual(
+            len(pagarme_codes), 1, "pagarme should be available as provider code"
+        )
+
+    def test_provider_creation(self):
+        """Test that a Pagar.me provider can be created."""
+        provider = self.env["payment.provider"].create({
+            "name": "Test Pagar.me",
+            "code": "pagarme",
+            "state": "test",
+            "pagarme_app_id": "test_app_id",
+            "pagarme_api_key": "test_api_key",
+        })
+        self.assertEqual(provider.code, "pagarme")
+        self.assertEqual(provider.pagarme_app_id, "test_app_id")
+
+
+@tagged("post_install", "-at_install")
 class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
+    def test_module_basic_structure(self):
+        """Test basic module structure and imports work correctly."""
+        # This should always pass if the module is installed correctly
+        self.assertTrue(True, "Basic test to ensure test discovery works")
+        
+        # Test that we can import the main provider model
+        provider_model = self.env["payment.provider"]
+        self.assertTrue(provider_model, "payment.provider model should be available")
+        
+        # Test that pagarme is available as a provider code
+        provider_codes = provider_model._fields["code"].selection
+        pagarme_codes = [code for code, name in provider_codes if code == "pagarme"]
+        self.assertTrue(pagarme_codes, "pagarme should be available as provider code")
+
     def test_processing_values(self):
         """Test that processing values are correctly generated."""
         tx = self._create_transaction(flow="direct")
