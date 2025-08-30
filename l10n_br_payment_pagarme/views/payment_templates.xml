@@ -1,27 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <!-- Stripe-like approach for loading external assets -->
+        <template id="checkout" inherit_id="payment.checkout">
+            <xpath expr="." position="inside">
+                <t t-call="l10n_br_payment_pagarme.sdk_assets"/>
+            </xpath>
+        </template>
+
+        <template id="manage" inherit_id="payment.manage">
+            <xpath expr="." position="inside">
+                <t t-call="l10n_br_payment_pagarme.sdk_assets"/>
+            </xpath>
+        </template>
+
+        <template id="express_checkout" inherit_id="payment.express_checkout">
+            <xpath expr="." position="inside">
+                <t t-call="l10n_br_payment_pagarme.sdk_assets"/>
+            </xpath>
+        </template>
+
+        <template id="sdk_assets">
+            <!-- As the following link does not end with '.js', it's not loaded when
+                 placed in __manifest__.py. The following declaration fix this problem -->
+            <script type="text/javascript" src="https://checkout.pagar.me/v1/tokenizecard.js"></script>
+        </template>
+
         <!-- Inline form template for Pagar.me payment provider following payment_demo pattern -->
         <template id="inline_form" name="Pagar.me Inline Form">
-            <!-- Load Pagar.me Tokenizacard.js library dynamically -->
-            <script>
-                (function() {
-                    if (!window.pagarmeTokenizacardLoaded) {
-                        var script = document.createElement('script');
-                        script.src = 'https://checkout.pagar.me/v1/tokenizecard.js';
-                        script.async = true;
-                        script.onload = function() {
-                            window.pagarmeTokenizacardLoaded = true;
-                            console.log('Pagar.me Tokenizacard.js loaded successfully');
-                        };
-                        script.onerror = function() {
-                            console.error('Failed to load Pagar.me Tokenizacard.js');
-                        };
-                        document.head.appendChild(script);
-                    }
-                })();
-            </script>
-            
             <div t-attf-id="pagarme-container-{{provider_id}}">
                 <div class="row">
                     <div class="mb-3">
