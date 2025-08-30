@@ -213,12 +213,12 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
         # Check template arch contains the required form elements
         template_arch = template.arch
         
-        # Check for required input fields
-        self.assertIn('pagarme_card_holder_name', template_arch)
-        self.assertIn('pagarme_card_number', template_arch)
-        self.assertIn('pagarme_card_expiry_month', template_arch)
-        self.assertIn('pagarme_card_expiry_year', template_arch)
-        self.assertIn('pagarme_card_cvv', template_arch)
+        # Check for required input fields (simplified IDs following payment_demo pattern)
+        self.assertIn('card_holder_name', template_arch)
+        self.assertIn('card_number', template_arch)
+        self.assertIn('card_expiry_month', template_arch)
+        self.assertIn('card_expiry_year', template_arch)
+        self.assertIn('card_cvv', template_arch)
         
         # Check for Pagar.me data attributes
         self.assertIn('data-pagarme-checkout-element="cardholder-name"', template_arch)

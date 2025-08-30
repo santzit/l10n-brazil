@@ -65,19 +65,28 @@ const pagarmePaymentMixin = {
     },
 
     /**
-     * Get card data from form elements
+     * Get card data from form elements following payment_demo pattern
      * @private
      */
     _getCardDataFromForm: function() {
-        const cardHolderName = document.getElementById('pagarme_card_holder_name');
-        const cardNumber = document.getElementById('pagarme_card_number');
-        const cardExpiryMonth = document.getElementById('pagarme_card_expiry_month');
-        const cardExpiryYear = document.getElementById('pagarme_card_expiry_year');
-        const cardCvv = document.getElementById('pagarme_card_cvv');
+        // Use simple element IDs matching the template
+        const cardHolderName = document.getElementById('card_holder_name');
+        const cardNumber = document.getElementById('card_number');
+        const cardExpiryMonth = document.getElementById('card_expiry_month');
+        const cardExpiryYear = document.getElementById('card_expiry_year');
+        const cardCvv = document.getElementById('card_cvv');
 
-        // Check if all elements exist
-        if (!cardHolderName || !cardNumber || !cardExpiryMonth || !cardExpiryYear || !cardCvv) {
-            console.error('Pagar.me: Form elements not found');
+        // Log which elements are found/missing for debugging
+        const missingElements = [];
+        if (!cardHolderName) missingElements.push('Nome do Portador');
+        if (!cardNumber) missingElements.push('Número do Cartão');
+        if (!cardExpiryMonth) missingElements.push('Mês de Expiração');
+        if (!cardExpiryYear) missingElements.push('Ano de Expiração');
+        if (!cardCvv) missingElements.push('CVV');
+
+        if (missingElements.length > 0) {
+            const errorMsg = `Payment form elements not found: ${missingElements.join(', ')}`;
+            console.error('Pagar.me:', errorMsg);
             this._displayError('Erro do Formulário', 'Campos do cartão não encontrados');
             return null;
         }
@@ -100,7 +109,7 @@ const pagarmePaymentMixin = {
     },
 
     /**
-     * Prepare the inline form for Pagar.me payments.
+     * Prepare the inline form for Pagar.me payments following payment_demo pattern.
      *
      * @override method from payment.payment_form_mixin
      * @private
@@ -119,8 +128,10 @@ const pagarmePaymentMixin = {
         console.log('Pagar.me: Preparing inline form');
         this._setPaymentFlow('direct');
         
-        // Add input formatting
-        this._setupInputFormatting();
+        // Add input formatting after ensuring elements exist
+        setTimeout(() => {
+            this._setupInputFormatting();
+        }, 100);
         
         return Promise.resolve();
     },
@@ -130,9 +141,9 @@ const pagarmePaymentMixin = {
      * @private
      */
     _setupInputFormatting: function() {
-        const cardNumber = document.getElementById('pagarme_card_number');
-        const cardCvv = document.getElementById('pagarme_card_cvv');
-        const cardHolder = document.getElementById('pagarme_card_holder_name');
+        const cardNumber = document.getElementById('card_number');
+        const cardCvv = document.getElementById('card_cvv');
+        const cardHolder = document.getElementById('card_holder_name');
 
         if (cardNumber) {
             cardNumber.addEventListener('input', function() {
