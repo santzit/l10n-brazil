@@ -10,7 +10,7 @@ const pagarmePaymentMixin = {
     //--------------------------------------------------------------------------
 
     /**
-     * Process payment with Pagar.me using direct payment approach.
+     * Process payment with Pagar.me using tokenized card data.
      *
      * @override method from payment.payment_form_mixin
      * @private
@@ -26,90 +26,184 @@ const pagarmePaymentMixin = {
 
         console.log('Pagar.me: Processing direct payment for provider ID:', providerId);
         
-        // Get card data from form
-        const cardData = this._getCardDataFromForm();
-        if (!cardData) {
-            return Promise.reject(new Error('Invalid card data'));
-        }
-
-        // Process payment with card data
-        return this._rpc({
-            route: '/payment/pagarme/payment',
-            params: {
-                'reference': processingValues.reference,
-                'card_holder_name': cardData.holderName,
-                'card_number': cardData.number,
-                'card_expiry_month': cardData.expiryMonth,
-                'card_expiry_year': cardData.expiryYear,
-                'card_cvv': cardData.cvv,
-                'amount': processingValues.amount,
-                'currency': processingValues.currency,
-            },
-        }).then((result) => {
-            if (result.error) {
-                this._displayError('Erro no Pagamento', result.error);
-                return Promise.reject(new Error(result.error));
-            } else {
-                console.log('Pagar.me: Payment processed successfully');
-                window.location = '/payment/status';
-                return result;
+        // Wait for Pagar.me tokenization to complete
+        return this._waitForPagarmeTokenization().then((cardToken) => {
+            if (!cardToken) {
+                return Promise.reject(new Error('Falha na tokenização do cartão'));
             }
+
+            console.log('Pagar.me: Card tokenized successfully');
+
+            // Process payment with tokenized card data
+            return this._rpc({
+                route: '/payment/pagarme/payment',
+                params: {
+                    'reference': processingValues.reference,
+                    'card_token': cardToken,
+                    'amount': processingValues.amount,
+                    'currency': processingValues.currency,
+                },
+            }).then((result) => {
+                if (result.error) {
+                    this._displayError('Erro no Pagamento', result.error);
+                    return Promise.reject(new Error(result.error));
+                } else {
+                    console.log('Pagar.me: Payment processed successfully');
+                    window.location = '/payment/status';
+                    return result;
+                }
+            }).catch((error) => {
+                console.error('Pagar.me: Payment failed:', error);
+                this._displayError(
+                    'Erro no Pagamento',
+                    'Ocorreu um erro ao processar o pagamento. Tente novamente.'
+                );
+                return Promise.reject(error);
+            });
         }).catch((error) => {
-            console.error('Pagar.me: Payment failed:', error);
+            console.error('Pagar.me: Tokenization failed:', error);
             this._displayError(
-                'Erro no Pagamento',
-                'Ocorreu um erro ao processar o pagamento. Tente novamente.'
+                'Erro de Tokenização',
+                'Falha ao processar dados do cartão. Verifique as informações e tente novamente.'
             );
             return Promise.reject(error);
         });
     },
 
     /**
-     * Get card data from form elements following payment_demo pattern
+     * Wait for Pagar.me tokenization to complete and return the token
      * @private
+     * @return {Promise<string>} The card token from Pagar.me
      */
-    _getCardDataFromForm: function() {
-        // Use simple element IDs matching the template
-        const cardHolderName = document.getElementById('card_holder_name');
-        const cardNumber = document.getElementById('card_number');
-        const cardExpiryMonth = document.getElementById('card_expiry_month');
-        const cardExpiryYear = document.getElementById('card_expiry_year');
-        const cardCvv = document.getElementById('card_cvv');
+    _waitForPagarmeTokenization: function() {
+        return new Promise((resolve, reject) => {
+            console.log('Pagar.me: Starting card tokenization...');
+            
+            // Validate that all form fields are filled
+            if (!this._validateFormFields()) {
+                reject(new Error('Dados do cartão incompletos'));
+                return;
+            }
 
-        // Log which elements are found/missing for debugging
-        const missingElements = [];
-        if (!cardHolderName) missingElements.push('Nome do Portador');
-        if (!cardNumber) missingElements.push('Número do Cartão');
-        if (!cardExpiryMonth) missingElements.push('Mês de Expiração');
-        if (!cardExpiryYear) missingElements.push('Ano de Expiração');
-        if (!cardCvv) missingElements.push('CVV');
+            // Check if Pagar.me tokenizecard.js is loaded
+            if (typeof window.PagarMeTokenize === 'undefined') {
+                console.error('Pagar.me: tokenizecard.js not loaded');
+                reject(new Error('Biblioteca de tokenização não carregada'));
+                return;
+            }
 
-        if (missingElements.length > 0) {
-            const errorMsg = `Payment form elements not found: ${missingElements.join(', ')}`;
-            console.error('Pagar.me:', errorMsg);
-            this._displayError('Erro do Formulário', 'Campos do cartão não encontrados');
-            return null;
-        }
+            try {
+                // Trigger form submission to let Pagar.me handle tokenization
+                // Pagar.me will automatically add 'pagarmetoken' field to the form
+                const container = this._getPaymentContainer();
+                if (!container) {
+                    reject(new Error('Container de pagamento não encontrado'));
+                    return;
+                }
 
-        // Validate all fields have values
-        const data = {
-            holderName: cardHolderName.value.trim(),
-            number: cardNumber.value.replace(/\s/g, ''),
-            expiryMonth: cardExpiryMonth.value,
-            expiryYear: cardExpiryYear.value,
-            cvv: cardCvv.value
-        };
+                // Create a temporary form to trigger Pagar.me tokenization
+                const tempForm = document.createElement('form');
+                tempForm.style.display = 'none';
+                
+                // Copy all card input fields to temp form
+                const cardFields = container.querySelectorAll('[data-pagarme-checkout-element]');
+                cardFields.forEach(field => {
+                    const clone = field.cloneNode(true);
+                    tempForm.appendChild(clone);
+                });
 
-        if (!data.holderName || !data.number || !data.expiryMonth || !data.expiryYear || !data.cvv) {
-            this._displayError('Dados Incompletos', 'Por favor, preencha todos os campos do cartão');
-            return null;
-        }
+                document.body.appendChild(tempForm);
 
-        return data;
+                // Listen for pagarmetoken creation
+                const checkForToken = () => {
+                    const tokenField = tempForm.querySelector('input[name="pagarmetoken"]');
+                    if (tokenField && tokenField.value) {
+                        console.log('Pagar.me: Token generated successfully');
+                        const token = tokenField.value;
+                        document.body.removeChild(tempForm);
+                        resolve(token);
+                    } else {
+                        // Check again after a short delay
+                        setTimeout(checkForToken, 100);
+                    }
+                };
+
+                // Submit the form to trigger Pagar.me tokenization
+                const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                tempForm.dispatchEvent(submitEvent);
+                
+                // Start checking for the token
+                setTimeout(checkForToken, 100);
+                
+                // Timeout after 10 seconds
+                setTimeout(() => {
+                    if (document.body.contains(tempForm)) {
+                        document.body.removeChild(tempForm);
+                        reject(new Error('Timeout na tokenização'));
+                    }
+                }, 10000);
+
+            } catch (error) {
+                console.error('Pagar.me: Error during tokenization:', error);
+                reject(error);
+            }
+        });
     },
 
     /**
-     * Prepare the inline form for Pagar.me payments following payment_demo pattern.
+     * Validate that all required form fields are filled
+     * @private
+     * @return {boolean} True if all fields are valid
+     */
+    _validateFormFields: function() {
+        const container = this._getPaymentContainer();
+        if (!container) {
+            console.error('Pagar.me: Payment container not found');
+            return false;
+        }
+
+        const requiredFields = [
+            'input[data-pagarme-checkout-element="cardholder-name"]',
+            'input[data-pagarme-checkout-element="card-number"]', 
+            'select[data-pagarme-checkout-element="card-expiry-month"]',
+            'select[data-pagarme-checkout-element="card-expiry-year"]',
+            'input[data-pagarme-checkout-element="card-cvv"]'
+        ];
+
+        for (const selector of requiredFields) {
+            const field = container.querySelector(selector);
+            if (!field) {
+                console.error('Pagar.me: Required field not found:', selector);
+                return false;
+            }
+            if (!field.value || field.value.trim() === '') {
+                const fieldName = field.getAttribute('data-pagarme-checkout-element');
+                this._displayError('Dados Incompletos', `Campo obrigatório não preenchido: ${fieldName}`);
+                return false;
+            }
+        }
+
+        return true;
+    },
+
+    /**
+     * Get the payment container for the current provider
+     * @private
+     * @return {Element|null} The payment container element
+     */
+    _getPaymentContainer: function() {
+        // Look for the pagarme container that should be visible
+        const containers = document.querySelectorAll('[id^="pagarme-container-"]');
+        for (const container of containers) {
+            if (container.offsetParent !== null) { // Check if visible
+                return container;
+            }
+        }
+        return null;
+    },
+
+    /**
+     * Prepare the inline form for Pagar.me payments.
      *
      * @override method from payment.payment_form_mixin
      * @private
@@ -128,12 +222,25 @@ const pagarmePaymentMixin = {
         console.log('Pagar.me: Preparing inline form');
         this._setPaymentFlow('direct');
         
-        // Add input formatting after ensuring elements exist
+        // Add input formatting and ensure Pagar.me script is loaded
         setTimeout(() => {
             this._setupInputFormatting();
+            this._ensurePagarmeScriptLoaded();
         }, 100);
         
         return Promise.resolve();
+    },
+
+    /**
+     * Ensure Pagar.me tokenizecard.js is loaded
+     * @private
+     */
+    _ensurePagarmeScriptLoaded: function() {
+        if (typeof window.PagarMeTokenize === 'undefined') {
+            console.warn('Pagar.me: tokenizecard.js not yet loaded, form tokenization may not work');
+        } else {
+            console.log('Pagar.me: tokenizecard.js is loaded and ready');
+        }
     },
 
     /**
@@ -141,9 +248,15 @@ const pagarmePaymentMixin = {
      * @private
      */
     _setupInputFormatting: function() {
-        const cardNumber = document.getElementById('card_number');
-        const cardCvv = document.getElementById('card_cvv');
-        const cardHolder = document.getElementById('card_holder_name');
+        const container = this._getPaymentContainer();
+        if (!container) {
+            console.log('Pagar.me: Container not found for input formatting');
+            return;
+        }
+
+        const cardNumber = container.querySelector('[data-pagarme-checkout-element="card-number"]');
+        const cardCvv = container.querySelector('[data-pagarme-checkout-element="card-cvv"]');
+        const cardHolder = container.querySelector('[data-pagarme-checkout-element="cardholder-name"]');
 
         if (cardNumber) {
             cardNumber.addEventListener('input', function() {
@@ -170,6 +283,8 @@ const pagarmePaymentMixin = {
                 this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\s]/gi, '');
             });
         }
+
+        console.log('Pagar.me: Input formatting setup complete');
     },
 };
 

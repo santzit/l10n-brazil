@@ -7,7 +7,7 @@
         <field name="inline_form_view_id" ref="inline_form"/>
         <field name="redirect_form_view_id" eval="False"/>
         <field name="display_as">💳 Pagar.me</field>
-        <field name="pre_msg">Pague com segurança usando seu cartão de crédito através do Pagar.me.</field>
+        <field name="pre_msg">Preencha os dados do seu cartão de crédito abaixo.</field>
         <field name="done_msg">Seu pagamento foi processado com sucesso.</field>
         <field name="pending_msg">Seu pagamento está sendo processado. Você receberá uma confirmação em breve.</field>
         <field name="cancel_msg">Seu pagamento foi cancelado.</field>
