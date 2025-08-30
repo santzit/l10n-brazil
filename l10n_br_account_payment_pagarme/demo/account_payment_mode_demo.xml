@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Demo CNAB Config for Pagar.me -->
+        <record id="cnab_config_pagarme_demo" model="l10n_br_cnab_config">
+            <field name="name">Pagar.me Demo Configuration</field>
+            <field name="cnab_processor">pagarme</field>
+            <field name="bank_id" ref="l10n_br_base.res_bank_341"/>
+            <field name="payment_method_id" ref="l10n_br_account_payment_order.payment_method_type_240"/>
+            <field name="pagarme_api_key">sk_test_demo_api_key_123456789</field>
+            <field name="pagarme_public_key">pk_test_demo_public_key_123456789</field>
+            <field name="pagarme_sandbox_mode">True</field>
+            <field name="pagarme_payment_method">credit_card</field>
+            <field name="pagarme_enable_multiple_methods">True</field>
+            <field name="pagarme_max_installments">10</field>
+            <field name="pagarme_min_installment_amount">15.00</field>
+            <field name="pagarme_boleto_expiration_days">7</field>
+            <field name="pagarme_pix_expiration_minutes">180</field>
+            <field name="pagarme_antifraud_enabled">True</field>
+            <field name="pagarme_antifraud_rule">automatic</field>
+        </record>
+
+        <!-- Demo Payment Mode -->
+        <record id="payment_mode_pagarme_demo" model="account.payment.mode">
+            <field name="name">Pagar.me Credit Card Demo</field>
+            <field name="payment_method_id" ref="account.account_payment_method_electronic_out"/>
+            <field name="cnab_config_id" ref="cnab_config_pagarme_demo"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="bank_account_link">fixed</field>
+            <field name="fixed_journal_id" ref="l10n_br_coa_generic.general_journal_main_company"/>
+        </record>
+
+    </data>
+</odoo>

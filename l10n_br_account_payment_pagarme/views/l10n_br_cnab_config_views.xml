@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- CNAB Config Views for Pagar.me -->
+    <record id="l10n_br_cnab_config_form_pagarme" model="ir.ui.view">
+        <field name="name">l10n_br_cnab_config.form.pagarme</field>
+        <field name="model">l10n_br_cnab_config</field>
+        <field name="inherit_id" ref="l10n_br_account_payment_order.l10n_br_cnab_config_form"/>
+        <field name="arch" type="xml">
+            
+            <!-- Add Pagar.me tab -->
+            <xpath expr="//notebook" position="inside">
+                <page name="pagarme_config" string="Pagar.me Configuration" 
+                      attrs="{'invisible': [('cnab_processor', '!=', 'pagarme')]}">
+                    
+                    <group name="pagarme_api_group" string="API Configuration">
+                        <group>
+                            <field name="pagarme_api_key" password="True"/>
+                            <field name="pagarme_public_key"/>
+                            <field name="pagarme_webhook_secret" password="True"/>
+                            <field name="pagarme_recipient_id"/>
+                        </group>
+                        <group>
+                            <field name="pagarme_sandbox_mode"/>
+                            <field name="pagarme_webhook_url" readonly="1"/>
+                            <button name="action_test_pagarme_connection" 
+                                    string="Test Connection" 
+                                    type="object" 
+                                    class="btn-primary"/>
+                            <button name="action_pagarme_webhook_setup" 
+                                    string="Setup Webhooks" 
+                                    type="object" 
+                                    class="btn-secondary"/>
+                        </group>
+                    </group>
+                    
+                    <group name="pagarme_payment_methods_group" string="Payment Methods">
+                        <group>
+                            <field name="pagarme_payment_method"/>
+                            <field name="pagarme_enable_multiple_methods"/>
+                        </group>
+                    </group>
+                    
+                    <group name="pagarme_credit_card_group" string="Credit Card Settings"
+                           attrs="{'invisible': ['&', ('pagarme_payment_method', '!=', 'credit_card'), ('pagarme_enable_multiple_methods', '=', False)]}">
+                        <group>
+                            <field name="pagarme_max_installments"/>
+                            <field name="pagarme_min_installment_amount"/>
+                            <field name="pagarme_capture_method"/>
+                        </group>
+                        <group>
+                            <field name="pagarme_interest_rate"/>
+                        </group>
+                    </group>
+                    
+                    <group name="pagarme_boleto_group" string="Boleto Settings"
+                           attrs="{'invisible': ['&', ('pagarme_payment_method', '!=', 'boleto'), ('pagarme_enable_multiple_methods', '=', False)]}">
+                        <group>
+                            <field name="pagarme_boleto_expiration_days"/>
+                            <field name="pagarme_boleto_bank"/>
+                        </group>
+                        <group>
+                            <field name="pagarme_boleto_instructions" widget="text"/>
+                        </group>
+                    </group>
+                    
+                    <group name="pagarme_pix_group" string="PIX Settings"
+                           attrs="{'invisible': ['&', ('pagarme_payment_method', '!=', 'pix'), ('pagarme_enable_multiple_methods', '=', False)]}">
+                        <group>
+                            <field name="pagarme_pix_expiration_minutes"/>
+                            <field name="pagarme_pix_key_type"/>
+                        </group>
+                        <group>
+                            <field name="pagarme_pix_key" 
+                                   attrs="{'invisible': [('pagarme_pix_key_type', '=', 'random')]}"/>
+                        </group>
+                    </group>
+                    
+                    <group name="pagarme_antifraud_group" string="Anti-fraud Settings">
+                        <group>
+                            <field name="pagarme_antifraud_enabled"/>
+                            <field name="pagarme_antifraud_rule" 
+                                   attrs="{'invisible': [('pagarme_antifraud_enabled', '=', False)]}"/>
+                        </group>
+                        <group>
+                            <field name="pagarme_antifraud_threshold" 
+                                   attrs="{'invisible': [('pagarme_antifraud_enabled', '=', False)]}"/>
+                        </group>
+                    </group>
+                    
+                    <group name="pagarme_split_group" string="Split Payment Settings">
+                        <group>
+                            <field name="pagarme_enable_split"/>
+                            <field name="pagarme_enable_subscriptions"/>
+                        </group>
+                        <group attrs="{'invisible': [('pagarme_enable_split', '=', False)]}">
+                            <field name="pagarme_split_rules" widget="text" 
+                                   placeholder='{"rules": [{"recipient_id": "re_xxx", "percentage": 80}]}'/>
+                        </group>
+                    </group>
+                    
+                </page>
+            </xpath>
+            
+        </field>
+    </record>
+
+</odoo>

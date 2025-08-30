@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Payment Provider Data -->
+        <record id="payment_provider_pagarme" model="payment.provider">
+            <field name="name">Pagar.me</field>
+            <field name="code">pagarme</field>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="state">disabled</field>
+            <field name="is_published">False</field>
+            <field name="payment_icon_ids" eval="[(6, 0, [
+                ref('payment.payment_icon_cc_mastercard'),
+                ref('payment.payment_icon_cc_visa'),
+                ref('payment.payment_icon_cc_american_express'),
+            ])]"/>
+            <field name="pagarme_sandbox_mode">True</field>
+            <field name="pagarme_enable_credit_card">True</field>
+            <field name="pagarme_enable_debit_card">True</field>
+            <field name="pagarme_enable_boleto">True</field>
+            <field name="pagarme_enable_pix">True</field>
+            <field name="pagarme_max_installments">12</field>
+            <field name="pagarme_min_installment_amount">5.00</field>
+            <field name="pagarme_boleto_expiration_days">3</field>
+            <field name="pagarme_pix_expiration_minutes">60</field>
+        </record>
+
+    </data>
+</odoo>

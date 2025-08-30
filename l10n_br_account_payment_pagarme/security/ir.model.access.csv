@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_payment_provider_pagarme_user,payment.provider.pagarme.user,payment.model_payment_provider,base.group_user,1,0,0,0
+access_payment_provider_pagarme_manager,payment.provider.pagarme.manager,payment.model_payment_provider,account.group_account_manager,1,1,1,1
+access_payment_transaction_pagarme_user,payment.transaction.pagarme.user,payment.model_payment_transaction,base.group_user,1,0,0,0
+access_payment_transaction_pagarme_manager,payment.transaction.pagarme.manager,payment.model_payment_transaction,account.group_account_manager,1,1,1,1
+access_l10n_br_cnab_config_pagarme_user,l10n_br_cnab_config.pagarme.user,l10n_br_account_payment_order.model_l10n_br_cnab_config,l10n_br_account_payment_order.group_cnab_user,1,1,0,0
+access_l10n_br_cnab_config_pagarme_manager,l10n_br_cnab_config.pagarme.manager,l10n_br_account_payment_order.model_l10n_br_cnab_config,l10n_br_account_payment_order.group_cnab_manager,1,1,1,1

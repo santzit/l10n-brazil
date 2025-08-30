@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Payment Provider Views -->
+    <record id="payment_provider_form_pagarme" model="ir.ui.view">
+        <field name="name">payment.provider.form.pagarme</field>
+        <field name="model">payment.provider</field>
+        <field name="inherit_id" ref="payment.payment_provider_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='credentials']" position="inside">
+                <group attrs="{'invisible': [('code', '!=', 'pagarme')]}">
+                    <group name="pagarme_credentials" string="Pagar.me Credentials">
+                        <field name="pagarme_api_key" password="True"/>
+                        <field name="pagarme_public_key"/>
+                        <field name="pagarme_webhook_secret" password="True"/>
+                        <field name="pagarme_sandbox_mode"/>
+                        <button name="action_test_pagarme_connection" 
+                                string="Test Connection" 
+                                type="object" 
+                                class="btn-primary"
+                                attrs="{'invisible': ['|', ('pagarme_api_key', '=', False), ('pagarme_public_key', '=', False)]}"/>
+                    </group>
+                </group>
+            </xpath>
+            
+            <xpath expr="//page[@name='configuration']" position="inside">
+                <group attrs="{'invisible': [('code', '!=', 'pagarme')]}" string="Pagar.me Configuration">
+                    <group name="pagarme_payment_methods" string="Payment Methods">
+                        <field name="pagarme_enable_credit_card"/>
+                        <field name="pagarme_enable_debit_card"/>
+                        <field name="pagarme_enable_boleto"/>
+                        <field name="pagarme_enable_pix"/>
+                    </group>
+                    
+                    <group name="pagarme_credit_card_config" string="Credit Card Configuration"
+                           attrs="{'invisible': [('pagarme_enable_credit_card', '=', False)]}">
+                        <field name="pagarme_max_installments"/>
+                        <field name="pagarme_min_installment_amount"/>
+                        <field name="pagarme_capture_method"/>
+                    </group>
+                    
+                    <group name="pagarme_boleto_config" string="Boleto Configuration"
+                           attrs="{'invisible': [('pagarme_enable_boleto', '=', False)]}">
+                        <field name="pagarme_boleto_expiration_days"/>
+                        <field name="pagarme_boleto_instructions" widget="text"/>
+                    </group>
+                    
+                    <group name="pagarme_pix_config" string="PIX Configuration"
+                           attrs="{'invisible': [('pagarme_enable_pix', '=', False)]}">
+                        <field name="pagarme_pix_expiration_minutes"/>
+                        <field name="pagarme_pix_key_type"/>
+                        <field name="pagarme_pix_key" 
+                               attrs="{'invisible': [('pagarme_pix_key_type', '=', 'random')]}"/>
+                    </group>
+                    
+                    <group name="pagarme_antifraud_config" string="Anti-fraud Configuration">
+                        <field name="pagarme_antifraud_enabled"/>
+                        <field name="pagarme_antifraud_rule" 
+                               attrs="{'invisible': [('pagarme_antifraud_enabled', '=', False)]}"/>
+                    </group>
+                    
+                    <group name="pagarme_webhook_config" string="Webhook Configuration">
+                        <field name="pagarme_webhook_url" readonly="1"/>
+                        <field name="pagarme_webhook_events"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

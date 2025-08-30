@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Payment Methods -->
+        <record id="payment_method_pagarme_credit_card" model="payment.method">
+            <field name="name">Credit Card (Pagar.me)</field>
+            <field name="code">pagarme_credit_card</field>
+            <field name="provider_ids" eval="[(4, ref('payment_provider_pagarme'))]"/>
+            <field name="primary_payment_method_id" ref="payment.payment_method_card"/>
+        </record>
+
+        <record id="payment_method_pagarme_debit_card" model="payment.method">
+            <field name="name">Debit Card (Pagar.me)</field>
+            <field name="code">pagarme_debit_card</field>
+            <field name="provider_ids" eval="[(4, ref('payment_provider_pagarme'))]"/>
+            <field name="primary_payment_method_id" ref="payment.payment_method_card"/>
+        </record>
+
+        <record id="payment_method_pagarme_boleto" model="payment.method">
+            <field name="name">Boleto Bancário (Pagar.me)</field>
+            <field name="code">pagarme_boleto</field>
+            <field name="provider_ids" eval="[(4, ref('payment_provider_pagarme'))]"/>
+        </record>
+
+        <record id="payment_method_pagarme_pix" model="payment.method">
+            <field name="name">PIX (Pagar.me)</field>
+            <field name="code">pagarme_pix</field>
+            <field name="provider_ids" eval="[(4, ref('payment_provider_pagarme'))]"/>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,1 @@
+Este módulo implementa um provedor de pagamento completo para Pagar.me, integrado ao sistema brasileiro de ordens de pagamento do Odoo.
