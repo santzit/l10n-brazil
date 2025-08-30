@@ -91,17 +91,24 @@ class PaymentProvider(models.Model):
 
         try:
             import requests
+            from requests.auth import HTTPBasicAuth
 
+            # Pagar.me uses Basic Authentication with secret key as username 
+            # and empty password
+            auth = HTTPBasicAuth(self.pagarme_api_key, '')
+            
             headers = {
-                "Authorization": f"Bearer {self.pagarme_api_key}",
                 "Content-Type": "application/json",
             }
 
             _logger.info("Pagar.me: Testing connection for provider %s", self.name)
+            api_url = self._get_pagarme_api_url()
+            _logger.info("Pagar.me: Using API URL: %s/customers", api_url)
 
             # Test with a simple API call to check connection
             response = requests.get(
                 f"{self._get_pagarme_api_url()}/customers",
+                auth=auth,
                 headers=headers,
                 timeout=10,
                 params={"page": 1, "size": 1},  # Minimal request

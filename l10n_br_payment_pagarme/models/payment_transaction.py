@@ -5,6 +5,7 @@ import json
 import logging
 
 import requests
+from requests.auth import HTTPBasicAuth
 
 from odoo import fields, models
 
@@ -93,9 +94,11 @@ class PaymentTransaction(models.Model):
             },
         }
 
-        # Prepare headers
+        # Prepare headers and authentication
+        # Pagar.me uses Basic Authentication with secret key as username 
+        # and empty password
+        auth = HTTPBasicAuth(self.provider_id.pagarme_api_key, '')
         headers = {
-            "Authorization": f"Bearer {self.provider_id.pagarme_api_key}",
             "Content-Type": "application/json",
             "User-Agent": "Odoo-Pagar.me/1.0",
         }
@@ -107,12 +110,10 @@ class PaymentTransaction(models.Model):
         _logger.info(
             "Pagar.me: API Request Headers: %s",
             json.dumps(
-                {
-                    k: "***MASKED***" if k == "Authorization" else v
-                    for k, v in headers.items()
-                }
+                {k: v for k, v in headers.items()}
             ),
         )
+        _logger.info("Pagar.me: Using Basic Auth with API key")
         _logger.info(
             "Pagar.me: API Request Payload: %s",
             json.dumps(
@@ -137,6 +138,7 @@ class PaymentTransaction(models.Model):
             response = requests.post(
                 "https://api.pagar.me/core/v5/orders",
                 json=order_data,
+                auth=auth,
                 headers=headers,
                 timeout=30,
             )
