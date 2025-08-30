@@ -33,8 +33,6 @@ class PaymentProvider(models.Model):
                 "support_tokenization": False,
                 "support_express_checkout": False,
                 "support_refund": "partial",
-                # Explicitly disable redirect flow since we want inline
-                "support_redirect_flow": False,
             }
         )
 

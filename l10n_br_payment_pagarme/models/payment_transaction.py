@@ -242,36 +242,87 @@ class PaymentTransaction(models.Model):
         )
         _logger.info("Pagar.me: Webhook data: %s", json.dumps(notification_data))
 
-        # Extract event and data from webhook
+        # Handle both webhook format and direct order data format
         event_type = notification_data.get("type")
-        event_data = notification_data.get("data", {})
-
-        if event_type == "order.paid":
-            self._set_done()
-            _logger.info(
-                "Pagar.me: Transaction %s marked as done via webhook", self.reference
-            )
-        elif event_type == "order.payment_failed":
-            error_message = event_data.get("reason", "Payment failed")
-            self._set_error(f"Payment failed: {error_message}")
-            _logger.error(
-                "Pagar.me: Transaction %s failed via webhook: %s",
-                self.reference,
-                error_message,
-            )
-        elif event_type == "order.canceled":
-            self._set_canceled()
-            _logger.info(
-                "Pagar.me: Transaction %s canceled via webhook", self.reference
-            )
-        elif event_type in ["order.pending", "order.processing"]:
-            self._set_pending()
-            _logger.info(
-                "Pagar.me: Transaction %s marked as pending via webhook", self.reference
-            )
+        if event_type:
+            # Webhook format with event type
+            event_data = notification_data.get("data", {})
+            
+            if event_type == "order.paid":
+                self._set_done()
+                _logger.info(
+                    "Pagar.me: Transaction %s marked as done via webhook",
+                    self.reference
+                )
+            elif event_type == "order.payment_failed":
+                error_message = event_data.get("reason", "Payment failed")
+                self._set_error(f"Payment failed: {error_message}")
+                _logger.error(
+                    "Pagar.me: Transaction %s failed via webhook: %s",
+                    self.reference,
+                    error_message,
+                )
+            elif event_type == "order.canceled":
+                self._set_canceled()
+                _logger.info(
+                    "Pagar.me: Transaction %s marked as canceled via webhook",
+                    self.reference
+                )
+            elif event_type in ["order.pending", "order.processing"]:
+                self._set_pending()
+                _logger.info(
+                    "Pagar.me: Transaction %s marked as pending via webhook",
+                    self.reference
+                )
+            else:
+                _logger.warning(
+                    "Pagar.me: Unknown webhook event type %s for transaction %s",
+                    event_type,
+                    self.reference,
+                )
         else:
-            _logger.warning(
-                "Pagar.me: Unknown webhook event type %s for transaction %s",
-                event_type,
-                self.reference,
-            )
+            # Direct order data format (for tests and direct API responses)
+            order_status = notification_data.get("status")
+            charges = notification_data.get("charges", [])
+            
+            paid_status = (order_status == "paid" or 
+                          (charges and charges[0].get("status") == "paid"))
+            if paid_status:
+                self._set_done()
+                _logger.info(
+                    "Pagar.me: Transaction %s marked as done", self.reference
+                )
+            elif (order_status == "failed" or 
+                  (charges and charges[0].get("status") == "failed")):
+                error_message = "Payment failed"
+                if charges:
+                    error_message = (
+                        charges[0]
+                        .get("last_transaction", {})
+                        .get("gateway_response", {})
+                        .get("reason", error_message)
+                    )
+                self._set_error(f"Payment failed: {error_message}")
+                _logger.error(
+                    "Pagar.me: Transaction %s failed: %s",
+                    self.reference,
+                    error_message,
+                )
+            elif (order_status == "canceled" or 
+                  (charges and charges[0].get("status") == "canceled")):
+                self._set_canceled()
+                _logger.info(
+                    "Pagar.me: Transaction %s marked as canceled", self.reference
+                )
+            elif (order_status in ["pending", "processing"] or 
+                  (charges and charges[0].get("status") in ["pending", "processing"])):
+                self._set_pending()
+                _logger.info(
+                    "Pagar.me: Transaction %s marked as pending", self.reference
+                )
+            else:
+                _logger.warning(
+                    "Pagar.me: Unknown order status %s for transaction %s",
+                    order_status,
+                    self.reference,
+                )
