@@ -8,14 +8,15 @@ on:
     branches:
       - "copilot/fix-*"
 
+env:
+  # Limit test execution to only account and our payment module
+  INCLUDE: "account,l10n_br_payment_pagarme"
+
 jobs:
   test_pagarme:
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/oca/oca-ci/py3.10-odoo16.0:latest
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-22.04
+    container: ghcr.io/oca/oca-ci/py3.10-odoo16.0:latest
+    name: Test Pagar.me Payment Module
     
     services:
       postgres:
@@ -32,65 +33,28 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install limited addons and dependencies
+      - name: Install addons and dependencies using OCA tools
         run: |
-          # Remove existing constraints file that causes conflicts
-          rm -f test-constraints.txt
-          
-          # Install Python dependencies for Brazilian localization
-          pip install -r requirements.txt || echo "No requirements.txt or installation failed"
-          
-          # Install setuptools-odoo if not already available
-          pip install setuptools-odoo || echo "setuptools-odoo already installed"
-          
-          # Install our specific module using the setup directory
-          pip install -e ./setup/l10n_br_payment_pagarme || echo "Module installation failed"
-          
-          echo "✓ Installation completed"
+          echo "Using OCA standard installation process..."
+          oca_install_addons
 
       - name: Initialize test database
         run: |
-          echo "Initializing test database..."
-          # Create a simple odoo configuration
-          cat > /tmp/odoo.conf << EOF
-          [options]
-          db_host = postgres
-          db_port = 5432
-          db_user = odoo
-          db_password = odoo
-          addons_path = /opt/odoo-venv/src/odoo/addons,/home/runner/work/l10n-brazil/l10n-brazil
-          EOF
-          
-          # Initialize database with account and our module
-          odoo-bin -c /tmp/odoo.conf -d test --init=account,l10n_br_payment_pagarme --stop-after-init --log-level=info || echo "Database initialization completed with warnings"
+          echo "Initializing test database with OCA tools..."
+          oca_init_test_database
 
       - name: Run tests for l10n_br_payment_pagarme
         run: |
-          echo "Starting test execution..."
-          echo "Checking for test files..."
-          find . -name "test_*.py" -path "*/l10n_br_payment_pagarme/*" -exec echo "Found test file: {}" \;
-          
-          # List test modules in our package
-          python3 -c "
-          import sys
-          sys.path.insert(0, '/home/runner/work/l10n-brazil/l10n-brazil')
-          try:
-              from l10n_br_payment_pagarme import tests
-              print('✓ Tests module imported successfully')
-              print('Available test modules:', dir(tests))
-          except Exception as e:
-              print('✗ Test import failed:', e)
-          "
-          
-          # Run tests with proper configuration
-          echo "=== Running tests with odoo-bin ==="
-          odoo-bin -c /tmp/odoo.conf -d test --test-enable --test-tags=l10n_br_payment_pagarme,post_install --stop-after-init --log-level=info || echo "Tests completed"
-          
-          echo "=== Running tests specifically for our module ==="
-          odoo-bin -c /tmp/odoo.conf -d test --test-enable -i l10n_br_payment_pagarme --stop-after-init --log-level=info || echo "Module-specific tests completed"
+          echo "Running tests using OCA test runner..."
+          echo "Testing modules: $INCLUDE"
+          oca_run_tests
 
-      - name: Validate XML files
+      - name: Validate syntax and XML files
         run: |
+          echo "Validating Python syntax..."
+          python3 -m py_compile $(find l10n_br_payment_pagarme/ -name "*.py")
+          echo "✓ All Python files have valid syntax"
+          
           echo "Validating XML files..."
           python3 -c "
           import xml.etree.ElementTree as ET
@@ -103,9 +67,4 @@ jobs:
                   print(f'✗ {f} has XML error: {e}')
                   raise
           "
-
-      - name: Check Python syntax
-        run: |
-          echo "Checking Python syntax..."
-          python3 -m py_compile $(find l10n_br_payment_pagarme/ -name "*.py")
-          echo "✓ All Python files have valid syntax"
+          echo "✓ All XML files are valid"
