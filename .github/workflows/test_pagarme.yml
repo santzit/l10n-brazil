@@ -8,13 +8,6 @@ on:
     branches:
       - "copilot/fix-*"
 
-env:
-  # Limit test execution to only account and our payment module
-  ADDONS_TO_TEST: "l10n_br_payment_pagarme"
-  INCLUDE: "account,l10n_br_payment_pagarme"
-  # Disable unrelated modules
-  EXCLUDE: "*"
-
 jobs:
   test_pagarme:
     runs-on: ubuntu-22.04
@@ -39,17 +32,27 @@ jobs:
       - name: Install addons and dependencies using OCA tools
         run: |
           echo "Using OCA standard installation process..."
+          export INCLUDE="l10n_br_payment_pagarme"
+          export EXCLUDE=""
           oca_install_addons
 
       - name: Initialize test database
         run: |
           echo "Initializing test database with OCA tools..."
+          export INCLUDE="l10n_br_payment_pagarme"
+          export EXCLUDE=""
           oca_init_test_database
 
-      - name: Run tests for l10n_br_payment_pagarme
+      - name: Run tests for l10n_br_payment_pagarme only
         run: |
-          echo "Running tests using OCA test runner..."
-          echo "Testing modules: $INCLUDE"
+          echo "Running tests for l10n_br_payment_pagarme module only..."
+          echo "Available test files:"
+          find l10n_br_payment_pagarme/tests/ -name "*.py" -exec echo "  {}" \;
+          export INCLUDE="l10n_br_payment_pagarme"
+          export EXCLUDE=""
+          echo "Environment:"
+          echo "  INCLUDE=$INCLUDE"
+          echo "  EXCLUDE=$EXCLUDE"
           oca_run_tests
 
       - name: Validate syntax and XML files
