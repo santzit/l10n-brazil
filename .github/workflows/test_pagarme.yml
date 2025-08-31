@@ -65,18 +65,33 @@ jobs:
         run: |
           echo "=== Setting up OCA environment for Pagar.me testing ==="
           
-          # Set environment for focused testing
-          export INCLUDE="l10n_br_payment_pagarme"
-          export EXCLUDE=""
-          export ADDONS_TO_TEST="l10n_br_payment_pagarme"
-          
           echo "=== Install dependencies ==="
-          oca_install_addons
+          oca_install_addons || {
+            echo "❌ oca_install_addons failed, trying alternative approach"
+            exit 1
+          }
           
-          echo "=== Initialize test database ==="
-          oca_init_test_database
+          echo "=== Initialize test database ==="  
+          oca_init_test_database || {
+            echo "❌ oca_init_test_database failed"
+            exit 1
+          }
           
           echo "=== Run Pagar.me tests ==="
-          oca_run_tests
+          oca_run_tests || {
+            echo "❌ oca_run_tests failed"
+            echo "=== Debugging information ==="
+            echo "Environment variables:"
+            env | grep -E "(INCLUDE|EXCLUDE|ADDONS|ODOO)" || true
+            echo "Database status:"
+            psql -h postgres -U odoo -d odoo -c "SELECT datname FROM pg_database;" || true
+            echo "Installed addons:"
+            find /opt/odoo-venv/src -name "__manifest__.py" -path "*/l10n_br_payment_pagarme/*" || true
+            exit 1
+          }
           
           echo "=== Test execution completed successfully ==="
+        env:
+          INCLUDE: "l10n_br_payment_pagarme"
+          EXCLUDE: ""
+          ADDONS_TO_TEST: "l10n_br_payment_pagarme"
