@@ -25,8 +25,6 @@ class PaymentProvider(models.Model):
         groups="base.group_system",
     )
 
-
-
     def _compute_feature_support_fields(self):
         """Override of payment to enable transparent checkout features."""
         super()._compute_feature_support_fields()

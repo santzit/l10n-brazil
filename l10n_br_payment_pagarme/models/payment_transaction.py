@@ -20,7 +20,7 @@ class PaymentTransaction(models.Model):
         help="Token received from Pagar.me tokenization",
         readonly=True,
     )
-    capture_manually = fields.Boolean(related='provider_id.capture_manually')
+    capture_manually = fields.Boolean(related="provider_id.capture_manually")
 
     def _get_specific_processing_values(self, processing_values):
         """Return Pagar.me-specific processing values."""
@@ -260,7 +260,7 @@ class PaymentTransaction(models.Model):
 
             if event_type == "order.paid":
                 # Check if manual capture is enabled like payment_demo
-                manual_capture = notification_data.get('manual_capture', False)
+                manual_capture = notification_data.get("manual_capture", False)
                 if self.provider_id.capture_manually and not manual_capture:
                     self._set_authorized()
                     _logger.info(
@@ -309,7 +309,7 @@ class PaymentTransaction(models.Model):
             )
             if paid_status:
                 # Check if manual capture is enabled like payment_demo
-                manual_capture = notification_data.get('manual_capture', False)
+                manual_capture = notification_data.get("manual_capture", False)
                 if self.provider_id.capture_manually and not manual_capture:
                     self._set_authorized()
                     _logger.info(
@@ -372,7 +372,7 @@ class PaymentTransaction(models.Model):
         # Extract order ID from webhook data
         event_data = notification_data.get("data", {})
         order_id = event_data.get("id") or notification_data.get("id")
-        
+
         # Also try to get reference directly from notification data
         reference = notification_data.get("reference")
 

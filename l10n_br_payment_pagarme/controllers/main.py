@@ -85,8 +85,8 @@ class PagarmeController(http.Controller):
             _logger.info("Pagar.me: Webhook data: %s", json.dumps(data))
 
             # Process the notification using the standard payment framework method
-            request.env['payment.transaction'].sudo()._handle_notification_data(
-                'pagarme', data
+            request.env["payment.transaction"].sudo()._handle_notification_data(
+                "pagarme", data
             )
 
             _logger.info("Pagar.me: Webhook processed successfully")

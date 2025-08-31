@@ -85,11 +85,13 @@
                     <label for="card_expiry_year" class="form-label">
                         <small><b>Ano *</b></small>
                     </label>
-                    <select name="card_expiry_year" 
-                            id="card_expiry_year" 
-                            data-pagarme-checkout-element="card-expiry-year"
-                            class="form-select" 
-                            required="required">
+                    <select
+                        name="card_expiry_year"
+                        id="card_expiry_year"
+                        data-pagarme-checkout-element="card-expiry-year"
+                        class="form-select"
+                        required="required"
+                    >
                         <option value="">Ano</option>
                         <option value="2024">2024</option>
                         <option value="2025">2025</option>
@@ -108,14 +110,16 @@
                     <label for="card_cvv" class="form-label">
                         <small><b>CVV *</b></small>
                     </label>
-                    <input type="text" 
-                           name="card_cvv" 
-                           id="card_cvv"
-                           data-pagarme-checkout-element="card-cvv"
-                           class="form-control" 
-                           placeholder="123"
-                           maxlength="4"
-                           required="required"/>
+                    <input
+                        type="text"
+                        name="card_cvv"
+                        id="card_cvv"
+                        data-pagarme-checkout-element="card-cvv"
+                        class="form-control"
+                        placeholder="123"
+                        maxlength="4"
+                        required="required"
+                    />
                 </div>
             </div>
         </template>
