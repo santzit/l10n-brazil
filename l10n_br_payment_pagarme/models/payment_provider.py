@@ -66,6 +66,7 @@ class PaymentProvider(models.Model):
         if self.code != "pagarme":
             return super()._should_build_inline_form(is_validation)
         
+        _logger.info("Pagar.me: _should_build_inline_form called - returning True for transparent checkout")
         # Always use inline form for Pagar.me (transparent checkout)
         return True
 
@@ -81,6 +82,7 @@ class PaymentProvider(models.Model):
         if self.code != "pagarme":
             return super()._get_redirect_form_view(is_validation)
         
+        _logger.info("Pagar.me: _get_redirect_form_view called - returning False (no redirect)")
         # Pagar.me uses inline forms only, no redirect
         return False
 
@@ -99,6 +101,8 @@ class PaymentProvider(models.Model):
             return res
 
         _logger.info("Pagar.me: Providing processing values for provider %s", self.name)
+        _logger.info("Pagar.me: inline_form_view_id: %s", self.inline_form_view_id)
+        _logger.info("Pagar.me: redirect_form_view_id: %s", self.redirect_form_view_id)
 
         pagarme_values = {
             "api_url": self._get_pagarme_api_url(),
@@ -111,6 +115,7 @@ class PaymentProvider(models.Model):
         }
         
         res.update(pagarme_values)
+        _logger.info("Pagar.me: Final processing values: %s", res)
         return res
 
     def _get_pagarme_api_url(self):

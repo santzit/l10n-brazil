@@ -162,25 +162,32 @@ const pagarmePaymentMixin = {
             return false;
         }
 
+        // Try both data attribute selectors and direct ID selectors for compatibility
         const requiredFields = [
-            'input[data-pagarme-checkout-element="cardholder-name"]',
-            'input[data-pagarme-checkout-element="card-number"]', 
-            'select[data-pagarme-checkout-element="card-expiry-month"]',
-            'select[data-pagarme-checkout-element="card-expiry-year"]',
-            'input[data-pagarme-checkout-element="card-cvv"]'
+            { selector: 'input[data-pagarme-checkout-element="cardholder-name"], #card_holder_name', name: 'Nome do Portador' },
+            { selector: 'input[data-pagarme-checkout-element="card-number"], #card_number', name: 'Número do Cartão' },
+            { selector: 'select[data-pagarme-checkout-element="card-expiry-month"], #card_expiry_month', name: 'Mês de Expiração' },
+            { selector: 'select[data-pagarme-checkout-element="card-expiry-year"], #card_expiry_year', name: 'Ano de Expiração' },
+            { selector: 'input[data-pagarme-checkout-element="card-cvv"], #card_cvv', name: 'CVV' }
         ];
 
-        for (const selector of requiredFields) {
-            const field = container.querySelector(selector);
+        const missingFields = [];
+        for (const fieldInfo of requiredFields) {
+            const field = container.querySelector(fieldInfo.selector);
             if (!field) {
-                console.error('Pagar.me: Required field not found:', selector);
+                console.error('Pagar.me: Required field not found:', fieldInfo.selector);
+                missingFields.push(fieldInfo.name);
+            } else if (!field.value || field.value.trim() === '') {
+                this._displayError('Dados Incompletos', `Campo obrigatório não preenchido: ${fieldInfo.name}`);
                 return false;
             }
-            if (!field.value || field.value.trim() === '') {
-                const fieldName = field.getAttribute('data-pagarme-checkout-element');
-                this._displayError('Dados Incompletos', `Campo obrigatório não preenchido: ${fieldName}`);
-                return false;
-            }
+        }
+
+        if (missingFields.length > 0) {
+            const errorMsg = `Payment form elements not found: ${missingFields.join(', ')}`;
+            console.error('Pagar.me: ' + errorMsg);
+            this._displayError('Formulário de Pagamento', 'Os campos do cartão de crédito não foram encontrados. Recarregue a página.');
+            return false;
         }
 
         return true;
@@ -192,13 +199,42 @@ const pagarmePaymentMixin = {
      * @return {Element|null} The payment container element
      */
     _getPaymentContainer: function() {
-        // Look for the pagarme container that should be visible
+        console.log('Pagar.me: Looking for payment container...');
+        
+        // First try to find any pagarme container
         const containers = document.querySelectorAll('[id^="pagarme-container-"]');
-        for (const container of containers) {
+        console.log('Pagar.me: Found containers:', containers.length);
+        
+        for (let i = 0; i < containers.length; i++) {
+            const container = containers[i];
+            console.log(`Pagar.me: Container ${i}:`, {
+                id: container.id,
+                visible: container.offsetParent !== null,
+                display: getComputedStyle(container).display,
+                opacity: getComputedStyle(container).opacity
+            });
+            
             if (container.offsetParent !== null) { // Check if visible
+                console.log('Pagar.me: Using visible container:', container.id);
                 return container;
             }
         }
+        
+        // Fallback: look for any inline form element
+        const inlineForm = document.querySelector('.o_payment_form .row');
+        if (inlineForm) {
+            console.log('Pagar.me: Using fallback inline form container');
+            return inlineForm;
+        }
+        
+        // Debug: show all payment related elements
+        const allPaymentElements = document.querySelectorAll('[data-pagarme-checkout-element], .o_payment_form, .payment_option_card');
+        console.log('Pagar.me: All payment-related elements found:', allPaymentElements.length);
+        allPaymentElements.forEach((el, idx) => {
+            console.log(`  Element ${idx}:`, el.tagName, el.className, el.id, el.getAttribute('data-pagarme-checkout-element'));
+        });
+        
+        console.error('Pagar.me: No payment container found');
         return null;
     },
 
