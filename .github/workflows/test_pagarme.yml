@@ -29,13 +29,39 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Validate syntax and XML files first
+      - name: Install addons and dependencies using OCA tools
         run: |
-          echo "=== Validating Python syntax ==="
+          echo "Using OCA standard installation process..."
+          export INCLUDE="l10n_br_payment_pagarme"
+          export EXCLUDE=""
+          oca_install_addons
+
+      - name: Initialize test database
+        run: |
+          echo "Initializing test database with OCA tools..."
+          export INCLUDE="l10n_br_payment_pagarme"
+          export EXCLUDE=""
+          oca_init_test_database
+
+      - name: Run tests for l10n_br_payment_pagarme only
+        run: |
+          echo "Running tests for l10n_br_payment_pagarme module only..."
+          echo "Available test files:"
+          find l10n_br_payment_pagarme/tests/ -name "*.py" -exec echo "  {}" \;
+          export INCLUDE="l10n_br_payment_pagarme"
+          export EXCLUDE=""
+          echo "Environment:"
+          echo "  INCLUDE=$INCLUDE"
+          echo "  EXCLUDE=$EXCLUDE"
+          oca_run_tests
+
+      - name: Validate syntax and XML files
+        run: |
+          echo "Validating Python syntax..."
           python3 -m py_compile $(find l10n_br_payment_pagarme/ -name "*.py")
           echo "✓ All Python files have valid syntax"
           
-          echo "=== Validating XML files ==="
+          echo "Validating XML files..."
           python3 -c "
           import xml.etree.ElementTree as ET
           files = ['l10n_br_payment_pagarme/data/pagarme_provider.xml', 'l10n_br_payment_pagarme/views/payment_provider_views.xml', 'l10n_br_payment_pagarme/views/payment_templates.xml']
@@ -48,50 +74,3 @@ jobs:
                   raise
           "
           echo "✓ All XML files are valid"
-
-      - name: Check module structure
-        run: |
-          echo "=== Module structure ==="
-          echo "Main module files:"
-          ls -la l10n_br_payment_pagarme/
-          echo ""
-          echo "Test files:"
-          find l10n_br_payment_pagarme/tests/ -name "*.py" -exec echo "  {}" \;
-          echo ""
-          echo "Manifest content (dependencies):"
-          grep -A 5 '"depends"' l10n_br_payment_pagarme/__manifest__.py
-
-      - name: Setup OCA environment and run tests
-        run: |
-          echo "=== Setting up OCA environment for Pagar.me testing ==="
-          
-          echo "=== Install dependencies ==="
-          oca_install_addons || {
-            echo "❌ oca_install_addons failed, trying alternative approach"
-            exit 1
-          }
-          
-          echo "=== Initialize test database ==="  
-          oca_init_test_database || {
-            echo "❌ oca_init_test_database failed"
-            exit 1
-          }
-          
-          echo "=== Run Pagar.me tests ==="
-          oca_run_tests || {
-            echo "❌ oca_run_tests failed"
-            echo "=== Debugging information ==="
-            echo "Environment variables:"
-            env | grep -E "(INCLUDE|EXCLUDE|ADDONS|ODOO)" || true
-            echo "Database status:"
-            psql -h postgres -U odoo -d odoo -c "SELECT datname FROM pg_database;" || true
-            echo "Installed addons:"
-            find /opt/odoo-venv/src -name "__manifest__.py" -path "*/l10n_br_payment_pagarme/*" || true
-            exit 1
-          }
-          
-          echo "=== Test execution completed successfully ==="
-        env:
-          INCLUDE: "l10n_br_payment_pagarme"
-          EXCLUDE: ""
-          ADDONS_TO_TEST: "l10n_br_payment_pagarme"
