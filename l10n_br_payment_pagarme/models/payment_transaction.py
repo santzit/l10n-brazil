@@ -7,7 +7,7 @@ import logging
 import requests
 from requests.auth import HTTPBasicAuth
 
-from odoo import fields, models
+from odoo import api, fields, models
 
 _logger = logging.getLogger(__name__)
 

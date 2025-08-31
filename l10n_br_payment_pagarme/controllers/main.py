@@ -78,15 +78,16 @@ class PagarmeController(http.Controller):
             return {"error": f"Payment processing failed: {str(e)}"}
 
     @http.route(_webhook_url, type="json", auth="public", methods=["POST"], csrf=False)
-    def pagarme_webhook(self, **kwargs):
+    def pagarme_webhook(self, **data):
         """Handle webhook notifications from Pagar.me."""
         try:
             _logger.info("Pagar.me: Received webhook notification")
-            data = kwargs or {}
             _logger.info("Pagar.me: Webhook data: %s", json.dumps(data))
 
             # Process the notification using the standard payment framework method
-            self.env['payment.transaction'].sudo()._handle_notification_data('pagarme', data)
+            request.env['payment.transaction'].sudo()._handle_notification_data(
+                'pagarme', data
+            )
 
             _logger.info("Pagar.me: Webhook processed successfully")
             return {"status": "received"}
