@@ -28,92 +28,92 @@ class TestWorkflow(TransactionCase):
 
     def test_no_electronic_01_confirm(self):
         self.fiscal_document.document_electronic = False
-        assert self.fiscal_document.state_edoc == SITUACAO_EDOC_EM_DIGITACAO, (
-            "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
-        )
+        assert (
+            self.fiscal_document.state_edoc == SITUACAO_EDOC_EM_DIGITACAO
+        ), "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
 
         self.fiscal_document.action_document_confirm()
-        assert self.fiscal_document.state_edoc == SITUACAO_EDOC_A_ENVIAR, (
-            "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
-        )
+        assert (
+            self.fiscal_document.state_edoc == SITUACAO_EDOC_A_ENVIAR
+        ), "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
 
         self.fiscal_document.action_document_send()
-        assert self.fiscal_document.state_edoc == SITUACAO_EDOC_AUTORIZADA, (
-            "Error with document workflow, state 'SITUACAO_EDOC_AUTORIZADA' "
-        )
+        assert (
+            self.fiscal_document.state_edoc == SITUACAO_EDOC_AUTORIZADA
+        ), "Error with document workflow, state 'SITUACAO_EDOC_AUTORIZADA' "
 
     def test_electronic_01_confirm(self):
         self.fiscal_document.document_electronic = True
 
-        assert self.fiscal_document.state_edoc == SITUACAO_EDOC_EM_DIGITACAO, (
-            "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
-        )
+        assert (
+            self.fiscal_document.state_edoc == SITUACAO_EDOC_EM_DIGITACAO
+        ), "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
 
         self.fiscal_document.action_document_confirm()
-        assert self.fiscal_document.state_edoc == SITUACAO_EDOC_A_ENVIAR, (
-            "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
-        )
+        assert (
+            self.fiscal_document.state_edoc == SITUACAO_EDOC_A_ENVIAR
+        ), "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
 
         self.fiscal_document.action_document_send()
-        assert self.fiscal_document.state_edoc == SITUACAO_EDOC_AUTORIZADA, (
-            "Error with document workflow, state 'SITUACAO_EDOC_AUTORIZADA' "
-        )
+        assert (
+            self.fiscal_document.state_edoc == SITUACAO_EDOC_AUTORIZADA
+        ), "Error with document workflow, state 'SITUACAO_EDOC_AUTORIZADA' "
 
     def test_electronic_01_rejeitada(self):
         self.fiscal_document.document_electronic = True
 
-        assert self.fiscal_document.state_edoc == SITUACAO_EDOC_EM_DIGITACAO, (
-            "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
-        )
+        assert (
+            self.fiscal_document.state_edoc == SITUACAO_EDOC_EM_DIGITACAO
+        ), "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
 
         self.fiscal_document.action_document_confirm()
         self.fiscal_document._change_state(SITUACAO_EDOC_REJEITADA)
 
-        assert self.fiscal_document.state_edoc == SITUACAO_EDOC_REJEITADA, (
-            "Error with document workflow, state 'SITUACAO_EDOC_REJEITADA' "
-        )
+        assert (
+            self.fiscal_document.state_edoc == SITUACAO_EDOC_REJEITADA
+        ), "Error with document workflow, state 'SITUACAO_EDOC_REJEITADA' "
 
         self.fiscal_document.action_document_send()
-        assert self.fiscal_document.state_edoc == SITUACAO_EDOC_AUTORIZADA, (
-            "Error with document workflow, state 'SITUACAO_EDOC_AUTORIZADA' "
-        )
+        assert (
+            self.fiscal_document.state_edoc == SITUACAO_EDOC_AUTORIZADA
+        ), "Error with document workflow, state 'SITUACAO_EDOC_AUTORIZADA' "
 
     def test_no_electronic_01_draft_cancel(self):
         self.fiscal_document.document_electronic = False
 
-        assert self.fiscal_document.state_edoc == SITUACAO_EDOC_EM_DIGITACAO, (
-            "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
-        )
+        assert (
+            self.fiscal_document.state_edoc == SITUACAO_EDOC_EM_DIGITACAO
+        ), "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
 
         self.fiscal_document._document_cancel("Test")
 
-        assert self.fiscal_document.state_edoc == SITUACAO_EDOC_CANCELADA, (
-            "Error with document workflow, state 'SITUACAO_EDOC_REJEITADA' "
-        )
+        assert (
+            self.fiscal_document.state_edoc == SITUACAO_EDOC_CANCELADA
+        ), "Error with document workflow, state 'SITUACAO_EDOC_REJEITADA' "
 
     def test_electronic_01_draft_cancel(self):
         self.fiscal_document.document_electronic = True
 
-        assert self.fiscal_document.state_edoc == SITUACAO_EDOC_EM_DIGITACAO, (
-            "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
-        )
+        assert (
+            self.fiscal_document.state_edoc == SITUACAO_EDOC_EM_DIGITACAO
+        ), "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
 
         self.fiscal_document._document_cancel("Test")
 
-        assert self.fiscal_document.state_edoc == SITUACAO_EDOC_CANCELADA, (
-            "Error with document workflow, state 'SITUACAO_EDOC_REJEITADA' "
-        )
+        assert (
+            self.fiscal_document.state_edoc == SITUACAO_EDOC_CANCELADA
+        ), "Error with document workflow, state 'SITUACAO_EDOC_REJEITADA' "
 
     def test_electronic_01_back2draft(self):
         self.fiscal_document.document_electronic = True
 
-        assert self.fiscal_document.state_edoc == SITUACAO_EDOC_EM_DIGITACAO, (
-            "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
-        )
+        assert (
+            self.fiscal_document.state_edoc == SITUACAO_EDOC_EM_DIGITACAO
+        ), "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
 
         self.fiscal_document.action_document_confirm()
         self.fiscal_document.action_document_back2draft()
 
-        assert self.fiscal_document.state_edoc == SITUACAO_EDOC_EM_DIGITACAO, (
-            "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "
-        )
+        assert (
+            self.fiscal_document.state_edoc == SITUACAO_EDOC_EM_DIGITACAO
+        ), "Error with document workflow, state 'SITUACAO_EDOC_A_ENVIAR' "

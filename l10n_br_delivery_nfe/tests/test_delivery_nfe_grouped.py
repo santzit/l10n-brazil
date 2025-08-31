@@ -26,7 +26,8 @@ class TestDeliveryNFe(TestBrPickingInvoicingCommon):
         self.assertEqual(
             picking1.partner_id,
             picking2.partner_id,
-            "Partner must be the same for both pickings. This is a test requirement.",
+            "Partner must be the same for both pickings. This is a test "
+            "requirement.",
         )
 
         # Set product volume data

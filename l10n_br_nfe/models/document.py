@@ -170,9 +170,7 @@ class NFe(spec_models.StackedModel):
                 and record.document_type_id.prefix
                 and record.document_key
             ):
-                record.nfe40_Id = (
-                    f"{record.document_type_id.prefix}{record.document_key}"
-                )
+                record.nfe40_Id = f"{record.document_type_id.prefix}{record.document_key}"
             else:
                 record.nfe40_Id = None
 

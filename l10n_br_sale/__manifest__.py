@@ -5,7 +5,7 @@
     "name": "Brazilian Localization Sale",
     "category": "Localisation",
     "license": "AGPL-3",
-    "author": "Akretion, Odoo Community Association (OCA)",
+    "author": "Akretion, " "Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/l10n-brazil",
     "version": "16.0.5.0.0",
     "depends": ["sale_management", "l10n_br_account"],

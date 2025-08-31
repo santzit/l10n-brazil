@@ -64,7 +64,8 @@ class TestL10nBrContract(TransactionCase):
                 self.assertEqual(
                     document_type_id.id,
                     document_id.document_type_id.id,
-                    "The Fiscal Document Type is not Nota Fiscal de Serviço Eletrônica",
+                    "The Fiscal Document Type is not Nota Fiscal "
+                    "de Serviço Eletrônica",
                 )
 
                 self.assertEqual(
@@ -86,7 +87,7 @@ class TestL10nBrContract(TransactionCase):
                 self.assertEqual(
                     document_type_id.id,
                     document_id.document_type_id.id,
-                    "The Fiscal Document Type is not Nota Fiscal Eletrônica",
+                    "The Fiscal Document Type is not Nota Fiscal " "Eletrônica",
                 )
 
                 self.assertEqual(

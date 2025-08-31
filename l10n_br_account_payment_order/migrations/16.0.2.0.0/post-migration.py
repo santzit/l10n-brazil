@@ -108,8 +108,8 @@ def unifying_cnab_codes(env):
 
         # Relação payment_method_ids x return_move_code
         payment_method_id_colunm = (
-            "l10n_br_cnab_mov_instruction_code_id"  # nome tava errado
-        )
+            "l10n_br_cnab_mov_instruction_code_id"
+        )  # nome tava errado
         return_move_code_id_colunm = "payment_method_id"
         env.cr.execute(
             f"""

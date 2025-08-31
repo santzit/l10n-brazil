@@ -56,7 +56,8 @@ class Occ(spec_models.StackedModel):
     cte40_cInt = fields.Char(
         string="Código interno de uso da transportadora",
         help=(
-            "Código interno de uso da transportadora\nUso intermo das transportadoras."
+            "Código interno de uso da transportadora\nUso intermo das "
+            "transportadoras."
         ),
     )
 
