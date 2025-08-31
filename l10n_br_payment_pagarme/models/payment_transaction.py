@@ -20,6 +20,7 @@ class PaymentTransaction(models.Model):
         help="Token received from Pagar.me tokenization",
         readonly=True,
     )
+    capture_manually = fields.Boolean(related='provider_id.capture_manually')
 
     def _get_specific_processing_values(self, processing_values):
         """Return Pagar.me-specific processing values."""
@@ -160,10 +161,19 @@ class PaymentTransaction(models.Model):
 
                     # Map Pagar.me charge status to Odoo transaction states
                     if charge_status == "paid":
-                        self._set_done()
-                        _logger.info(
-                            "Pagar.me: Transaction %s marked as done", self.reference
-                        )
+                        # Check if manual capture is enabled like payment_demo
+                        if self.provider_id.capture_manually:
+                            self._set_authorized()
+                            _logger.info(
+                                "Pagar.me: Transaction %s marked as authorized",
+                                self.reference,
+                            )
+                        else:
+                            self._set_done()
+                            _logger.info(
+                                "Pagar.me: Transaction %s marked as done",
+                                self.reference,
+                            )
                     elif charge_status in ["pending", "processing"]:
                         self._set_pending()
                         _logger.info(
@@ -249,11 +259,20 @@ class PaymentTransaction(models.Model):
             event_data = notification_data.get("data", {})
 
             if event_type == "order.paid":
-                self._set_done()
-                _logger.info(
-                    "Pagar.me: Transaction %s marked as done via webhook",
-                    self.reference,
-                )
+                # Check if manual capture is enabled like payment_demo
+                manual_capture = notification_data.get('manual_capture', False)
+                if self.provider_id.capture_manually and not manual_capture:
+                    self._set_authorized()
+                    _logger.info(
+                        "Pagar.me: Transaction %s marked as authorized via webhook",
+                        self.reference,
+                    )
+                else:
+                    self._set_done()
+                    _logger.info(
+                        "Pagar.me: Transaction %s marked as done via webhook",
+                        self.reference,
+                    )
             elif event_type == "order.payment_failed":
                 error_message = event_data.get("reason", "Payment failed")
                 self._set_error(f"Payment failed: {error_message}")
@@ -289,8 +308,19 @@ class PaymentTransaction(models.Model):
                 charges and charges[0].get("status") == "paid"
             )
             if paid_status:
-                self._set_done()
-                _logger.info("Pagar.me: Transaction %s marked as done", self.reference)
+                # Check if manual capture is enabled like payment_demo
+                manual_capture = notification_data.get('manual_capture', False)
+                if self.provider_id.capture_manually and not manual_capture:
+                    self._set_authorized()
+                    _logger.info(
+                        "Pagar.me: Transaction %s marked as authorized",
+                        self.reference,
+                    )
+                else:
+                    self._set_done()
+                    _logger.info(
+                        "Pagar.me: Transaction %s marked as done", self.reference
+                    )
             elif order_status == "failed" or (
                 charges and charges[0].get("status") == "failed"
             ):

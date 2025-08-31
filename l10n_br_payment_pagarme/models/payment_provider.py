@@ -32,6 +32,7 @@ class PaymentProvider(models.Model):
             {
                 "support_tokenization": False,
                 "support_express_checkout": False,
+                "support_manual_capture": True,
                 "support_refund": "partial",
             }
         )
