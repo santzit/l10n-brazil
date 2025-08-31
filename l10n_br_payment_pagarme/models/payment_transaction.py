@@ -186,7 +186,7 @@ class PaymentTransaction(models.Model):
                             .get("gateway_response", {})
                             .get("reason", "Payment failed")
                         )
-                        self._set_error(f"Payment failed: {error_message}")
+                        self._set_error(error_message)
                         _logger.error(
                             "Pagar.me: Transaction %s failed: %s",
                             self.reference,
@@ -275,7 +275,7 @@ class PaymentTransaction(models.Model):
                     )
             elif event_type == "order.payment_failed":
                 error_message = event_data.get("reason", "Payment failed")
-                self._set_error(f"Payment failed: {error_message}")
+                self._set_error(error_message)
                 _logger.error(
                     "Pagar.me: Transaction %s failed via webhook: %s",
                     self.reference,
@@ -326,13 +326,15 @@ class PaymentTransaction(models.Model):
             ):
                 error_message = "Payment failed"
                 if charges:
-                    error_message = (
+                    gateway_reason = (
                         charges[0]
                         .get("last_transaction", {})
                         .get("gateway_response", {})
-                        .get("reason", error_message)
+                        .get("reason")
                     )
-                self._set_error(f"Payment failed: {error_message}")
+                    if gateway_reason:
+                        error_message = gateway_reason
+                self._set_error(error_message)
                 _logger.error(
                     "Pagar.me: Transaction %s failed: %s",
                     self.reference,
