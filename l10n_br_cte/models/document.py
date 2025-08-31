@@ -201,7 +201,9 @@ class CTe(spec_models.StackedModel):
                 and record.document_type_id.prefix
                 and record.document_key
             ):
-                record.cte40_Id = f"{record.document_type_id.prefix}{record.document_key}"
+                record.cte40_Id = (
+                    f"{record.document_type_id.prefix}{record.document_key}"
+                )
 
     ##########################
     # CT-e tag: id

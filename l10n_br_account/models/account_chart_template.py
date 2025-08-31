@@ -65,6 +65,6 @@ class AccountChartTemplate(models.Model):
                         template_source = self.env.ref(template_source_ref)
                         tax_source_ref = ".".join([ref_module, ref_name])
                         tax_template = self.env.ref(tax_source_ref)
-                        tax.fiscal_tax_ids = (
-                            tax_template.fiscal_tax_ids
-                        ) = template_source.fiscal_tax_ids
+                        tax.fiscal_tax_ids = tax_template.fiscal_tax_ids = (
+                            template_source.fiscal_tax_ids
+                        )

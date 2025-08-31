@@ -102,11 +102,7 @@ class TestSpecModel(TransactionCase, FakeModelLoader):
     def test_stacked_model(self):
         po_fields_or_stacking = set(self.env["fake.purchase.order"]._fields.keys())
         po_fields_or_stacking.update(
-            set(
-                self.env["fake.purchase.order"]
-                ._poxsd10_stacking_points
-                .keys()
-            )
+            set(self.env["fake.purchase.order"]._poxsd10_stacking_points.keys())
         )
         self.assertTrue(
             po_fields_or_stacking.issuperset(
@@ -114,11 +110,7 @@ class TestSpecModel(TransactionCase, FakeModelLoader):
             )
         )
         self.assertEqual(
-            list(
-                self.env["fake.purchase.order"]
-                ._poxsd10_stacking_points
-                .keys()
-            ),
+            list(self.env["fake.purchase.order"]._poxsd10_stacking_points.keys()),
             ["poxsd10_items"],
         )
 
@@ -138,7 +130,6 @@ class TestSpecModel(TransactionCase, FakeModelLoader):
         )
 
     def test_create_export_import(self):
-
         # 1st we create an Odoo PO:
         po = self.env["fake.purchase.order"].create(
             {

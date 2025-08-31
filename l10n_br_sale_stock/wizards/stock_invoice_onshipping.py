@@ -45,14 +45,18 @@ class StockInvoiceOnshipping(models.TransientModel):
                 # {False}     {''}
                 additional_data = ""
                 if picking.sale_id.manual_customer_additional_data:
-                    additional_data = f"{picking.sale_id.manual_customer_additional_data}"
+                    additional_data = (
+                        f"{picking.sale_id.manual_customer_additional_data}"
+                    )
                 customer_data.add(additional_data)
                 values["manual_customer_additional_data"] = additional_data
 
                 # Evita enviar False quando não tem nada
                 fiscal_additional_data = ""
                 if picking.sale_id.manual_fiscal_additional_data:
-                    fiscal_additional_data = f"{picking.sale_id.manual_fiscal_additional_data}"
+                    fiscal_additional_data = (
+                        f"{picking.sale_id.manual_fiscal_additional_data}"
+                    )
                 fiscal_data.add(fiscal_additional_data)
                 values["manual_fiscal_additional_data"] = fiscal_additional_data
 

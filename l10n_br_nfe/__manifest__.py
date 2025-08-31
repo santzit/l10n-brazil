@@ -7,7 +7,7 @@
     "summary": "Eletronic Invoicing for Brazil / NF-e",
     "category": "Localisation",
     "license": "AGPL-3",
-    "author": "Akretion," "KMEE," "Odoo Community Association (OCA)",
+    "author": "Akretion,KMEE,Odoo Community Association (OCA)",
     "maintainers": ["rvalyi", "renatonlima"],
     "website": "https://github.com/OCA/l10n-brazil",
     "development_status": "Beta",

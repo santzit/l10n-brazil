@@ -594,10 +594,7 @@ class TaxDefinition(models.Model):
                 domain = self._get_search_domain(record)
                 if record.env["l10n_br_fiscal.tax.definition"].search_count(domain):
                     raise ValidationError(
-                        _(
-                            "Tax Definition already exists "
-                            "for this ICMS and Tax Group !"
-                        )
+                        _("Tax Definition already exists for this ICMS and Tax Group !")
                     )
 
     @api.constrains("company_id")
@@ -632,10 +629,7 @@ class TaxDefinition(models.Model):
 
                 if record.env["l10n_br_fiscal.tax.definition"].search_count(domain):
                     raise ValidationError(
-                        _(
-                            "Tax Definition already exists "
-                            "for this CFOP and Tax Group !"
-                        )
+                        _("Tax Definition already exists for this CFOP and Tax Group !")
                     )
 
     @api.constrains("is_benefit", "code", "benefit_type", "state_from_id")
@@ -655,8 +649,5 @@ class TaxDefinition(models.Model):
 
                     if record.code[3:4] != record.benefit_type:
                         raise ValidationError(
-                            _(
-                                "The tax benefit code must contain "
-                                "the type of benefit!"
-                            )
+                            _("The tax benefit code must contain the type of benefit!")
                         )

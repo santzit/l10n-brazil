@@ -7,7 +7,7 @@ from odoo import fields, models
 # Modalidade do frete
 MODFRETE_TRANSP = [
     ("0", "0 - Contratação do Frete por conta do Remetente (CIF)"),
-    ("1", "1 - Contratação do Frete por conta do" " destinatário/remetente (FOB)"),
+    ("1", "1 - Contratação do Frete por conta do destinatário/remetente (FOB)"),
     ("2", "2 - Contratação do Frete por conta de terceiros"),
     ("3", "3 - Transporte próprio por conta do remetente"),
     ("4", "4 - Transporte próprio por conta do destinatário"),

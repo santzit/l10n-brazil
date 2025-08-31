@@ -198,8 +198,7 @@ class TestDeliveryInverseAmount(TransactionCase):
         self.assertEqual(
             fiscal_document_id.amount_freight_value,
             100,
-            "Unexpected value for the field amount_freight_value from "
-            "Fiscal Document",
+            "Unexpected value for the field amount_freight_value from Fiscal Document",
         )
 
         for line in fiscal_document_id.fiscal_line_ids:
@@ -224,8 +223,7 @@ class TestDeliveryInverseAmount(TransactionCase):
         self.assertEqual(
             fiscal_document_id.amount_freight_value,
             100,
-            "Unexpected value for the field amount_freight_value from "
-            "Fiscal Document",
+            "Unexpected value for the field amount_freight_value from Fiscal Document",
         )
 
         for line in fiscal_document_id.fiscal_line_ids:
@@ -302,7 +300,7 @@ class TestDeliveryInverseAmount(TransactionCase):
         self.assertEqual(
             fiscal_document_id.amount_other_value,
             100,
-            "Unexpected value for the field other_value from " "Fiscal Document",
+            "Unexpected value for the field other_value from Fiscal Document",
         )
 
         for line in fiscal_document_id.fiscal_line_ids:
@@ -327,7 +325,7 @@ class TestDeliveryInverseAmount(TransactionCase):
         self.assertEqual(
             fiscal_document_id.amount_other_value,
             100,
-            "Unexpected value for the field other_value from " "Fiscal Document",
+            "Unexpected value for the field other_value from Fiscal Document",
         )
 
         for line in fiscal_document_id.fiscal_line_ids:
@@ -413,18 +411,17 @@ class TestDeliveryInverseAmount(TransactionCase):
             self.assertNotEqual(
                 line.freight_value,
                 other_line.freight_value,
-                "Value freight_value should not be has same value" " in invoice lines.",
+                "Value freight_value should not be has same value in invoice lines.",
             )
             self.assertNotEqual(
                 line.insurance_value,
                 other_line.insurance_value,
-                "Value insurance_value should not be has same value"
-                " in invoice lines.",
+                "Value insurance_value should not be has same value in invoice lines.",
             )
             self.assertNotEqual(
                 line.other_value,
                 other_line.other_value,
-                "Value other_value should not be has same value" " in invoice lines.",
+                "Value other_value should not be has same value in invoice lines.",
             )
 
         fiscal_document_id = self.sale_demo.invoice_ids[0].fiscal_document_id
@@ -436,16 +433,15 @@ class TestDeliveryInverseAmount(TransactionCase):
             self.assertNotEqual(
                 line.freight_value,
                 other_line.freight_value,
-                "Value freight_value should not be has same value" " in invoice lines.",
+                "Value freight_value should not be has same value in invoice lines.",
             )
             self.assertNotEqual(
                 line.insurance_value,
                 other_line.insurance_value,
-                "Value insurance_value should not be has same value"
-                " in invoice lines.",
+                "Value insurance_value should not be has same value in invoice lines.",
             )
             self.assertNotEqual(
                 line.other_value,
                 other_line.other_value,
-                "Value other_value should not be has same value" " in invoice lines.",
+                "Value other_value should not be has same value in invoice lines.",
             )

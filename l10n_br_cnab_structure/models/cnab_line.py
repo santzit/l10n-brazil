@@ -35,8 +35,7 @@ class CNABLine(models.Model):
     content_source_model_id = fields.Many2one(
         comodel_name="ir.model",
         string="Content Source",
-        help="Related model that will provide the origin of the contents of CNAB"
-        "files.",
+        help="Related model that will provide the origin of the contents of CNABfiles.",
         compute="_compute_content_source_model_id",
         states={"draft": [("readonly", False)]},
     )

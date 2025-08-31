@@ -132,15 +132,13 @@ class CNABStructure(models.Model):
     )
 
     conf_segment_start_pos = fields.Integer(
-        help="Start position of segment of an detail record. Only for detail"
-        " records.",
+        help="Start position of segment of an detail record. Only for detail records.",
         readonly=True,
         states={"draft": [("readonly", False)]},
     )
 
     conf_segment_end_pos = fields.Integer(
-        help="Last position of segment of an detail record. Only for detail"
-        " records.",
+        help="Last position of segment of an detail record. Only for detail records.",
         readonly=True,
         states={"draft": [("readonly", False)]},
     )

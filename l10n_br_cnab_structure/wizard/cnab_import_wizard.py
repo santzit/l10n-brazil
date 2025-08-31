@@ -148,7 +148,7 @@ class CNABImportWizard(models.TransientModel):
         for index, line in enumerate(lines):
             if len(line) != 240:
                 raise UserError(
-                    _(f"Number of positions of line {index+1} is different of 240.")
+                    _(f"Number of positions of line {index + 1} is different of 240.")
                 )
 
     def _filter_lines(self, lines, conf_field, value):
