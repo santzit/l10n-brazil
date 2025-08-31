@@ -17,7 +17,8 @@ class TestProcessingFlows(PaymentPagarmeCommon, PaymentHttpCommon):
         tx = self._create_transaction(
             flow="direct", reference=f"{self.reference}-webhook"
         )
-        tx.provider_reference = "or_test_1234567890"  # Set order ID for webhook lookup
+        # Set order ID for webhook lookup
+        tx.provider_reference = "or_test_1234567890"
 
         url = self._build_url(PagarmeController._webhook_url)
         webhook_data = {

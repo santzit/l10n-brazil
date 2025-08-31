@@ -85,38 +85,10 @@ class PagarmeController(http.Controller):
             data = kwargs or {}
             _logger.info("Pagar.me: Webhook data: %s", json.dumps(data))
 
-            # Extract order ID from webhook data
-            event_data = data.get("data", {})
-            order_id = event_data.get("id") or data.get("id")
+            # Process the notification using the standard payment framework method
+            self.env['payment.transaction'].sudo()._handle_notification_data('pagarme', data)
 
-            if not order_id:
-                _logger.error("Pagar.me: Missing order ID in webhook notification")
-                return {"error": "Missing order ID"}
-
-            # Find transaction by Pagar.me order ID
-            transaction = (
-                request.env["payment.transaction"]
-                .sudo()
-                .search([("provider_reference", "=", order_id)], limit=1)
-            )
-
-            if not transaction:
-                _logger.error(
-                    "Pagar.me: Transaction not found for order ID: %s", order_id
-                )
-                return {"error": "Transaction not found"}
-
-            _logger.info(
-                "Pagar.me: Processing webhook for transaction %s", transaction.reference
-            )
-
-            # Process the notification
-            transaction._process_notification_data(data)
-
-            _logger.info(
-                "Pagar.me: Webhook processed successfully for transaction %s",
-                transaction.reference,
-            )
+            _logger.info("Pagar.me: Webhook processed successfully")
             return {"status": "received"}
 
         except Exception as e:

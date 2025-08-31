@@ -328,3 +328,38 @@ class PaymentTransaction(models.Model):
                     order_status,
                     self.reference,
                 )
+
+    @api.model
+    def _get_tx_from_notification_data(self, provider_code, notification_data):
+        """Find the transaction based on the notification data."""
+        if provider_code != "pagarme":
+            return super()._get_tx_from_notification_data(
+                provider_code, notification_data
+            )
+
+        # Extract order ID from webhook data
+        event_data = notification_data.get("data", {})
+        order_id = event_data.get("id") or notification_data.get("id")
+        
+        # Also try to get reference directly from notification data
+        reference = notification_data.get("reference")
+
+        if order_id:
+            # Find transaction by Pagar.me order ID
+            tx = self.search([("provider_reference", "=", order_id)], limit=1)
+            if tx:
+                return tx
+
+        if reference:
+            # Find transaction by reference
+            tx = self.search([("reference", "=", reference)], limit=1)
+            if tx:
+                return tx
+
+        # No transaction found
+        _logger.error(
+            "Pagar.me: No transaction found for order_id=%s reference=%s",
+            order_id,
+            reference,
+        )
+        return self.env["payment.transaction"]
