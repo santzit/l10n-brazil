@@ -3,53 +3,16 @@
 from odoo.addons.payment.tests.common import PaymentCommon
 
 
-class PagarmeCommon(PaymentCommon):
+class PaymentPagarmeCommon(PaymentCommon):
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.pagarme = cls._prepare_provider(
-            "pagarme",
-            update_values={
-                "pagarme_app_id": "app_test_1234567890",
-                "pagarme_api_key": "sk_test_abcdef1234567890abcdef1234567890",
-                "payment_icon_ids": [(5, 0, 0)],
-                "redirect_form_view_id": False,  # Ensure transparent checkout
-            },
-        )
-
-        cls.provider = cls.pagarme
+        cls.provider = cls._prepare_provider(code='pagarme')
 
         cls.notification_data = {
-            "id": "or_test_1234567890",
-            "status": "paid",
-            "amount": cls.amount * 100,  # Amount in cents
-            "currency": "BRL",
-            "metadata": {
-                "reference": cls.reference,
-            },
-            "charges": [
-                {
-                    "id": "ch_test_1234567890",
-                    "status": "paid",
-                    "amount": cls.amount * 100,
-                }
-            ],
-        }
-
-        cls.failed_notification_data = {
-            "id": "or_test_failed_1234567890",
-            "status": "failed",
-            "amount": cls.amount * 100,
-            "currency": "BRL",
-            "metadata": {
-                "reference": cls.reference,
-            },
-            "charges": [
-                {
-                    "id": "ch_test_failed_1234567890",
-                    "status": "failed",
-                    "amount": cls.amount * 100,
-                }
-            ],
+            'reference': cls.reference,
+            'payment_details': '1234',
+            'simulated_state': 'done',
         }
