@@ -56,7 +56,9 @@ class PagarmeTest(PaymentPagarmeCommon, PaymentHttpCommon):
 
     def test_processing_values(self):
         """Test that processing values are correctly generated."""
-        tx = self._create_transaction(flow="direct")
+        tx = self._create_transaction(
+            flow="direct", reference=f"{self.reference}-values"
+        )
         processing_values = tx._get_specific_processing_values({})
 
         self.assertEqual(processing_values["public_key"], self.provider.pagarme_app_id)
@@ -72,7 +74,9 @@ class PagarmeTest(PaymentPagarmeCommon, PaymentHttpCommon):
     @mute_logger("odoo.addons.l10n_br_payment_pagarme.models.payment_transaction")
     def test_send_payment_request_success(self):
         """Test successful payment request."""
-        tx = self._create_transaction("direct", state="draft")
+        tx = self._create_transaction(
+            "direct", reference=f"{self.reference}-success", state="draft"
+        )
         tx.pagarme_token = "card_test_1234567890"
 
         mock_response = {

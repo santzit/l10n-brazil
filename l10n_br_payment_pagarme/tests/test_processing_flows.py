@@ -14,7 +14,9 @@ class TestProcessingFlows(PaymentPagarmeCommon, PaymentHttpCommon):
     def test_portal_payment_triggers_processing(self):
         """Test that webhook from Pagar.me triggers the processing of the
         notification data."""
-        tx = self._create_transaction(flow="direct")
+        tx = self._create_transaction(
+            flow="direct", reference=f"{self.reference}-webhook"
+        )
         tx.provider_reference = "or_test_1234567890"  # Set order ID for webhook lookup
 
         url = self._build_url(PagarmeController._webhook_url)

@@ -14,11 +14,11 @@ class TestPaymentTransaction(PaymentPagarmeCommon, PaymentHttpCommon):
     def test_processing_notification_data_sets_transaction_pending(self):
         """Test that the transaction state is set to 'pending' when the notification
         data indicate a pending payment."""
-        tx = self._create_transaction("direct")
+        tx = self._create_transaction("direct", reference=f"{self.reference}-pending")
         pending_data = {
             "status": "pending",
             "charges": [{"status": "pending"}],
-            "reference": self.reference,
+            "reference": tx.reference,
         }
         tx._process_notification_data(pending_data)
         self.assertEqual(tx.state, "pending")
@@ -28,11 +28,11 @@ class TestPaymentTransaction(PaymentPagarmeCommon, PaymentHttpCommon):
         notification data indicate a successful payment and manual capture is
         enabled."""
         self.provider.capture_manually = True
-        tx = self._create_transaction("direct")
+        tx = self._create_transaction("direct", reference=f"{self.reference}-authorize")
         paid_data = {
             "status": "paid",
             "charges": [{"status": "paid"}],
-            "reference": self.reference,
+            "reference": tx.reference,
         }
         tx._process_notification_data(paid_data)
         self.assertEqual(tx.state, "authorized")
@@ -40,11 +40,11 @@ class TestPaymentTransaction(PaymentPagarmeCommon, PaymentHttpCommon):
     def test_processing_notification_data_confirms_transaction(self):
         """Test that the transaction state is set to 'done' when the notification
         data indicate a successful payment."""
-        tx = self._create_transaction("direct")
+        tx = self._create_transaction("direct", reference=f"{self.reference}-done")
         paid_data = {
             "status": "paid",
             "charges": [{"status": "paid"}],
-            "reference": self.reference,
+            "reference": tx.reference,
         }
         tx._process_notification_data(paid_data)
         self.assertEqual(tx.state, "done")
@@ -52,11 +52,11 @@ class TestPaymentTransaction(PaymentPagarmeCommon, PaymentHttpCommon):
     def test_processing_notification_data_cancels_transaction(self):
         """Test that the transaction state is set to 'cancel' when the notification
         data indicate an unsuccessful payment."""
-        tx = self._create_transaction("direct")
+        tx = self._create_transaction("direct", reference=f"{self.reference}-cancel")
         canceled_data = {
             "type": "order.canceled",
             "data": {},
-            "reference": self.reference,
+            "reference": tx.reference,
         }
         tx._process_notification_data(canceled_data)
         self.assertEqual(tx.state, "cancel")
@@ -64,33 +64,37 @@ class TestPaymentTransaction(PaymentPagarmeCommon, PaymentHttpCommon):
     def test_processing_notification_data_sets_transaction_in_error(self):
         """Test that the transaction state is set to 'error' when the notification
         data indicate an error during the payment."""
-        tx = self._create_transaction("direct")
+        tx = self._create_transaction("direct", reference=f"{self.reference}-error")
         failed_data = {
             "status": "failed",
             "charges": [{"status": "failed"}],
-            "reference": self.reference,
+            "reference": tx.reference,
         }
         tx._process_notification_data(failed_data)
         self.assertEqual(tx.state, "error")
 
     def test_processing_webhook_paid_event(self):
         """Test that webhook paid event sets transaction to done."""
-        tx = self._create_transaction("direct")
+        tx = self._create_transaction(
+            "direct", reference=f"{self.reference}-webhook-paid"
+        )
         webhook_data = {
             "type": "order.paid",
             "data": {"id": "order_123"},
-            "reference": self.reference,
+            "reference": tx.reference,
         }
         tx._process_notification_data(webhook_data)
         self.assertEqual(tx.state, "done")
 
     def test_processing_webhook_failed_event(self):
         """Test that webhook failed event sets transaction to error."""
-        tx = self._create_transaction("direct")
+        tx = self._create_transaction(
+            "direct", reference=f"{self.reference}-webhook-failed"
+        )
         webhook_data = {
             "type": "order.payment_failed",
             "data": {"reason": "Card declined"},
-            "reference": self.reference,
+            "reference": tx.reference,
         }
         tx._process_notification_data(webhook_data)
         self.assertEqual(tx.state, "error")
@@ -98,7 +102,9 @@ class TestPaymentTransaction(PaymentPagarmeCommon, PaymentHttpCommon):
     @mute_logger("odoo.addons.l10n_br_payment_pagarme.models.payment_transaction")
     def test_send_payment_request_with_token(self):
         """Test that payment request is sent successfully when token is provided."""
-        tx = self._create_transaction("direct", state="draft")
+        tx = self._create_transaction(
+            "direct", reference=f"{self.reference}-payment", state="draft"
+        )
         tx.pagarme_token = "card_test_1234567890"
 
         mock_response = {
