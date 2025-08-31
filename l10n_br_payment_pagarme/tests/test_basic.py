@@ -55,16 +55,9 @@ class PagarmeBasicInstallTest(TransactionCase):
         )
 
     def test_transparent_checkout_configuration(self):
-        """Test that provider is configured for transparent checkout by default."""
-        provider = self.env["payment.provider"].create(
-            {
-                "name": "Test Transparent Checkout",
-                "code": "pagarme",
-                "state": "test",
-                "pagarme_app_id": "test_app_id",
-                "pagarme_api_key": "test_api_key",
-            }
-        )
+        """Test that default provider is configured for transparent checkout."""
+        # Get the default provider from data file
+        provider = self.env.ref("l10n_br_payment_pagarme.payment_provider_pagarme")
 
         # Test inline form configuration
         self.assertTrue(
@@ -72,7 +65,7 @@ class PagarmeBasicInstallTest(TransactionCase):
             "Provider should support inline forms for transparent checkout",
         )
 
-        # Test that inline form view is configured
+        # Test that inline form view is configured via data file
         self.assertTrue(
             provider.inline_form_view_id,
             "Provider should have inline form view configured",

@@ -25,23 +25,7 @@ class PaymentProvider(models.Model):
         groups="base.group_system",
     )
 
-    @staticmethod
-    def _get_pagarme_inline_form_view_id(env):
-        """Get the inline form view ID for Pagar.me provider."""
-        try:
-            return env.ref("l10n_br_payment_pagarme.inline_form").id
-        except Exception:
-            return False
 
-    def create(self, vals_list):
-        """Override to set inline form view for pagarme providers."""
-        records = super().create(vals_list)
-        for record in records:
-            if record.code == "pagarme" and not record.inline_form_view_id:
-                record.inline_form_view_id = self._get_pagarme_inline_form_view_id(
-                    record.env
-                )
-        return records
 
     def _compute_feature_support_fields(self):
         """Override of payment to enable transparent checkout features."""
