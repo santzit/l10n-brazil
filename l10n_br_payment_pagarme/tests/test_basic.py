@@ -20,8 +20,9 @@ class PagarmeBasicInstallTest(TransactionCase):
 
     def test_payment_provider_model_exists(self):
         """Verify payment provider model is available."""
-        provider_model = self.env["payment.provider"]
-        self.assertTrue(provider_model, "payment.provider model should be available")
+        self.assertIn(
+            "payment.provider", self.env, "payment.provider model should be available"
+        )
 
     def test_pagarme_code_in_selection(self):
         """Verify pagarme is available as provider code."""
