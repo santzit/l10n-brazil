@@ -37,13 +37,15 @@ class PagarmeBasicTest(TransactionCase):
 
     def test_provider_creation(self):
         """Test that a Pagar.me provider can be created."""
-        provider = self.env["payment.provider"].create({
-            "name": "Test Pagar.me",
-            "code": "pagarme",
-            "state": "test",
-            "pagarme_app_id": "test_app_id",
-            "pagarme_api_key": "test_api_key",
-        })
+        provider = self.env["payment.provider"].create(
+            {
+                "name": "Test Pagar.me",
+                "code": "pagarme",
+                "state": "test",
+                "pagarme_app_id": "test_app_id",
+                "pagarme_api_key": "test_api_key",
+            }
+        )
         self.assertEqual(provider.code, "pagarme")
         self.assertEqual(provider.pagarme_app_id, "test_app_id")
 
@@ -54,11 +56,11 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
         """Test basic module structure and imports work correctly."""
         # This should always pass if the module is installed correctly
         self.assertTrue(True, "Basic test to ensure test discovery works")
-        
+
         # Test that we can import the main provider model
         provider_model = self.env["payment.provider"]
         self.assertTrue(provider_model, "payment.provider model should be available")
-        
+
         # Test that pagarme is available as a provider code
         provider_codes = provider_model._fields["code"].selection
         pagarme_codes = [code for code, name in provider_codes if code == "pagarme"]
@@ -161,10 +163,8 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
                     "status": "failed",
                     "amount": int(self.amount * 100),
                     "last_transaction": {
-                        "gateway_response": {
-                            "reason": "Card declined"
-                        }
-                    }
+                        "gateway_response": {"reason": "Card declined"}
+                    },
                 }
             ],
         }
@@ -333,7 +333,7 @@ class PagarmeTest(PagarmeCommon, PaymentHttpCommon):
         # Test that the provider supports inline forms (transparent checkout)
         self.assertTrue(
             self.pagarme._should_build_inline_form(),
-            "Provider should support inline forms for transparent checkout"
+            "Provider should support inline forms for transparent checkout",
         )
 
         # Test that tokenization support is correctly configured

@@ -247,12 +247,12 @@ class PaymentTransaction(models.Model):
         if event_type:
             # Webhook format with event type
             event_data = notification_data.get("data", {})
-            
+
             if event_type == "order.paid":
                 self._set_done()
                 _logger.info(
                     "Pagar.me: Transaction %s marked as done via webhook",
-                    self.reference
+                    self.reference,
                 )
             elif event_type == "order.payment_failed":
                 error_message = event_data.get("reason", "Payment failed")
@@ -266,13 +266,13 @@ class PaymentTransaction(models.Model):
                 self._set_canceled()
                 _logger.info(
                     "Pagar.me: Transaction %s marked as canceled via webhook",
-                    self.reference
+                    self.reference,
                 )
             elif event_type in ["order.pending", "order.processing"]:
                 self._set_pending()
                 _logger.info(
                     "Pagar.me: Transaction %s marked as pending via webhook",
-                    self.reference
+                    self.reference,
                 )
             else:
                 _logger.warning(
@@ -284,16 +284,16 @@ class PaymentTransaction(models.Model):
             # Direct order data format (for tests and direct API responses)
             order_status = notification_data.get("status")
             charges = notification_data.get("charges", [])
-            
-            paid_status = (order_status == "paid" or 
-                          (charges and charges[0].get("status") == "paid"))
+
+            paid_status = order_status == "paid" or (
+                charges and charges[0].get("status") == "paid"
+            )
             if paid_status:
                 self._set_done()
-                _logger.info(
-                    "Pagar.me: Transaction %s marked as done", self.reference
-                )
-            elif (order_status == "failed" or 
-                  (charges and charges[0].get("status") == "failed")):
+                _logger.info("Pagar.me: Transaction %s marked as done", self.reference)
+            elif order_status == "failed" or (
+                charges and charges[0].get("status") == "failed"
+            ):
                 error_message = "Payment failed"
                 if charges:
                     error_message = (
@@ -308,14 +308,16 @@ class PaymentTransaction(models.Model):
                     self.reference,
                     error_message,
                 )
-            elif (order_status == "canceled" or 
-                  (charges and charges[0].get("status") == "canceled")):
+            elif order_status == "canceled" or (
+                charges and charges[0].get("status") == "canceled"
+            ):
                 self._set_canceled()
                 _logger.info(
                     "Pagar.me: Transaction %s marked as canceled", self.reference
                 )
-            elif (order_status in ["pending", "processing"] or 
-                  (charges and charges[0].get("status") in ["pending", "processing"])):
+            elif order_status in ["pending", "processing"] or (
+                charges and charges[0].get("status") in ["pending", "processing"]
+            ):
                 self._set_pending()
                 _logger.info(
                     "Pagar.me: Transaction %s marked as pending", self.reference

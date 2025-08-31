@@ -65,14 +65,17 @@ class PaymentProvider(models.Model):
         """
         if self.code != "pagarme":
             return super()._should_build_inline_form(is_validation)
-        
-        _logger.info("Pagar.me: _should_build_inline_form called - returning True for transparent checkout")
+
+        _logger.info(
+            "Pagar.me: _should_build_inline_form called - "
+            "returning True for transparent checkout"
+        )
         # Always use inline form for Pagar.me (transparent checkout)
         return True
 
     def _get_redirect_form_view(self, is_validation=False):
         """Return the view of the template used to render the redirect form.
-        
+
         For Pagar.me, we should never use redirect, so return None/False.
 
         :param bool is_validation: Whether the operation is a validation.
@@ -81,8 +84,10 @@ class PaymentProvider(models.Model):
         """
         if self.code != "pagarme":
             return super()._get_redirect_form_view(is_validation)
-        
-        _logger.info("Pagar.me: _get_redirect_form_view called - returning False (no redirect)")
+
+        _logger.info(
+            "Pagar.me: _get_redirect_form_view called - returning False (no redirect)"
+        )
         # Pagar.me uses inline forms only, no redirect
         return False
 
@@ -91,8 +96,6 @@ class PaymentProvider(models.Model):
         self.ensure_one()
         base_url = self.get_base_url()
         return f"{base_url}/payment/pagarme/webhook"
-
-
 
     def _get_specific_processing_values(self, processing_values):
         """Return specific processing values for Pagar.me provider."""
@@ -113,7 +116,7 @@ class PaymentProvider(models.Model):
             "is_direct_payment": True,
             "flow": "direct",
         }
-        
+
         res.update(pagarme_values)
         _logger.info("Pagar.me: Final processing values: %s", res)
         return res
