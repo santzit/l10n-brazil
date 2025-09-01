@@ -6,9 +6,11 @@
         <field name="model">payment.provider</field>
         <field name="inherit_id" ref="payment.payment_provider_form"/>
         <field name="arch" type="xml">
-            <page name="credentials" position="attributes">
-                <attribute name="invisible" separator="or" add="code == 'pagarme'"/>
-            </page>
+            <group name="provider_credentials" position="inside">
+                <group attrs="{'invisible': [('code', '!=', 'pagarme')]}" name="pagarme_credentials">
+                    <span class="badge rounded-pill text-bg-warning">Demo Provider</span>
+                </group>
+            </group>
         </field>
     </record>
 
