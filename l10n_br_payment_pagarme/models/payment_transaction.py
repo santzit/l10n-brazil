@@ -42,8 +42,8 @@ class PaymentTransaction(models.Model):
         # which calls the API directly. This method is kept for compatibility
         # but the actual processing happens in the controller.
         _logger.info(
-            "Pagar.me: Payment request delegated to controller for transaction %s", 
-            self.reference
+            "Pagar.me: Payment request delegated to controller for transaction %s",
+            self.reference,
         )
 
     def _process_notification_data(self, notification_data):

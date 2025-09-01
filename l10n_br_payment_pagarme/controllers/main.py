@@ -68,16 +68,18 @@ class PagarmeController(http.Controller):
 
             # Process the payment by calling Pagar.me API directly
             result = self._process_pagarme_payment(transaction)
-            
+
             if result.get("success"):
                 _logger.info(
-                    "Pagar.me: Payment processing completed for transaction %s", reference
+                    "Pagar.me: Payment processing completed for transaction %s",
+                    reference,
                 )
                 return {"success": True}
             else:
                 _logger.error(
-                    "Pagar.me: Payment processing failed for transaction %s: %s", 
-                    reference, result.get("error", "Unknown error")
+                    "Pagar.me: Payment processing failed for transaction %s: %s",
+                    reference,
+                    result.get("error", "Unknown error"),
                 )
                 return {"error": result.get("error", "Payment processing failed")}
 
@@ -90,7 +92,8 @@ class PagarmeController(http.Controller):
     def _process_pagarme_payment(self, transaction):
         """Process payment by calling Pagar.me API directly."""
         _logger.info(
-            "Pagar.me: Starting payment request for transaction %s", transaction.reference
+            "Pagar.me: Starting payment request for transaction %s",
+            transaction.reference,
         )
 
         # Prepare order data for Pagar.me Order API
@@ -216,7 +219,8 @@ class PagarmeController(http.Controller):
                     elif charge_status in ["pending", "processing"]:
                         transaction._set_pending()
                         _logger.info(
-                            "Pagar.me: Transaction %s marked as pending", transaction.reference
+                            "Pagar.me: Transaction %s marked as pending",
+                            transaction.reference,
                         )
                     elif charge_status in ["failed", "canceled"]:
                         error_message = (
@@ -243,7 +247,8 @@ class PagarmeController(http.Controller):
                     # No charges found, set as pending and wait for webhook
                     transaction._set_pending()
                     _logger.warning(
-                        "Pagar.me: No charges found for transaction %s", transaction.reference
+                        "Pagar.me: No charges found for transaction %s",
+                        transaction.reference,
                     )
 
                 return {"success": True}
@@ -265,27 +270,37 @@ class PagarmeController(http.Controller):
 
         except requests.exceptions.Timeout:
             error_msg = "Request timeout - Pagar.me API não respondeu"
-            _logger.error("Pagar.me: %s for transaction %s", error_msg, transaction.reference)
+            _logger.error(
+                "Pagar.me: %s for transaction %s", error_msg, transaction.reference
+            )
             transaction._set_error(error_msg)
             return {"success": False, "error": error_msg}
         except requests.exceptions.ConnectionError:
             error_msg = "Connection error - Não foi possível conectar à API do Pagar.me"
-            _logger.error("Pagar.me: %s for transaction %s", error_msg, transaction.reference)
+            _logger.error(
+                "Pagar.me: %s for transaction %s", error_msg, transaction.reference
+            )
             transaction._set_error(error_msg)
             return {"success": False, "error": error_msg}
         except requests.exceptions.HTTPError as e:
             error_msg = f"HTTP error {e.response.status_code}"
-            _logger.error("Pagar.me: %s for transaction %s", error_msg, transaction.reference)
+            _logger.error(
+                "Pagar.me: %s for transaction %s", error_msg, transaction.reference
+            )
             transaction._set_error(error_msg)
             return {"success": False, "error": error_msg}
         except requests.RequestException as e:
             error_msg = f"Request failed: {str(e)}"
-            _logger.error("Pagar.me: %s for transaction %s", error_msg, transaction.reference)
+            _logger.error(
+                "Pagar.me: %s for transaction %s", error_msg, transaction.reference
+            )
             transaction._set_error(error_msg)
             return {"success": False, "error": error_msg}
         except Exception as e:
             error_msg = f"Unexpected error: {str(e)}"
-            _logger.error("Pagar.me: %s for transaction %s", error_msg, transaction.reference)
+            _logger.error(
+                "Pagar.me: %s for transaction %s", error_msg, transaction.reference
+            )
             transaction._set_error(error_msg)
             return {"success": False, "error": error_msg}
 
