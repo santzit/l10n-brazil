@@ -14,4 +14,6 @@ class PaymentPagarmeController(http.Controller):
         :param dict data: The simulated notification data.
         :return: None
         """
-        request.env['payment.transaction'].sudo()._handle_notification_data('pagarme', data)
+        request.env['payment.transaction'].sudo()._handle_notification_data(
+            'pagarme', data
+        )

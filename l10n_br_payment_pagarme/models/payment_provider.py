@@ -3,13 +3,15 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
-from odoo.addons.l10n_br_payment_pagarme import const
+from . import const
 
 
 class PaymentProvider(models.Model):
     _inherit = 'payment.provider'
 
-    code = fields.Selection(selection_add=[('pagarme', 'Pagar.me')], ondelete={'pagarme': 'set default'})
+    code = fields.Selection(
+        selection_add=[('pagarme', 'Pagar.me')], ondelete={'pagarme': 'set default'}
+    )
 
     #=== COMPUTE METHODS ===#
 
@@ -22,12 +24,15 @@ class PaymentProvider(models.Model):
             'support_refund': 'partial',
             'support_tokenization': True,
         })
+        return super()._compute_feature_support_fields()
 
     # === CONSTRAINT METHODS ===#
 
     @api.constrains('state', 'code')
     def _check_provider_state(self):
-        if self.filtered(lambda p: p.code == 'pagarme' and p.state not in ('test', 'disabled')):
+        if self.filtered(
+            lambda p: p.code == 'pagarme' and p.state not in ('test', 'disabled')
+        ):
             raise UserError(_("Pagar.me providers should never be enabled."))
 
     def _get_default_payment_method_codes(self):
