@@ -1,59 +1,64 @@
-// Use odoo framework for payment form extension
-odoo.define('l10n_br_payment_pagarme.payment_form', function (require) {
+odoo.define('payment_demo.payment_form', require => {
     'use strict';
 
-    var core = require('web.core');
-    var PaymentForm = require('payment.payment_form');
-    var paymentPagarmeMixin = require('l10n_br_payment_pagarme.payment_pagarme_mixin');
+    const checkoutForm = require('payment.checkout_form');
+    const manageForm = require('payment.manage_form');
 
-    PaymentForm.include({
+    const paymentDemoMixin = {
 
-        // #=== DOM MANIPULATION ===#
-
-        /**
-         * Prepare the inline form of Pagar.me for direct payment.
-         *
-         * @override method from payment.payment_form
-         * @private
-         * @param {number} providerId - The id of the selected payment option's provider.
-         * @param {string} providerCode - The code of the selected payment option's provider.
-         * @param {number} paymentOptionId - The id of the selected payment option
-         * @param {string} paymentMethodCode - The code of the selected payment method, if any.
-         * @param {string} flow - The online payment flow of the selected payment option.
-         * @return {void}
-         */
-        _prepareInlineForm: function (providerId, providerCode, paymentOptionId, paymentMethodCode, flow) {
-            if (providerCode !== 'pagarme') {
-                this._super.apply(this, arguments);
-                return;
-            } else if (flow === 'token') {
-                return;
-            }
-            this._setPaymentFlow('direct');
-        },
-
-        // #=== PAYMENT FLOW ===#
+        //--------------------------------------------------------------------------
+        // Private
+        //--------------------------------------------------------------------------
 
         /**
          * Simulate a feedback from a payment provider and redirect the customer to the status page.
          *
-         * @override method from payment.payment_form
+         * @override method from payment.payment_form_mixin
          * @private
-         * @param {string} providerCode - The code of the selected payment option's provider.
-         * @param {number} paymentOptionId - The id of the selected payment option.
-         * @param {string} paymentMethodCode - The code of the selected payment method, if any.
-         * @param {object} processingValues - The processing values of the transaction.
-         * @return {void}
+         * @param {string} code - The code of the provider
+         * @param {number} providerId - The id of the provider handling the transaction
+         * @param {object} processingValues - The processing values of the transaction
+         * @return {Promise}
          */
-        _processDirectFlow: function (providerCode, paymentOptionId, paymentMethodCode, processingValues) {
-            if (providerCode !== 'pagarme') {
-                this._super.apply(this, arguments);
-                return;
+        _processDirectPayment: function (code, providerId, processingValues) {
+            if (code !== 'pagarme') {
+                return this._super(...arguments);
             }
-            paymentPagarmeMixin.processPagarmePayment(processingValues);
+
+            const customerInput = document.getElementById('customer_input').value;
+            const simulatedPaymentState = document.getElementById('simulated_payment_state').value;
+            return this._rpc({
+                route: '/payment/demo/simulate_payment',
+                params: {
+                    'reference': processingValues.reference,
+                    'payment_details': customerInput,
+                    'simulated_state': simulatedPaymentState,
+                },
+            }).then(() => {
+                window.location = '/payment/status';
+            });
         },
 
-    });
-
-    return PaymentForm;
+        /**
+         * Prepare the inline form of Demo for direct payment.
+         *
+         * @override method from payment.payment_form_mixin
+         * @private
+         * @param {string} code - The code of the selected payment option's provider
+         * @param {integer} paymentOptionId - The id of the selected payment option
+         * @param {string} flow - The online payment flow of the selected payment option
+         * @return {Promise}
+         */
+        _prepareInlineForm: function (code, paymentOptionId, flow) {
+            if (code !== 'demo') {
+                return this._super(...arguments);
+            } else if (flow === 'token') {
+                return Promise.resolve();
+            }
+            this._setPaymentFlow('direct');
+            return Promise.resolve()
+        },
+    };
+    checkoutForm.include(paymentDemoMixin);
+    manageForm.include(paymentDemoMixin);
 });
