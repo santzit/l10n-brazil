@@ -2,9 +2,12 @@
 <odoo>
 
     <template id="inline_form">
-        <div t-attf-id="pagarme-container-{{provider_id}}">
+        <form t-attf-id="pagarme-container-{{provider_id}}" 
+              name="pagarme_payment_form" 
+              method="post" 
+              t-attf-action="/payment/pagarme/process">
             <t t-call="l10n_br_payment_pagarme.payment_details"/>
-        </div>
+        </form>
     </template>
 
     <template id="token_inline_form">
