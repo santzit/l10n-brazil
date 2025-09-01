@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
-
     <record id="payment_provider_pagarme" model="payment.provider">
         <field name="code">pagarme</field>
         <field name="state">test</field>
@@ -11,5 +10,4 @@
         <field name="allow_tokenization">True</field>
         <field name="allow_express_checkout">True</field>
     </record>
-
 </odoo>
