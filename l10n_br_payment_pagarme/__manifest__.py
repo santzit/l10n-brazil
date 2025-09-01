@@ -7,7 +7,7 @@
     'sequence': 350,
     'summary': "Payment provider for Pagar.me integration in Brazilian localization.",
     'author': 'Odoo Community Association (OCA)',
-    'depends': ['payment', 'website'],
+    'depends': ['payment'],
     'data': [
         'views/payment_pagarme_templates.xml',
         'views/payment_provider_views.xml',

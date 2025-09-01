@@ -24,8 +24,7 @@ export default {
             window.location = '/payment/status';
         }).catch(error => {
             if (error instanceof RPCError) {
-                this._displayErrorDialog(_t("Payment processing failed"), error.data.message);
-                this._enableButton?.(); // This method doesn't exists in Express Checkout form.
+                alert(_t("Payment processing failed: ") + error.data.message);
             } else {
                 return Promise.reject(error);
             }

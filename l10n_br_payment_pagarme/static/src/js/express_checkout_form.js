@@ -1,31 +1,25 @@
 /** @odoo-module */
 
 import {_t} from '@web/core/l10n/translation';
-import publicWidget from '@web/legacy/js/public/public_widget';
-import { ConfirmationDialog } from '@web/core/confirmation_dialog/confirmation_dialog';
 import { rpc } from '@web/core/network/rpc';
 import { debounce } from '@web/core/utils/timing';
 
 import paymentPagarmeMixin from './payment_pagarme_mixin';
 
-publicWidget.registry.paymentExpressCheckoutFormPagarme = publicWidget.Widget.extend({
-    selector: '.o_payment_express_checkout_form[data-provider-code="pagarme"]',
-    events: {
-        'click button[name="o_payment_submit_button"]': '_initiateExpressPayment',
-    },
+// Simple payment widget without using publicWidget to avoid website dependency
+export class PaymentExpressCheckoutFormPagarme {
+    constructor(element) {
+        this.element = element;
+        this.init();
+    }
 
-    // #=== WIDGET LIFECYCLE ===#
-
-    /**
-     * @override
-     */
-    start: async function () {
-        await this._super(...arguments);
-        document.querySelector('[name="o_payment_submit_button"]')?.removeAttribute('disabled');
-        this._initiateExpressPayment = debounce(this._initiateExpressPayment, 500, true);
-    },
-
-    // #=== EVENT HANDLERS ===#
+    init() {
+        const submitButton = this.element.querySelector('button[name="o_payment_submit_button"]');
+        if (submitButton) {
+            submitButton.removeAttribute('disabled');
+            submitButton.addEventListener('click', debounce(this._initiateExpressPayment.bind(this), 500, true));
+        }
+    }
 
     /**
      * Process the payment.
@@ -65,10 +59,7 @@ publicWidget.registry.paymentExpressCheckoutFormPagarme = publicWidget.Widget.ex
                 const id = parseInt(delivery_methods[0].id);
                 await rpc('/shop/set_delivery_method', {dm_id: id});
             } else {
-                this.call('dialog', 'add', ConfirmationDialog, {
-                    title: _t("Validation Error"),
-                    body: _t("No delivery method is available."),
-                });
+                alert(_t("No delivery method is available."));
                 return;
             }
         }
@@ -94,5 +85,21 @@ publicWidget.registry.paymentExpressCheckoutFormPagarme = publicWidget.Widget.ex
             this._prepareTransactionRouteParams(providerId),
         )
         paymentPagarmeMixin.processPagarmePayment(processingValues);
-    },
+    }
+
+    _prepareTransactionRouteParams(providerId) {
+        return {
+            'provider_id': providerId,
+            'payment_method_code': 'pagarme',
+            'flow': 'direct',
+        };
+    }
+}
+
+// Initialize widgets when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    const expressCheckoutForms = document.querySelectorAll('.o_payment_express_checkout_form[data-provider-code="pagarme"]');
+    expressCheckoutForms.forEach(form => {
+        new PaymentExpressCheckoutFormPagarme(form);
+    });
 });
