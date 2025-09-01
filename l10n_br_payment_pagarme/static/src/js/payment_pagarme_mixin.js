@@ -1,8 +1,5 @@
 /** @odoo-module **/
 
-import { _t } from "@web/core/l10n/translation";
-import { rpc, RPCError } from "@web/core/network/rpc";
-
 export default {
 
     /**
@@ -16,17 +13,22 @@ export default {
         const customerInput = document.getElementById('customer_input').value;
         const simulatedPaymentState = document.getElementById('simulated_payment_state').value;
 
-        rpc('/payment/pagarme/simulate_payment', {
-            'reference': processingValues.reference,
-            'payment_details': customerInput,
-            'simulated_state': simulatedPaymentState,
-        }).then(() => {
-            window.location = '/payment/status';
-        }).catch(error => {
-            if (error instanceof RPCError) {
-                alert(_t("Payment processing failed: ") + error.data.message);
-            } else {
-                return Promise.reject(error);
+        // Use jQuery AJAX which is available in Odoo frontend
+        $.ajax({
+            url: '/payment/pagarme/simulate_payment',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                'reference': processingValues.reference,
+                'payment_details': customerInput,
+                'simulated_state': simulatedPaymentState,
+                'csrf_token': $('input[name="csrf_token"]').val()
+            },
+            success: function() {
+                window.location = '/payment/status';
+            },
+            error: function(xhr, status, error) {
+                alert("Payment processing failed: " + (xhr.responseJSON?.error || error));
             }
         });
     },
