@@ -93,61 +93,66 @@ const pagarmePaymentMixin = {
             }
 
             try {
-                // Trigger form submission to let Pagar.me handle tokenization
-                // Pagar.me will automatically add 'pagarmetoken' field to the form
+                // Get card data directly from form fields
                 const container = this._getPaymentContainer();
                 if (!container) {
                     reject(new Error('Container de pagamento não encontrado'));
                     return;
                 }
 
-                // Create a temporary form to trigger Pagar.me tokenization
-                const tempForm = document.createElement('form');
-                tempForm.style.display = 'none';
-                
-                // Copy all card input fields to temp form
-                const cardFields = container.querySelectorAll('[data-pagarme-checkout-element]');
-                cardFields.forEach(field => {
-                    const clone = field.cloneNode(true);
-                    tempForm.appendChild(clone);
+                const cardData = this._getCardDataFromForm(container);
+                if (!cardData) {
+                    reject(new Error('Falha ao obter dados do cartão'));
+                    return;
+                }
+
+                // Call Pagar.me tokenization API directly
+                console.log('Pagar.me: Calling tokenization API directly...');
+                window.PagarMeTokenize.create(cardData).then((cardToken) => {
+                    console.log('Pagar.me: Token generated successfully');
+                    resolve(cardToken);
+                }).catch((error) => {
+                    console.error('Pagar.me: Tokenization failed:', error);
+                    reject(new Error('Falha na tokenização: ' + (error.message || 'Erro desconhecido')));
                 });
-
-                document.body.appendChild(tempForm);
-
-                // Listen for pagarmetoken creation
-                const checkForToken = () => {
-                    const tokenField = tempForm.querySelector('input[name="pagarmetoken"]');
-                    if (tokenField && tokenField.value) {
-                        console.log('Pagar.me: Token generated successfully');
-                        const token = tokenField.value;
-                        document.body.removeChild(tempForm);
-                        resolve(token);
-                    } else {
-                        // Check again after a short delay
-                        setTimeout(checkForToken, 100);
-                    }
-                };
-
-                // Submit the form to trigger Pagar.me tokenization
-                const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-                tempForm.dispatchEvent(submitEvent);
-                
-                // Start checking for the token
-                setTimeout(checkForToken, 100);
-                
-                // Timeout after 10 seconds
-                setTimeout(() => {
-                    if (document.body.contains(tempForm)) {
-                        document.body.removeChild(tempForm);
-                        reject(new Error('Timeout na tokenização'));
-                    }
-                }, 10000);
 
             } catch (error) {
                 console.error('Pagar.me: Error during tokenization:', error);
                 reject(error);
             }
         });
+    },
+
+    /**
+     * Extract card data from form fields for direct tokenization
+     * @private
+     * @param {Element} container - The payment container element
+     * @return {Object|null} Card data object or null if failed
+     */
+    _getCardDataFromForm: function(container) {
+        try {
+            const cardNumber = container.querySelector('[data-pagarme-checkout-element="card-number"]')?.value?.replace(/\s/g, '');
+            const cardHolderName = container.querySelector('[data-pagarme-checkout-element="cardholder-name"]')?.value;
+            const cardExpiryMonth = container.querySelector('[data-pagarme-checkout-element="card-expiry-month"]')?.value;
+            const cardExpiryYear = container.querySelector('[data-pagarme-checkout-element="card-expiry-year"]')?.value;
+            const cardCvv = container.querySelector('[data-pagarme-checkout-element="card-cvv"]')?.value;
+
+            if (!cardNumber || !cardHolderName || !cardExpiryMonth || !cardExpiryYear || !cardCvv) {
+                console.error('Pagar.me: Missing required card data');
+                return null;
+            }
+
+            return {
+                card_number: cardNumber,
+                card_holder_name: cardHolderName,
+                card_expiry_month: cardExpiryMonth,
+                card_expiry_year: cardExpiryYear,
+                card_cvv: cardCvv
+            };
+        } catch (error) {
+            console.error('Pagar.me: Error extracting card data:', error);
+            return null;
+        }
     },
 
     /**
