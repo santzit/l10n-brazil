@@ -4,11 +4,11 @@
         <field name="name">Pagar.me</field>
         <field name="code">pagarme</field>
         <field name="state">test</field>
-        <field name="is_published">True</field>
+        <field name="is_published">1</field>
         <field name="inline_form_view_id" ref="inline_form"/>
         <field name="token_inline_form_view_id" ref="token_inline_form"/>
         <field name="express_checkout_form_view_id" ref="express_checkout_form"/>
-        <field name="allow_tokenization">True</field>
-        <field name="allow_express_checkout">True</field>
+        <field name="allow_tokenization">1</field>
+        <field name="allow_express_checkout">1</field>
     </record>
 </odoo>
