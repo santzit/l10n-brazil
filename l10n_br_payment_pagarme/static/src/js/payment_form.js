@@ -1,13 +1,10 @@
-/** @odoo-module **/
-
-import paymentPagarmeMixin from './payment_pagarme_mixin';
-
 // Use odoo framework for payment form extension
 odoo.define('l10n_br_payment_pagarme.payment_form', function (require) {
     'use strict';
 
     var core = require('web.core');
     var PaymentForm = require('payment.payment_form');
+    var paymentPagarmeMixin = require('l10n_br_payment_pagarme.payment_pagarme_mixin');
 
     PaymentForm.include({
 

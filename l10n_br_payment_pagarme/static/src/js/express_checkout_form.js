@@ -1,12 +1,9 @@
-/** @odoo-module */
-
-import paymentPagarmeMixin from './payment_pagarme_mixin';
-
 // Simple payment widget without complex framework dependencies
 odoo.define('l10n_br_payment_pagarme.express_checkout', function (require) {
     'use strict';
 
     var core = require('web.core');
+    var paymentPagarmeMixin = require('l10n_br_payment_pagarme.payment_pagarme_mixin');
     var _t = core._t;
 
     var PaymentExpressCheckoutFormPagarme = core.Class.extend({
