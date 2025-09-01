@@ -4,12 +4,12 @@
     <record id="payment.payment_provider_pagarme" model="payment.provider">
         <field name="code">pagarme</field>
         <field name="state">test</field>
-        <field name="is_published">True</field>
+        <field name="is_published">true</field>
         <field name="inline_form_view_id" ref="inline_form"/>
         <field name="token_inline_form_view_id" ref="token_inline_form"/>
         <field name="express_checkout_form_view_id" ref="express_checkout_form"/>
-        <field name="allow_tokenization">True</field>
-        <field name="allow_express_checkout">True</field>
+        <field name="allow_tokenization">true</field>
+        <field name="allow_express_checkout">true</field>
         <field name="payment_method_ids"
                eval="[Command.set([
                          ref('l10n_br_payment_pagarme.payment_method_pagarme'),
