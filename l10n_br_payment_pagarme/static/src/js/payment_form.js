@@ -1,7 +1,7 @@
 /** @odoo-module **/
 
 import paymentForm from '@payment/js/payment_form';
-import paymentPagarmeMixin from '@l10n_br_payment_pagarme/js/payment_pagarme_mixin';
+import paymentPagarmeMixin from './payment_pagarme_mixin';
 
 paymentForm.include({
 

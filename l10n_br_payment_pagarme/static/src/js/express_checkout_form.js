@@ -6,13 +6,13 @@ import { ConfirmationDialog } from '@web/core/confirmation_dialog/confirmation_d
 import { rpc } from '@web/core/network/rpc';
 import { debounce } from '@web/core/utils/timing';
 
-import { paymentExpressCheckoutForm } from '@payment/js/express_checkout_form';
-import paymentPagarmeMixin from '@l10n_br_payment_pagarme/js/payment_pagarme_mixin';
+import paymentPagarmeMixin from './payment_pagarme_mixin';
 
-paymentExpressCheckoutForm.include({
-    events: Object.assign({}, publicWidget.Widget.prototype.events, {
+publicWidget.registry.paymentExpressCheckoutFormPagarme = publicWidget.Widget.extend({
+    selector: '.o_payment_express_checkout_form[data-provider-code="pagarme"]',
+    events: {
         'click button[name="o_payment_submit_button"]': '_initiateExpressPayment',
-    }),
+    },
 
     // #=== WIDGET LIFECYCLE ===#
 

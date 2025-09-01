@@ -7,7 +7,7 @@
     'sequence': 350,
     'summary': "Payment provider for Pagar.me integration in Brazilian localization.",
     'author': 'Odoo Community Association (OCA)',
-    'depends': ['payment'],
+    'depends': ['payment', 'website'],
     'data': [
         'views/payment_pagarme_templates.xml',
         'views/payment_provider_views.xml',
@@ -20,7 +20,9 @@
     'uninstall_hook': 'uninstall_hook',
     'assets': {
         'web.assets_frontend': [
-            'l10n_br_payment_pagarme/static/src/js/**/*',
+            'l10n_br_payment_pagarme/static/src/js/payment_pagarme_mixin.js',
+            'l10n_br_payment_pagarme/static/src/js/payment_form.js',
+            'l10n_br_payment_pagarme/static/src/js/express_checkout_form.js',
         ],
     },
     'license': 'LGPL-3',
