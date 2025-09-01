@@ -10,9 +10,6 @@
         <field name="express_checkout_form_view_id" ref="express_checkout_form"/>
         <field name="allow_tokenization">1</field>
         <field name="allow_express_checkout">1</field>
-        <field name="payment_method_ids"
-               eval="[(6, 0, [ref('l10n_br_payment_pagarme.payment_method_pagarme')])]"
-        />
     </record>
 
 </odoo>
