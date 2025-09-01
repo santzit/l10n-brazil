@@ -29,17 +29,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install addons and dependencies using OCA tools
-        run: |
-          echo "Using OCA standard installation process..."
-          export INCLUDE="l10n_br_payment_pagarme,l10n_br_base"
-          export EXCLUDE=""
-          oca_install_addons
 
       - name: Initialize test database
         run: |
           echo "Initializing test database with OCA tools..."
-          export INCLUDE="l10n_br_payment_pagarme,l10n_br_base"
+          export INCLUDE="l10n_br_payment_pagarme"
           export EXCLUDE=""
           oca_init_test_database
 
@@ -48,7 +42,7 @@ jobs:
           echo "Running tests for l10n_br_payment_pagarme module only..."
           echo "Available test files:"
           find l10n_br_payment_pagarme/tests/ -name "*.py" -exec echo "  {}" \;
-          export INCLUDE="l10n_br_payment_pagarme,l10n_br_base"
+          export INCLUDE="l10n_br_payment_pagarme"
           export EXCLUDE=""
           echo "Environment:"
           echo "  INCLUDE=$INCLUDE"
