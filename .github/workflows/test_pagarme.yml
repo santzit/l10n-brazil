@@ -29,7 +29,15 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Install addons and dependencies using OCA tools
+        run: |
+          echo "Using OCA standard installation process..."
+          export INCLUDE="l10n_br_payment_pagarme"
+          export INCLUDE="l10n_br_payment_pagarme"
+          export EXCLUDE=""
+          oca_install_addons
 
+          
       - name: Initialize test database
         run: |
           echo "Initializing test database with OCA tools..."
