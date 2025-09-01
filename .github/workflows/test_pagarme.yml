@@ -32,14 +32,14 @@ jobs:
       - name: Install addons and dependencies using OCA tools
         run: |
           echo "Using OCA standard installation process..."
-          export INCLUDE="l10n_br_payment_pagarme"
+          export INCLUDE="l10n_br_payment_pagarme,l10n_br_base"
           export EXCLUDE=""
           oca_install_addons
 
       - name: Initialize test database
         run: |
           echo "Initializing test database with OCA tools..."
-          export INCLUDE="l10n_br_payment_pagarme"
+          export INCLUDE="l10n_br_payment_pagarme,l10n_br_base"
           export EXCLUDE=""
           oca_init_test_database
 
@@ -48,7 +48,7 @@ jobs:
           echo "Running tests for l10n_br_payment_pagarme module only..."
           echo "Available test files:"
           find l10n_br_payment_pagarme/tests/ -name "*.py" -exec echo "  {}" \;
-          export INCLUDE="l10n_br_payment_pagarme"
+          export INCLUDE="l10n_br_payment_pagarme,l10n_br_base"
           export EXCLUDE=""
           echo "Environment:"
           echo "  INCLUDE=$INCLUDE"
@@ -64,7 +64,7 @@ jobs:
           echo "Validating XML files..."
           python3 -c "
           import xml.etree.ElementTree as ET
-          files = ['l10n_br_payment_pagarme/data/pagarme_provider.xml', 'l10n_br_payment_pagarme/views/payment_provider_views.xml', 'l10n_br_payment_pagarme/views/payment_templates.xml']
+          files = ['l10n_br_payment_pagarme/data/payment_provider_data.xml', 'l10n_br_payment_pagarme/data/payment_method_data.xml', 'l10n_br_payment_pagarme/views/payment_provider_views.xml', 'l10n_br_payment_pagarme/views/payment_pagarme_templates.xml']
           for f in files:
               try:
                   ET.parse(f)
