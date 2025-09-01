@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
     <record id="payment_provider_pagarme" model="payment.provider">
+        <field name="name">Pagar.me</field>
         <field name="code">pagarme</field>
         <field name="state">test</field>
         <field name="is_published">True</field>
