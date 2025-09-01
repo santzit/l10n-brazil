@@ -27,6 +27,15 @@ paymentForm.include({
             return;
         }
         this._setPaymentFlow('direct');
+        
+        // Prevent form submission for pagarme forms
+        const pagarmeForm = document.querySelector(`#pagarme-container-${providerId}`);
+        if (pagarmeForm) {
+            pagarmeForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                return false;
+            });
+        }
     },
 
     // #=== PAYMENT FLOW ===#
