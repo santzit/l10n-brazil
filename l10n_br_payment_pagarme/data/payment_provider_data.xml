@@ -11,9 +11,7 @@
         <field name="allow_tokenization">true</field>
         <field name="allow_express_checkout">true</field>
         <field name="payment_method_ids"
-               eval="[Command.set([
-                         ref('l10n_br_payment_pagarme.payment_method_pagarme'),
-                     ])]"
+               eval="[(6, 0, [ref('l10n_br_payment_pagarme.payment_method_pagarme')])]"
         />
     </record>
 

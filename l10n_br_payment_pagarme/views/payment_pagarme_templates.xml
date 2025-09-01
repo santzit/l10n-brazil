@@ -171,7 +171,7 @@
                         </label>
                         <select id="o_payment_pagarme_shipping_country"
                                 class="form-select"
-                                disabled="true"
+                                disabled="1"
                         >
                             <option t-att-value="customer.country_id.code or 'BE'"
                                     t-out="customer.country_id.name or 'Belgium'"
