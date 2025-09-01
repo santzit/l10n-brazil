@@ -1,9 +1,10 @@
-/** @odoo-module **/
+odoo.define('l10n_br_payment_pagarme.payment_form', require => {
+    'use strict';
 
-import checkoutForm from 'payment.checkout_form';
-import manageForm from 'payment.manage_form';
+    const checkoutForm = require('payment.checkout_form');
+    const manageForm = require('payment.manage_form');
 
-const pagarmePaymentMixin = {
+    const pagarmePaymentMixin = {
 
     //--------------------------------------------------------------------------
     // Private
@@ -331,3 +332,4 @@ const pagarmePaymentMixin = {
 
 checkoutForm.include(pagarmePaymentMixin);
 manageForm.include(pagarmePaymentMixin);
+});
