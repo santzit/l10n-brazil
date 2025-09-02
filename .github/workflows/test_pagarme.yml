@@ -1,0 +1,56 @@
+name: Test l10n_br_payment_pagarme
+
+on:
+  pull_request:
+    branches:
+      - "copilot/fix-*"
+  push:
+    branches:
+      - "copilot/fix-*"
+
+jobs:
+  test_pagarme:
+    runs-on: ubuntu-22.04
+    container: ghcr.io/oca/oca-ci/py3.10-odoo16.0:latest
+    name: Test Pagar.me Payment Module
+    
+    services:
+      postgres:
+        image: postgres:12.0
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: odoo
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install addons and dependencies using OCA tools
+        run: |
+          echo "Using OCA standard installation process..."
+          export INCLUDE="l10n_br_payment_pagarme"
+          export EXCLUDE=""
+          oca_install_addons
+
+      - name: Initialize test database
+        run: |
+          echo "Initializing test database with OCA tools..."
+          export INCLUDE="l10n_br_payment_pagarme"
+          export EXCLUDE=""
+          oca_init_test_database
+
+      - name: Run tests for l10n_br_payment_pagarme only
+        run: |
+          echo "Running tests for l10n_br_payment_pagarme module only..."
+          echo "Available test files:"
+          find l10n_br_payment_pagarme/tests/ -name "*.py" -exec echo "  {}" \;
+          export INCLUDE="l10n_br_payment_pagarme"
+          export EXCLUDE=""
+          echo "Environment:"
+          echo "  INCLUDE=$INCLUDE"
+          echo "  EXCLUDE=$EXCLUDE"
+          oca_run_tests
