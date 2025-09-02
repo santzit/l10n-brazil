@@ -27,7 +27,6 @@ class TestXMLValidation(TransactionCase):
                 "fiscal_operation_id": self.env.ref("l10n_br_fiscal.fo_venda").id,
             }
         )
-        document._onchange_fiscal_operation_id()
         line = document_line_model.create(
             {
                 "document_id": document.id,
@@ -39,7 +38,6 @@ class TestXMLValidation(TransactionCase):
             }
         )
         line._onchange_product_id_fiscal()
-        line._onchange_fiscal_operation_line_id()
         document.action_document_confirm()
         document.action_document_send()
         _logger.info(
@@ -66,7 +64,6 @@ class TestXMLValidation(TransactionCase):
                 "fiscal_operation_id": self.env.ref("l10n_br_fiscal.fo_venda").id,
             }
         )
-        document._onchange_fiscal_operation_id()
 
         # Line 1
         line = document_line_model.create(
@@ -80,7 +77,6 @@ class TestXMLValidation(TransactionCase):
             }
         )
         line._onchange_product_id_fiscal()
-        line._onchange_fiscal_operation_line_id()
 
         # Force taxes
         line.update(
@@ -111,7 +107,6 @@ class TestXMLValidation(TransactionCase):
             }
         )
         line2._onchange_product_id_fiscal()
-        line2._onchange_fiscal_operation_line_id()
 
         # Force taxes
         line2.update(

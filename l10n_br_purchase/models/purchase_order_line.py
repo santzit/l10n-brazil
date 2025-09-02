@@ -38,14 +38,6 @@ class PurchaseOrderLine(models.Model):
         "('state', '=', 'approved')]",
     )
 
-    fiscal_tax_ids = fields.Many2many(
-        comodel_name="l10n_br_fiscal.tax",
-        relation="fiscal_purchase_line_tax_rel",
-        column1="document_id",
-        column2="fiscal_tax_id",
-        string="Fiscal Taxes",
-    )
-
     # overriden to disable precompute as it depends on price_unit which is not
     # precompute in the purchase module. We don't need precompute in purchase.
     fiscal_price = fields.Float(
@@ -87,6 +79,18 @@ class PurchaseOrderLine(models.Model):
         related="company_id.delivery_costs",
     )
 
+    def _get_fiscal_tax_ids_dependencies(self):
+        fields = super()._get_fiscal_tax_ids_dependencies()
+        fields.remove("company_id")
+        fields.remove("partner_id")
+        return fields
+
+    def _get_tax_fields_dependencies(self):
+        fields = super()._get_tax_fields_dependencies()
+        fields.remove("price_unit")
+        fields.remove("fiscal_price")
+        return fields
+
     @api.depends(
         "product_uom_qty",
         "price_unit",
@@ -103,11 +107,7 @@ class PurchaseOrderLine(models.Model):
         result = super()._compute_amount()
         for line in self:
             if line.fiscal_operation_id:
-                # Update taxes fields
-                line._update_fiscal_taxes()
-                # Call mixin compute method
-                line._compute_fiscal_amounts()
-                # Update record
+                line._compute_tax_fields()  # TODO is it required?
                 line.update(
                     {
                         "price_subtotal": line.amount_untaxed,
@@ -122,7 +122,9 @@ class PurchaseOrderLine(models.Model):
             if line.fiscal_operation_line_id:
                 res = super()._compute_tax_id()
                 line.taxes_id = line.fiscal_tax_ids.account_taxes(
-                    user_type="purchase", fiscal_operation=line.fiscal_operation_id
+                    user_type="purchase",
+                    fiscal_operation=line.fiscal_operation_id,
+                    company=line.company_id,
                 )
             else:
                 res = None
@@ -131,13 +133,11 @@ class PurchaseOrderLine(models.Model):
     @api.onchange("fiscal_tax_ids")
     def _onchange_fiscal_tax_ids(self):
         if self.fiscal_operation_line_id:
-            res = super()._onchange_fiscal_tax_ids()
             self.taxes_id = self.fiscal_tax_ids.account_taxes(
-                user_type="purchase", fiscal_operation=self.fiscal_operation_id
+                user_type="purchase",
+                fiscal_operation=self.fiscal_operation_id,
+                company=self.company_id,
             )
-        else:
-            res = None
-        return res
 
     def _prepare_account_move_line(self, move=False):
         values = super()._prepare_account_move_line(move)

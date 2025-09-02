@@ -14,7 +14,8 @@ from nfelib.mdfe.bindings.v3_0.mdfe_v3_00 import Mdfe
 from nfelib.nfe.ws.edoc_legacy import MDFeAdapter as edoc_mdfe
 from requests import Session
 
-from odoo import Command, api, fields
+from odoo import Command, _, api, fields
+from odoo.exceptions import UserError
 
 from odoo.addons.l10n_br_fiscal.constants.fiscal import (
     EVENT_ENV_HML,
@@ -744,6 +745,15 @@ class MDFe(spec_models.StackedModel):
             if total_dfe != 1:
                 self.mdfe30_prodPred.mdfe30_NCM = False
 
+            elif total_dfe == 1 and not self.mdfe30_infPag:
+                raise UserError(
+                    _(
+                        "Payment information (infPag) "
+                        "must be provided when the MDF-e contains "
+                        "only one DF-e (full load)."
+                    )
+                )
+
             cep_carrega, cep_descarrega = None, None
 
             if len(cte_ids) == 1 or len(nfe_ids) == 1 or len(mdfe_ids) == 1:
@@ -942,9 +952,11 @@ class MDFe(spec_models.StackedModel):
             date = fields.Datetime.context_timestamp(record, record.document_date)
             chave_edoc = ChaveEdoc(
                 ano_mes=date.strftime("%y%m").zfill(4),
-                cnpj_cpf_emitente=record.company_cnpj_cpf,
+                cnpj_cpf_emitente=record.company_id.vat,
                 codigo_uf=(
-                    record.company_state_id and record.company_state_id.ibge_code or ""
+                    record.company_id.state_id
+                    and record.company_id.state_id.ibge_code
+                    or ""
                 ),
                 forma_emissao=int(self.mdfe_transmission),
                 modelo_documento=record.document_type_id.code or "",

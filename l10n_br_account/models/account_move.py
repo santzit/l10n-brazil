@@ -274,14 +274,11 @@ class AccountMove(models.Model):
                     move.is_invoice(include_receipts=True)
                     and line.display_type == "product"
                 ):
-                    line._update_fiscal_taxes()
+                    line._compute_tax_fields()
 
         result = super()._compute_amount()
         for move in self.filtered(lambda m: m.fiscal_operation_id):
-            if move.move_type == "entry" or move.is_outbound():
-                sign = -1
-            else:
-                sign = 1
+            sign = -move.direction_sign
             inv_line_ids = move.line_ids.filtered(
                 lambda line: line.display_type == "product"
                 and (not line.cfop_id or line.cfop_id.finance_move)
@@ -466,12 +463,15 @@ class AccountMove(models.Model):
         self.clear_caches()
         return result
 
-    @api.onchange("fiscal_operation_id")
-    def _onchange_fiscal_operation_id(self):
-        result = super()._onchange_fiscal_operation_id()
-        if self.fiscal_operation_id and self.fiscal_operation_id.journal_id:
-            self.journal_id = self.fiscal_operation_id.journal_id
-        return result
+    @api.depends("move_type", "fiscal_operation_id")
+    def _compute_journal_id(self):
+        fisc_operation_driven = self.filtered(
+            lambda move: move.fiscal_operation_id
+            and move.fiscal_operation_id.journal_id
+        )
+        for move in fisc_operation_driven:
+            move.journal_id = self.fiscal_operation_id.journal_id
+        return super(AccountMove, self - fisc_operation_driven)._compute_journal_id()
 
     def open_fiscal_document(self):
         """
@@ -595,7 +595,6 @@ class AccountMove(models.Model):
                 force_fiscal_operation_id
                 or record.fiscal_operation_id.return_fiscal_operation_id
             )
-            record._onchange_fiscal_operation_id()
 
             for line in record.invoice_line_ids:
                 if (

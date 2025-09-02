@@ -1957,6 +1957,9 @@ msgid "Fiscal Documents"
 msgstr ""
 
 #. module: l10n_br_account
+#: model:ir.model.fields,field_description:l10n_br_account.field_account_bank_statement_line__incoterm_id
+#: model:ir.model.fields,field_description:l10n_br_account.field_account_move__incoterm_id
+#: model:ir.model.fields,field_description:l10n_br_account.field_account_payment__incoterm_id
 #: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_document__incoterm_id
 msgid "Fiscal Inconterm"
 msgstr ""
@@ -3414,6 +3417,9 @@ msgid "Insurance Value"
 msgstr ""
 
 #. module: l10n_br_account
+#: model:ir.model.fields,help:l10n_br_account.field_account_bank_statement_line__incoterm_id
+#: model:ir.model.fields,help:l10n_br_account.field_account_move__incoterm_id
+#: model:ir.model.fields,help:l10n_br_account.field_account_payment__incoterm_id
 #: model:ir.model.fields,help:l10n_br_account.field_l10n_br_fiscal_document__incoterm_id
 msgid ""
 "International Commercial Terms are a series of predefined commercial terms "
@@ -4121,8 +4127,7 @@ msgstr ""
 #: model_terms:ir.actions.act_window,help:l10n_br_account.fiscal_invoice_nfse_action
 #: model_terms:ir.actions.act_window,help:l10n_br_account.fiscal_invoice_out_action
 msgid ""
-"Odoo helps you easily track all activities\n"
-"            related to a fiscal operation."
+"Odoo helps you easily track all activities related to a fiscal operation."
 msgstr ""
 
 #. module: l10n_br_account
@@ -5309,6 +5314,11 @@ msgid "Tomador do Serviço"
 msgstr ""
 
 #. module: l10n_br_account
+#: model_terms:ir.ui.view,arch_db:l10n_br_account.fiscal_invoice_form
+msgid "Total"
+msgstr ""
+
+#. module: l10n_br_account
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_bank_statement_line__total_weight
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_move__total_weight
 #: model:ir.model.fields,field_description:l10n_br_account.field_account_payment__total_weight
@@ -5370,6 +5380,7 @@ msgid "UFSaidaPais"
 msgstr ""
 
 #. module: l10n_br_account
+#: model:ir.model.fields,field_description:l10n_br_account.field_account_move_line__uom_id
 #: model:ir.model.fields,field_description:l10n_br_account.field_l10n_br_fiscal_document_line__uom_id
 msgid "UOM"
 msgstr ""
