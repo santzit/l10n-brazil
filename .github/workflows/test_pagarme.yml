@@ -66,7 +66,7 @@ jobs:
           echo "Validating XML files..."
           python3 -c "
           import xml.etree.ElementTree as ET
-          files = ['l10n_br_payment_pagarme/data/payment_provider_data.xml', 'l10n_br_payment_pagarme/views/payment_provider_views.xml', 'l10n_br_payment_pagarme/views/payment_pagarme_templates.xml', 'l10n_br_payment_pagarme/views/payment_token_views.xml', 'l10n_br_payment_pagarme/views/payment_transaction_views.xml']
+          files = ['l10n_br_payment_pagarme/data/payment_provider_data.xml', 'l10n_br_payment_pagarme/views/payment_templates.xml', 'l10n_br_payment_pagarme/views/payment_pagarme_templates.xml', 'l10n_br_payment_pagarme/views/payment_token_views.xml', 'l10n_br_payment_pagarme/views/payment_transaction_views.xml']
           for f in files:
               try:
                   ET.parse(f)
