@@ -1,10 +1,10 @@
-odoo.define('payment_demo.payment_form', require => {
+odoo.define('l10n_br_payment_pagarme.payment_form', require => {
     'use strict';
 
     const checkoutForm = require('payment.checkout_form');
     const manageForm = require('payment.manage_form');
 
-    const paymentDemoMixin = {
+    const paymentPagarmeMixin = {
 
         //--------------------------------------------------------------------------
         // Private
@@ -28,7 +28,7 @@ odoo.define('payment_demo.payment_form', require => {
             const customerInput = document.getElementById('customer_input').value;
             const simulatedPaymentState = document.getElementById('simulated_payment_state').value;
             return this._rpc({
-                route: '/payment/demo/simulate_payment',
+                route: '/payment/pagarme/simulate_payment',
                 params: {
                     'reference': processingValues.reference,
                     'payment_details': customerInput,
@@ -40,7 +40,7 @@ odoo.define('payment_demo.payment_form', require => {
         },
 
         /**
-         * Prepare the inline form of Demo for direct payment.
+         * Prepare the inline form of Pagar.me for direct payment.
          *
          * @override method from payment.payment_form_mixin
          * @private
@@ -50,7 +50,7 @@ odoo.define('payment_demo.payment_form', require => {
          * @return {Promise}
          */
         _prepareInlineForm: function (code, paymentOptionId, flow) {
-            if (code !== 'demo') {
+            if (code !== 'pagarme') {
                 return this._super(...arguments);
             } else if (flow === 'token') {
                 return Promise.resolve();
@@ -59,6 +59,6 @@ odoo.define('payment_demo.payment_form', require => {
             return Promise.resolve()
         },
     };
-    checkoutForm.include(paymentDemoMixin);
-    manageForm.include(paymentDemoMixin);
+    checkoutForm.include(paymentPagarmeMixin);
+    manageForm.include(paymentPagarmeMixin);
 });

@@ -4,11 +4,11 @@ from odoo import http
 from odoo.http import request
 
 
-class PaymentDemoController(http.Controller):
+class PaymentPagarmeController(http.Controller):
     _simulation_url = '/payment/pagarme/simulate_payment'
 
     @http.route(_simulation_url, type='json', auth='public')
-    def demo_simulate_payment(self, **data):
+    def pagarme_simulate_payment(self, **data):
         """ Simulate the response of a payment request.
 
         :param dict data: The simulated notification data.
